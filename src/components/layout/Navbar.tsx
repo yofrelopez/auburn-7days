@@ -55,7 +55,7 @@ export default function Navbar() {
                             <Link
                                 key={link.name}
                                 href={link.href}
-                                className={`text-sm font-medium transition-colors hover:text-sda-gold ${scrolled ? "text-sda-blue-900" : "text-white/90"
+                                className={`text-sm font-medium transition-colors hover:text-secondary ${scrolled ? "text-primary" : "text-white/90"
                                     }`}
                             >
                                 {link.name}
@@ -75,7 +75,7 @@ export default function Navbar() {
                         onClick={() => setIsOpen(!isOpen)}
                         aria-label="Toggle menu"
                     >
-                        <div className={`w-6 h-5 relative flex flex-col justify-between ${scrolled ? "text-sda-blue-900" : "text-white"}`}>
+                        <div className={`w-6 h-5 relative flex flex-col justify-between ${scrolled ? "text-primary" : "text-white"}`}>
                             <span
                                 className={`w-full h-0.5 bg-current rounded-full transition-all duration-300 ${isOpen ? "rotate-45 translate-y-2.5" : ""
                                     }`}
