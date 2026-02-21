@@ -28,6 +28,12 @@
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
 
+  /* Brand Colors */
+  --color-brand-green: #6B6F4C;
+  --color-brand-gold: #b89a3b;
+  --color-brand-light: #f9f9f9;
+  --color-brand-gray: #d3d3d3;
+
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);

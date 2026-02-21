@@ -1,78 +1,521 @@
+"use client";
+
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+    User,
+    Briefcase,
+    Ticket,
+    Users,
+    Home,
+    Utensils,
+    Baby,
+    CheckCircle2,
+    ChevronRight,
+    ChevronLeft,
+    Heart,
+    Star
+} from "lucide-react";
+
+type Step = 1 | 2 | 3 | 4;
+
 export default function RSVP() {
+    const [step, setStep] = useState<Step>(1);
+    const [formData, setFormData] = useState({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        regType: "personal" as "personal" | "business",
+        businessName: "",
+        participation: "individual" as "individual" | "table",
+        amount: "",
+        numGuests: 1,
+        guestNames: "",
+        stayOvernight: "" as "yes" | "no" | "",
+        dietary: "",
+        childCare: "no" as "no" | "yes",
+        numChildren: 1,
+        agesChildren: "",
+        childNeeds: ""
+    });
+
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [errors, setErrors] = useState<string[]>([]);
+
+    const validateStep = (currentStep: Step) => {
+        const newErrors: string[] = [];
+        if (currentStep === 1) {
+            if (!formData.firstName) newErrors.push("First name is required");
+            if (!formData.lastName) newErrors.push("Last name is required");
+            if (!formData.email || !formData.email.includes("@")) newErrors.push("Valid email is required");
+            if (!formData.phone) newErrors.push("Phone number is required");
+        }
+        if (currentStep === 2) {
+            if (formData.regType === "business" && !formData.businessName) newErrors.push("Business name is required for corporate registration");
+            if (!formData.amount || parseInt(formData.amount) <= 0) newErrors.push("A contribution amount is required");
+        }
+        // Step 3 is mostly optional (dietary/childcare), but we could check numGuests
+        if (currentStep === 3) {
+            if (formData.numGuests < 1) newErrors.push("Number of guests must be at least 1");
+        }
+
+        setErrors(newErrors);
+        return newErrors.length === 0;
+    };
+
+    const updateFormData = (field: string, value: any) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        // Clear errors when user types
+        if (errors.length > 0) setErrors([]);
+    };
+
+    const nextStep = () => {
+        if (validateStep(step)) {
+            setStep(prev => (prev < 4 ? (prev + 1) as Step : prev));
+        }
+    };
+    const prevStep = () => {
+        setErrors([]);
+        setStep(prev => (prev > 1 ? (prev - 1) as Step : prev));
+    };
+
+    const handleSubmit = () => {
+        if (validateStep(4)) {
+            // Simulate API call
+            setIsSubmitted(true);
+        }
+    };
+
+    const steps = [
+        { id: 1, title: "Identity", icon: User },
+        { id: 2, title: "Engagement", icon: Ticket },
+        { id: 3, title: "Hospitality", icon: Home },
+        { id: 4, title: "Commitment", icon: Heart },
+    ];
+
     return (
-        <section id="rsvp" className="py-24 bg-white border-t border-border">
-            <div className="container mx-auto px-4 md:px-6">
-                <div className="max-w-3xl mx-auto">
+        <section id="rsvp" className="relative py-24 overflow-hidden bg-brand-light/20">
+            {/* Background Decor */}
+            <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                <div className="absolute top-[-10%] right-[-5%] w-[400px] h-[400px] bg-brand-gold/5 rounded-full blur-[100px]" />
+                <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-brand-green/5 rounded-full blur-[100px]" />
+            </div>
 
-                    <div className="text-center mb-12">
-                        <span className="text-secondary font-bold tracking-widest uppercase mb-4 inline-block">Join Us</span>
-                        <h2 className="text-3xl md:text-4xl font-serif font-bold text-primary mb-6">
-                            Confirm Your Attendance
-                        </h2>
-                        <p className="text-lg text-muted-foreground mb-4">
-                            Please RSVP by <span className="font-bold text-primary">April 15th, 2026</span>
-                        </p>
-                        <p className="text-sm text-primary/60 italic">
-                            * This event is reserved for adults only.
-                        </p>
+            <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
+                <div className="text-center mb-16">
+                    <motion.span
+                        initial={{ opacity: 0, y: 10 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        className="text-brand-gold font-bold tracking-[0.3em] uppercase mb-4 inline-block text-xs"
+                    >
+                        Foundation Gala 2026
+                    </motion.span>
+                    <motion.h2
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="text-4xl md:text-6xl font-serif font-bold text-brand-green mb-6"
+                    >
+                        The Vision Engagement
+                    </motion.h2>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+
+                    {/* Progress Sidebar */}
+                    <div className="lg:col-span-3 space-y-4">
+                        {/* Mobile Step Indicator */}
+                        <div className="lg:hidden flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-brand-green text-white flex items-center justify-center shrink-0">
+                                    {steps.find(s => s.id === step)?.icon &&
+                                        (() => {
+                                            const Icon = steps.find(s => s.id === step)!.icon;
+                                            return <Icon size={16} />;
+                                        })()
+                                    }
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-brand-gold leading-none mb-1">Step 0{step}</p>
+                                    <p className="font-serif font-bold text-brand-green leading-none">{steps.find(s => s.id === step)?.title}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                {[1, 2, 3, 4].map(i => (
+                                    <div key={i} className={`h-1 rounded-full transition-all duration-500 ${step === i ? "w-6 bg-brand-gold" : "w-1.5 bg-brand-gray/20"}`} />
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="hidden lg:block space-y-2">
+                            {steps.map((s) => (
+                                <div
+                                    key={s.id}
+                                    className={`flex items-center gap-4 p-4 rounded-2xl transition-all duration-500 ${step === s.id ? "bg-white shadow-lg border border-brand-gray/10" : "opacity-40"}`}
+                                >
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${step === s.id ? "bg-brand-green text-white" : "bg-brand-gray/20 text-brand-green"}`}>
+                                        <s.icon size={20} />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-bold uppercase tracking-wider text-brand-gold">Step 0{s.id}</p>
+                                        <p className="font-serif font-bold text-brand-green">{s.title}</p>
+                                    </div>
+                                    {step > s.id && (
+                                        <CheckCircle2 size={16} className="ml-auto text-brand-gold" />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Summary Card (Bento Style) */}
+                        <div className="bg-white/40 backdrop-blur-xl border border-white/60 p-6 rounded-[2rem] shadow-sm hidden lg:block">
+                            <h4 className="text-xs font-bold uppercase tracking-widest text-brand-green/60 mb-6 flex items-center gap-2">
+                                <Star size={12} className="text-brand-gold" />
+                                Your Engagement
+                            </h4>
+                            <div className="space-y-4">
+                                {formData.firstName && (
+                                    <div className="animate-in fade-in slide-in-from-left-2 transition-all">
+                                        <p className="text-[10px] text-slate-400 uppercase font-bold">Attendee</p>
+                                        <p className="text-sm font-bold text-brand-green">{formData.firstName} {formData.lastName}</p>
+                                    </div>
+                                )}
+                                {formData.participation && step > 1 && (
+                                    <div className="animate-in fade-in slide-in-from-left-2 transition-all">
+                                        <p className="text-[10px] text-slate-400 uppercase font-bold">Contribution</p>
+                                        <p className="text-sm font-bold text-brand-green">
+                                            {formData.participation === "table" ? "Full Table Sponsor" : "Individual Ticket"}
+                                            {formData.amount && ` • $${formData.amount}`}
+                                        </p>
+                                    </div>
+                                )}
+                                {formData.numGuests > 1 && step > 2 && (
+                                    <div className="animate-in fade-in slide-in-from-left-2 transition-all">
+                                        <p className="text-[10px] text-slate-400 uppercase font-bold">Group size</p>
+                                        <p className="text-sm font-bold text-brand-green">{formData.numGuests} People</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="bg-slate-50 p-8 md:p-10 rounded-3xl border border-border shadow-lg">
-                        <form className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label htmlFor="firstName" className="text-sm font-semibold text-primary">First Name</label>
-                                    <input type="text" id="firstName" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all" placeholder="Enter first name" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label htmlFor="lastName" className="text-sm font-semibold text-primary">Last Name</label>
-                                    <input type="text" id="lastName" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all" placeholder="Enter last name" />
-                                </div>
-                            </div>
+                    {/* Main Form Area */}
+                    <div className="lg:col-span-9 bg-white/60 backdrop-blur-2xl border border-white p-5 md:p-12 rounded-[2rem] md:rounded-[3rem] shadow-2xl relative min-h-[500px] md:min-h-[600px] flex flex-col">
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label htmlFor="email" className="text-sm font-semibold text-primary">Email Address</label>
-                                    <input type="email" id="email" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all" placeholder="john@example.com" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label htmlFor="phone" className="text-sm font-semibold text-primary">Phone Number</label>
-                                    <input type="tel" id="phone" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all" placeholder="(555) 123-4567" />
-                                </div>
-                            </div>
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={step}
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                transition={{ duration: 0.4, ease: "easeOut" }}
+                                className="flex-1"
+                            >
+                                {step === 1 && (
+                                    <div className="space-y-8 md:space-y-10">
+                                        <div>
+                                            <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">Let's start with your identity</h3>
+                                            <p className="text-sm md:text-base text-slate-500">We want to ensure your welcome is personal and meaningful.</p>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+                                            {[
+                                                { id: "firstName", label: "First Name", type: "text", placeholder: "E.g. Michael" },
+                                                { id: "lastName", label: "Last Name", type: "text", placeholder: "E.g. Scott" },
+                                                { id: "email", label: "Digital Address", type: "email", placeholder: "michael@dundermifflin.com" },
+                                                { id: "phone", label: "Phone Line", type: "tel", placeholder: "(555) 000-0000" }
+                                            ].map((f) => (
+                                                <div key={f.id} className="group space-y-2">
+                                                    <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 transition-colors group-focus-within:text-brand-gold">{f.label}</label>
+                                                    <input
+                                                        type={f.type}
+                                                        value={(formData as any)[f.id]}
+                                                        onChange={(e) => updateFormData(f.id, e.target.value)}
+                                                        className="w-full bg-white/80 border border-brand-gray/20 p-4 md:p-5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold outline-none transition-all shadow-sm focus:shadow-md placeholder:text-slate-300 text-sm md:text-base"
+                                                        placeholder={f.placeholder}
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
 
-                            <div className="space-y-2">
-                                <label htmlFor="attendance" className="text-sm font-semibold text-primary">Will you be attending?</label>
-                                <div className="flex space-x-6 pt-2">
-                                    <label className="flex items-center space-x-3 cursor-pointer">
-                                        <input type="radio" name="attendance" value="yes" className="w-5 h-5 text-secondary focus:ring-secondary border-gray-300" />
-                                        <span className="text-primary">Yes, I will attend</span>
-                                    </label>
-                                    <label className="flex items-center space-x-3 cursor-pointer">
-                                        <input type="radio" name="attendance" value="no" className="w-5 h-5 text-secondary focus:ring-secondary border-gray-300" />
-                                        <span className="text-primary">No, I cannot attend</span>
-                                    </label>
-                                </div>
-                            </div>
+                                {step === 2 && (
+                                    <div className="space-y-8 md:space-y-10">
+                                        <div>
+                                            <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">The nature of your engagement</h3>
+                                            <p className="text-sm md:text-base text-slate-500">How would you like to partner with our vision tonight?</p>
+                                        </div>
 
-                            <div className="space-y-2">
-                                <label htmlFor="guests" className="text-sm font-semibold text-primary">Number of Guests (including yourself)</label>
-                                <select id="guests" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all">
-                                    <option value="1">1 Person</option>
-                                    <option value="2">2 People</option>
-                                    <option value="3">3 People</option>
-                                    <option value="4">4 People</option>
-                                </select>
-                            </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                                            {[
+                                                { id: "personal", title: "Personal", desc: "Attending as an individual guest", icon: Heart },
+                                                { id: "business", title: "Corporate", desc: "Representing an organization", icon: Briefcase }
+                                            ].map((t) => (
+                                                <button
+                                                    key={t.id}
+                                                    onClick={() => updateFormData("regType", t.id)}
+                                                    className={`p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-2 text-left transition-all duration-500 group relative overflow-hidden ${formData.regType === t.id ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10 bg-white"}`}
+                                                >
+                                                    <t.icon className={`mb-3 md:mb-4 transition-colors ${formData.regType === t.id ? "text-brand-gold" : "text-brand-green/20"}`} size={28} />
+                                                    <p className={`font-bold text-lg md:text-xl mb-1 ${formData.regType === t.id ? "text-brand-green" : "text-slate-700"}`}>{t.title}</p>
+                                                    <p className="text-[10px] md:text-xs text-slate-400">{t.desc}</p>
+                                                    {formData.regType === t.id && (
+                                                        <motion.div layoutId="selection" className="absolute top-4 right-4 text-brand-gold">
+                                                            <CheckCircle2 size={20} className="md:w-6 md:h-6" />
+                                                        </motion.div>
+                                                    )}
+                                                </button>
+                                            ))}
+                                        </div>
 
-                            <button type="button" className="w-full bg-secondary hover:bg-secondary/90 text-white font-bold py-4 rounded-xl shadow-md transform active:scale-[0.98] transition-all duration-200 mt-4">
-                                Confirm Attendance
+                                        {formData.regType === "business" && (
+                                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-2">
+                                                <label className="text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1">Business/Organization Name</label>
+                                                <input
+                                                    type="text"
+                                                    value={formData.businessName}
+                                                    onChange={(e) => updateFormData("businessName", e.target.value)}
+                                                    className="w-full bg-white/80 border border-brand-gray/20 p-5 rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold transition-all"
+                                                    placeholder="Enter name"
+                                                />
+                                            </motion.div>
+                                        )}
+
+                                        <div className="space-y-4 pt-4">
+                                            <p className="text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1">Participation Level</p>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <button
+                                                    onClick={() => {
+                                                        updateFormData("participation", "individual");
+                                                        if (parseInt(formData.amount) > 0) { } else updateFormData("amount", "500");
+                                                    }}
+                                                    className={`p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "individual" ? "border-brand-green bg-brand-green/5" : "border-brand-gray/10"}`}
+                                                >
+                                                    <p className="font-bold text-brand-green">Individual Ticket</p>
+                                                    <p className="text-[10px] text-slate-400">Standard entry</p>
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        updateFormData("participation", "table");
+                                                        updateFormData("amount", "4000");
+                                                    }}
+                                                    className={`p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "table" ? "border-brand-green bg-brand-green/5" : "border-brand-gray/10"}`}
+                                                >
+                                                    <p className="font-bold text-brand-green">Full Table Sponsor</p>
+                                                    <p className="text-[10px] text-brand-gold font-bold">Recommended • Up to 8 guests</p>
+                                                </button>
+                                            </div>
+                                            <div className="relative group">
+                                                <label className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-gold font-bold">$</label>
+                                                <input
+                                                    type="number"
+                                                    value={formData.amount}
+                                                    onChange={(e) => updateFormData("amount", e.target.value)}
+                                                    className="w-full pl-12 pr-6 py-5 rounded-2xl bg-brand-light/20 border-2 border-transparent focus:border-brand-gold outline-none transition-all font-serif font-bold text-2xl text-brand-green"
+                                                    placeholder="Contribution"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {step === 3 && (
+                                    <div className="space-y-8 md:space-y-10">
+                                        <div>
+                                            <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">Hospitality Details</h3>
+                                            <p className="text-sm md:text-base text-slate-500">Help us ensure your comfort and the safety of your family.</p>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                                            <div className="space-y-4">
+                                                <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 flex items-center gap-2">
+                                                    <Users size={14} /> Total Guests
+                                                </label>
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    {[1, 2, 4, 8].map(n => (
+                                                        <button
+                                                            key={n}
+                                                            onClick={() => updateFormData("numGuests", n)}
+                                                            className={`w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl border-2 transition-all ${formData.numGuests === n ? "border-brand-gold bg-brand-gold/10 text-brand-green font-bold" : "border-brand-gray/10 text-slate-400"}`}
+                                                        >
+                                                            {n}
+                                                        </button>
+                                                    ))}
+                                                    <input
+                                                        type="number"
+                                                        className="w-14 md:w-16 h-10 md:h-12 bg-white border border-brand-gray/20 rounded-lg md:rounded-xl px-2 outline-none text-center font-bold text-sm md:text-base"
+                                                        value={formData.numGuests}
+                                                        onChange={(e) => updateFormData("numGuests", parseInt(e.target.value))}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-4">
+                                                <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 flex items-center gap-2">
+                                                    <Utensils size={14} /> Dietary Specifics
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={formData.dietary}
+                                                    onChange={(e) => updateFormData("dietary", e.target.value)}
+                                                    className="w-full bg-white/80 border border-brand-gray/20 p-3 md:p-4 rounded-lg md:rounded-xl outline-none text-sm"
+                                                    placeholder="Allergies / Restrictions"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-brand-light/50 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-brand-gray/10 space-y-6">
+                                            <div className="flex items-start gap-3 md:gap-4">
+                                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white border border-brand-gold/20 flex items-center justify-center text-brand-gold shrink-0">
+                                                    <Baby size={20} className="md:w-6 md:h-6" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="font-bold text-brand-green mb-0.5 uppercase text-xs md:text-sm">Complimentary Child Care</p>
+                                                    <p className="text-[10px] md:text-xs text-slate-500 leading-tight">On-site professional service for the duration.</p>
+                                                </div>
+                                                <div className="shrink-0">
+                                                    <button
+                                                        onClick={() => updateFormData("childCare", formData.childCare === "yes" ? "no" : "yes")}
+                                                        className={`w-12 md:w-14 h-6 md:h-8 rounded-full p-1 transition-colors duration-300 flex ${formData.childCare === "yes" ? "bg-brand-green justify-end" : "bg-brand-gray/30 justify-start"}`}
+                                                    >
+                                                        <motion.div layout className="w-4 h-4 md:w-6 md:h-6 bg-white rounded-full shadow-md" />
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {formData.childCare === "yes" && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, scale: 0.95 }}
+                                                    animate={{ opacity: 1, scale: 1 }}
+                                                    className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 pt-4 border-t border-brand-gray/10"
+                                                >
+                                                    <div className="space-y-1.5">
+                                                        <p className="text-[10px] font-bold text-brand-green/60 uppercase">Quantity</p>
+                                                        <input type="number" className="w-full p-2.5 rounded-lg border border-brand-gray/20 text-sm" placeholder="1" />
+                                                    </div>
+                                                    <div className="space-y-1.5 col-span-2 md:col-span-2">
+                                                        <p className="text-[10px] font-bold text-brand-green/60 uppercase">Ages (e.g. 4, 7)</p>
+                                                        <input type="text" className="w-full p-2.5 rounded-lg border border-brand-gray/20 text-sm" placeholder="Enter ages" />
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {step === 4 && (
+                                    <div className="space-y-10">
+                                        <div className="text-center">
+                                            <div className="w-20 h-20 bg-brand-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                                                <Heart className="text-brand-gold fill-brand-gold" size={40} />
+                                            </div>
+                                            <h3 className="text-3xl font-serif font-bold text-brand-green mb-2">Ready to Make an Impact?</h3>
+                                            <p className="text-slate-500">Please review your selections and confirm your commitment to the legacy.</p>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {[
+                                                { label: "Role", value: formData.regType === "personal" ? "Private Guest" : "Corporate Partner" },
+                                                { label: "Level", value: formData.participation === "table" ? "Table Sponsorship" : "Individual" },
+                                                { label: "Gift", value: `$${formData.amount}` },
+                                                { label: "Group", value: `${formData.numGuests} People` }
+                                            ].map((item, i) => (
+                                                <div key={i} className="bg-brand-light/30 p-4 rounded-2xl flex justify-between items-center group hover:bg-white hover:shadow-lg transition-all duration-300">
+                                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{item.label}</span>
+                                                    <span className="font-bold text-brand-green">{item.value}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <p className="text-xs text-center text-slate-400 italic px-8">
+                                            By submitting, you are confirming your attendance to "An Evening of Vision".
+                                            Our hospitality team will contact you shortly with formal details and invitation materials.
+                                        </p>
+                                    </div>
+                                )}
+                            </motion.div>
+                        </AnimatePresence>
+
+                        {/* Error Messages */}
+                        <AnimatePresence>
+                            {errors.length > 0 && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl"
+                                >
+                                    {errors.map((err, i) => (
+                                        <p key={i} className="text-xs text-red-600 font-bold flex items-center gap-2">
+                                            <span className="w-1.5 h-1.5 bg-red-600 rounded-full" />
+                                            {err}
+                                        </p>
+                                    ))}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* Navigation Footer */}
+                        <div className="mt-auto pt-8 border-t border-brand-gray/10 flex items-center justify-between">
+                            <button
+                                onClick={prevStep}
+                                className={`flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all ${step === 1 ? "opacity-0 pointer-events-none" : "hover:bg-brand-gray/10 text-slate-500"}`}
+                            >
+                                <ChevronLeft size={18} /> Previous
                             </button>
-                        </form>
-                    </div>
 
+                            <div className="flex items-center gap-1.5 lg:hidden">
+                                {[1, 2, 3, 4].map(i => (
+                                    <div key={i} className={`h-1 rounded-full transition-all duration-500 ${step === i ? "w-6 bg-brand-gold" : "w-1.5 bg-brand-gray/30"}`} />
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={step === 4 ? handleSubmit : nextStep}
+                                className="group flex items-center gap-3 bg-brand-green text-white font-bold px-8 py-4 rounded-2xl hover:bg-brand-green/90 shadow-xl shadow-brand-green/20 transition-all hover:translate-x-1 active:scale-95"
+                            >
+                                {step === 4 ? "Submit Presence" : "Continue"}
+                                {step < 4 && <ChevronRight size={18} className="transition-transform group-hover:translate-x-1" />}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            {/* Success Overlay */}
+            <AnimatePresence>
+                {isSubmitted && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="fixed inset-0 z-[100] bg-brand-green/95 backdrop-blur-xl flex items-center justify-center p-6 text-center"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ type: "spring", damping: 20 }}
+                            className="max-w-md w-full"
+                        >
+                            <div className="w-24 h-24 bg-brand-gold rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-brand-gold/40">
+                                <CheckCircle2 size={48} className="text-brand-green" />
+                            </div>
+                            <h2 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">Registration Secured</h2>
+                            <p className="text-brand-gold font-bold mb-8 uppercase tracking-widest text-sm">Welcome to the Legacy, {formData.firstName}</p>
+                            <p className="text-white/60 mb-12">
+                                Your presence has been formally registered for the 2026 Vision Gala.
+                                A formal digital invitation packet has been dispatched to your email address.
+                            </p>
+                            <button
+                                onClick={() => setIsSubmitted(false)}
+                                className="bg-white text-brand-green font-bold px-10 py-5 rounded-3xl hover:bg-brand-gold hover:text-white transition-all shadow-xl"
+                            >
+                                Return to Invitation
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </section>
     );
 }

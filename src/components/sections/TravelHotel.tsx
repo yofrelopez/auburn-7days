@@ -3,93 +3,122 @@ import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 
 export default function TravelHotel() {
     return (
-        <section id="travel-hotel" className="py-24 bg-slate-50">
-            <div className="container mx-auto px-4 md:px-6">
+        <section id="travel-hotel" className="py-24 bg-brand-light/50 relative overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
 
                 {/* Accommodations */}
-                <div className="mb-20">
-                    <div className="text-center mb-12">
-                        <span className="text-secondary font-bold tracking-widest uppercase mb-4 inline-block">The Château Experience</span>
-                        <h2 className="text-3xl md:text-4xl font-serif font-bold text-primary mb-6">
+                <div className="mb-24">
+                    <div className="text-center mb-16">
+                        <span className="text-brand-gold font-bold tracking-[0.2em] uppercase mb-4 inline-block text-sm">The Château Experience</span>
+                        <h2 className="text-4xl md:text-5xl font-serif font-bold text-brand-green mb-6">
                             Accommodations & Stay
                         </h2>
-                        <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                        <p className="text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
                             For our guests traveling from out of town, we have secured a special rate at the resort, allowing you to enjoy a time of rest and reflection during your visit.
                         </p>
                     </div>
 
-                    <div className="bg-white rounded-3xl overflow-hidden shadow-xl border border-border flex flex-col md:flex-row">
-                        <div className="md:w-1/2 min-h-[300px] relative bg-slate-50 border-r border-slate-100">
-                            <ImagePlaceholder text="Château Élan Resort View" className="w-full h-full absolute inset-0 border-none rounded-none" />
+                    <div className="bg-white rounded-[2.5rem] overflow-hidden shadow-xl border border-brand-gray/20 flex flex-col lg:flex-row min-h-[500px]">
+                        <div className="lg:w-1/2 relative bg-brand-light">
+                            <Image
+                                src="/images/resort.avif"
+                                alt="Château Élan Resort View"
+                                fill
+                                className="object-cover"
+                                priority
+                            />
                         </div>
-                        <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
-                            <h3 className="text-2xl font-serif font-bold text-primary mb-4">Château Élan Winery & Resort</h3>
-                            <div className="inline-block bg-primary/5 rounded-lg px-4 py-2 mb-6 border border-primary/10">
-                                <span className="text-sm font-semibold text-primary uppercase tracking-wide">Guest Rate</span>
-                                <div className="text-3xl font-bold text-secondary">$229 <span className="text-lg font-medium text-muted-foreground">/ Night</span></div>
+                        <div className="lg:w-1/2 p-10 md:p-16 flex flex-col justify-center bg-white">
+                            <h3 className="text-3xl font-serif font-bold text-brand-green mb-6">Château Élan Winery & Resort</h3>
+                            <div className="inline-flex flex-col bg-brand-light/50 rounded-2xl px-8 py-6 mb-8 border border-brand-gray/10 self-start">
+                                <span className="text-xs font-bold text-brand-green/60 uppercase tracking-widest mb-1">Exclusive Guest Rate</span>
+                                <div className="text-4xl font-bold text-brand-gold">$229 <span className="text-base font-medium text-slate-400">/ Night</span></div>
                             </div>
-                            <p className="text-muted-foreground italic mb-8">
+                            <p className="text-slate-500 italic mb-10 text-sm">
                                 (Includes all taxes, resort fees, and self-parking)
                             </p>
-                            <p className="text-primary/80 mb-8">
+                            <p className="text-slate-600 mb-10 leading-relaxed text-lg">
                                 Whether you are local or visiting from afar, we invite you to enjoy the beauty of God’s creation on these grounds.
                             </p>
-                            <a href="https://www.chateauelan.com/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center font-bold text-primary hover:text-secondary transition-colors">
+                            <a href="https://www.chateauelan.com/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center font-bold text-brand-green hover:text-brand-gold transition-colors text-lg group">
                                 Book Your Room
-                                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                <svg className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                             </a>
                         </div>
                     </div>
                 </div>
 
                 {/* Explore the Region */}
-                <div>
-                    <div className="text-center mb-12">
-                        <span className="text-secondary font-bold tracking-widest uppercase mb-4 inline-block">Explore the Region</span>
-                        <h2 className="text-3xl md:text-4xl font-serif font-bold text-primary mb-6">
+                <div className="relative">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-brand-gray/30 to-transparent mb-24"></div>
+
+                    <div className="text-center pt-24 mb-16">
+                        <span className="text-brand-gold font-bold tracking-[0.2em] uppercase mb-4 inline-block text-sm">Explore the Region</span>
+                        <h2 className="text-4xl md:text-5xl font-serif font-bold text-brand-green mb-6">
                             Enjoy Your Time in Georgia
                         </h2>
-                        <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                        <p className="text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
                             We warmly invite our guests to extend their stay and explore the beauty of our region. Experience the charm of a Georgia spring while partnering with a mission that will last for generations.
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                         {/* Helen */}
-                        <div className="bg-white rounded-2xl overflow-hidden shadow-lg border border-border group hover:shadow-xl transition-all">
-                            <div className="h-48 bg-slate-50 relative border-b border-slate-100">
-                                <ImagePlaceholder text="Helen, GA" className="w-full h-full absolute inset-0 border-none rounded-none" />
+                        <div className="bg-white rounded-[2rem] overflow-hidden shadow-md border border-brand-gray/10 group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+                            <div className="h-64 relative overflow-hidden">
+                                <Image
+                                    src="/images/alpine.jpg"
+                                    alt="Alpine Helen, GA"
+                                    fill
+                                    className="object-cover group-hover:scale-110 transition-transform duration-700"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             </div>
-                            <div className="p-6">
-                                <h4 className="text-xl font-bold text-primary mb-2">Alpine Charm</h4>
-                                <p className="text-muted-foreground">
-                                    Visit <strong>Helen, GA</strong>, a Bavarian-style village nestled in the Blue Ridge Mountains.
+                            <div className="p-8">
+                                <div className="text-brand-gold font-bold text-xs tracking-widest uppercase mb-3">Scenic Destination</div>
+                                <h4 className="text-2xl font-serif font-bold text-brand-green mb-3">Alpine Charm</h4>
+                                <p className="text-slate-600 leading-relaxed">
+                                    Experience the magic of <strong>Helen, GA</strong>, a charming Bavarian-style village nestled in the heart of the Blue Ridge Mountains.
                                 </p>
                             </div>
                         </div>
 
                         {/* Nature */}
-                        <div className="bg-white rounded-2xl overflow-hidden shadow-lg border border-border group hover:shadow-xl transition-all">
-                            <div className="h-48 bg-slate-50 relative border-b border-slate-100">
-                                <ImagePlaceholder text="Nature / Falls" className="w-full h-full absolute inset-0 border-none rounded-none" />
+                        <div className="bg-white rounded-[2rem] overflow-hidden shadow-md border border-brand-gray/10 group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+                            <div className="h-64 relative overflow-hidden">
+                                <Image
+                                    src="/images/falls.jpg"
+                                    alt="Amicalola Falls"
+                                    fill
+                                    className="object-cover group-hover:scale-110 transition-transform duration-700"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             </div>
-                            <div className="p-6">
-                                <h4 className="text-xl font-bold text-primary mb-2">Natural Wonders</h4>
-                                <p className="text-muted-foreground">
-                                    Explore <strong>Amicalola Falls</strong> or the breathtaking views at <strong>Tallulah Gorge</strong>.
+                            <div className="p-8">
+                                <div className="text-brand-gold font-bold text-xs tracking-widest uppercase mb-3">Natural Wonder</div>
+                                <h4 className="text-2xl font-serif font-bold text-brand-green mb-3">Breathtaking Falls</h4>
+                                <p className="text-slate-600 leading-relaxed">
+                                    Witness the majesty of <strong>Amicalola Falls</strong>, the tallest cascading waterfall in Georgia, offering awe-inspiring views.
                                 </p>
                             </div>
                         </div>
 
                         {/* Historic */}
-                        <div className="bg-white rounded-2xl overflow-hidden shadow-lg border border-border group hover:shadow-xl transition-all">
-                            <div className="h-48 bg-slate-50 relative border-b border-slate-100">
-                                <ImagePlaceholder text="Stone Mountain Park" className="w-full h-full absolute inset-0 border-none rounded-none" />
+                        <div className="bg-white rounded-[2rem] overflow-hidden shadow-md border border-brand-gray/10 group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+                            <div className="h-64 relative overflow-hidden">
+                                <Image
+                                    src="/images/stone.jpg"
+                                    alt="Stone Mountain Park"
+                                    fill
+                                    className="object-cover group-hover:scale-110 transition-transform duration-700"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             </div>
-                            <div className="p-6">
-                                <h4 className="text-xl font-bold text-primary mb-2">Historic & Scenic</h4>
-                                <p className="text-muted-foreground">
-                                    Tour the historic town of <strong>Dahlonega</strong> or visit <strong>Stone Mountain</strong>, one of Georgia’s most iconic destinations.
+                            <div className="p-8">
+                                <div className="text-brand-gold font-bold text-xs tracking-widest uppercase mb-3">Historic Landmark</div>
+                                <h4 className="text-2xl font-serif font-bold text-brand-green mb-3">Stone Mountain</h4>
+                                <p className="text-slate-600 leading-relaxed">
+                                    Explore the iconic <strong>Stone Mountain Park</strong>, home to the world's largest granite outcropping and stunning panoramic views.
                                 </p>
                             </div>
                         </div>

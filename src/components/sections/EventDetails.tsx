@@ -5,78 +5,91 @@ import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
 
 export default function EventDetails() {
     return (
-        <section id="event-details" className="py-24 bg-white">
-            <div className="container mx-auto px-4 md:px-6">
+        <section id="event-details" className="py-24 bg-white relative overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
 
                 {/* Header */}
-                <div className="text-center mb-16">
-                    <span className="text-secondary font-bold tracking-widest uppercase mb-4 inline-block">The Event</span>
-                    <h2 className="text-4xl md:text-5xl font-serif font-bold text-primary mb-6">
+                <div className="text-center mb-20">
+                    <span className="text-brand-gold font-bold tracking-[0.2em] uppercase mb-4 inline-block text-sm">The Event</span>
+                    <h2 className="text-5xl md:text-6xl font-serif font-bold text-brand-green mb-8">
                         An Evening of Vision & Hope
                     </h2>
-                    <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+                    <p className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto font-medium opacity-90">
                         Join us for a meaningful evening of fellowship, music, and purpose as we unveil the next chapter of what God is building in our community.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
 
                     {/* Details Column */}
-                    <div className="bg-slate-50 p-8 md:p-12 rounded-3xl border border-border">
-                        <h3 className="text-2xl font-serif font-bold text-primary mb-8 border-b border-border pb-4">
+                    <div className="bg-brand-light p-8 md:p-14 rounded-[2.5rem] border border-brand-gray/30 shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/5 rounded-full -mr-16 -mt-16 pointer-events-none"></div>
+
+                        <h3 className="text-3xl font-serif font-bold text-brand-green mb-10 border-b border-brand-gray/20 pb-6">
                             Fundraising Banquet Details
                         </h3>
 
-                        <div className="space-y-8">
+                        <div className="space-y-10">
                             {/* Date & Time */}
-                            <div className="flex items-start">
-                                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0 mr-6">
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <div className="flex items-start group">
+                                <div className="w-14 h-14 rounded-2xl bg-white shadow-sm border border-brand-gray/10 flex items-center justify-center text-brand-gold shrink-0 mr-6 transition-transform group-hover:scale-110">
+                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                 </div>
                                 <div>
-                                    <h4 className="text-xl font-bold text-primary mb-1">Thursday, April 30th, 2026</h4>
-                                    <p className="text-muted-foreground">Reception begins at 6:00 PM</p>
+                                    <h4 className="text-xl font-bold text-brand-green mb-1">Thursday, April 30th, 2026</h4>
+                                    <p className="text-slate-600">Reception begins at 6:00 PM</p>
                                 </div>
                             </div>
 
                             {/* Location */}
-                            <div className="flex items-start">
-                                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0 mr-6">
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <div className="flex items-start group">
+                                <div className="w-14 h-14 rounded-2xl bg-white shadow-sm border border-brand-gray/10 flex items-center justify-center text-brand-gold shrink-0 mr-6 transition-transform group-hover:scale-110">
+                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                 </div>
                                 <div>
-                                    <h4 className="text-xl font-bold text-primary mb-1">Château Élan Winery & Resort</h4>
-                                    <p className="text-muted-foreground">100 Rue Charlemagne Dr, Braselton, GA 30517</p>
-                                    <a href="https://goo.gl/maps/placeholder" target="_blank" rel="noopener noreferrer" className="text-secondary hover:text-secondary/80 text-sm font-semibold mt-2 inline-flex items-center">
+                                    <h4 className="text-xl font-bold text-brand-green mb-1">Château Élan Winery & Resort</h4>
+                                    <p className="text-slate-600">100 Rue Charlemagne Dr, Braselton, GA 30517</p>
+                                    <a href="https://goo.gl/maps/placeholder" target="_blank" rel="noopener noreferrer" className="text-brand-gold hover:text-brand-gold/80 text-sm font-bold mt-3 inline-flex items-center transition-colors">
                                         View Map & Directions
-                                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                        <svg className="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                                     </a>
                                 </div>
                             </div>
 
                             {/* Note */}
-                            <div className="flex items-start">
-                                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0 mr-6">
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <div className="flex items-start group">
+                                <div className="w-14 h-14 rounded-2xl bg-white shadow-sm border border-brand-gray/10 flex items-center justify-center text-brand-gold shrink-0 mr-6 transition-transform group-hover:scale-110">
+                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 </div>
                                 <div>
-                                    <p className="text-muted-foreground italic text-sm">
-                                        To maintain the atmosphere of the evening, this event is reserved for adults only.
+                                    <p className="text-slate-500 italic text-sm font-medium leading-relaxed">
+                                        To maintain the atmosphere of the evening, <br className="hidden md:block" />
+                                        this event is reserved for adults only.
                                     </p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="mt-10">
-                            <a href="#rsvp" className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 px-8 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center">
+                        <div className="mt-12">
+                            <Link href="#rsvp" className="w-full bg-brand-gold hover:bg-brand-gold/90 text-white font-bold py-5 px-8 rounded-full shadow-xl shadow-brand-gold/20 transition-all duration-300 flex items-center justify-center transform hover:scale-[1.02]">
                                 Confirm Your Attendance
-                            </a>
+                            </Link>
                         </div>
                     </div>
 
-                    {/* Map/Image Column */}
-                    <div className="h-full min-h-[400px] rounded-3xl overflow-hidden shadow-sm relative border border-slate-200 bg-slate-50">
-                        <ImagePlaceholder text="Interactive Map or Venue Photo" className="w-full h-full absolute inset-0" />
+                    {/* Venue Image Column */}
+                    <div className="relative group">
+                        <div className="absolute -inset-4 bg-brand-gold/5 rounded-[3rem] transform rotate-2 group-hover:rotate-1 transition-transform duration-700"></div>
+                        <div className="relative h-[600px] rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white">
+                            <Image
+                                src="/images/table.jpg"
+                                alt="Event Venue Detail"
+                                fill
+                                className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                                priority
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-brand-green/20 to-transparent"></div>
+                        </div>
                     </div>
                 </div>
             </div>
