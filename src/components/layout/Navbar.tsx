@@ -43,7 +43,7 @@ export default function Navbar() {
                                 alt="Auburn SDA Church"
                                 width={300}
                                 height={80}
-                                className="object-contain h-full w-auto transition-all duration-300 brightness-0 opacity-70"
+                                className={`object-contain h-full w-auto transition-all duration-300 ${scrolled ? "brightness-0 opacity-70" : "brightness-0 invert opacity-100 drop-shadow-md"}`}
                                 priority
                             />
                         </div>
@@ -55,7 +55,7 @@ export default function Navbar() {
                             <Link
                                 key={link.name}
                                 href={link.href}
-                                className={`text-sm font-medium transition-colors hover:text-secondary ${scrolled ? "text-primary" : "text-primary/90"
+                                className={`text-sm font-medium transition-colors ${scrolled ? "text-primary hover:text-secondary" : "text-white/90 hover:text-yellow-400 drop-shadow-sm"
                                     }`}
                             >
                                 {link.name}
@@ -63,7 +63,7 @@ export default function Navbar() {
                         ))}
                         <Link
                             href="#donate"
-                            className="bg-secondary hover:bg-secondary/90 text-white px-6 py-2 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                            className={`px-6 py-2 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 ${scrolled ? "bg-secondary hover:bg-secondary/90 text-white" : "bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-slate-900 border-none"}`}
                         >
                             Donate Now
                         </Link>
@@ -75,7 +75,7 @@ export default function Navbar() {
                         onClick={() => setIsOpen(!isOpen)}
                         aria-label="Toggle menu"
                     >
-                        <div className={`w-6 h-5 relative flex flex-col justify-between ${scrolled ? "text-primary" : "text-primary"}`}>
+                        <div className={`w-6 h-5 relative flex flex-col justify-between ${scrolled ? "text-primary" : "text-white drop-shadow-md"}`}>
                             <span
                                 className={`w-full h-0.5 bg-current rounded-full transition-all duration-300 ${isOpen ? "rotate-45 translate-y-2.5" : ""
                                     }`}

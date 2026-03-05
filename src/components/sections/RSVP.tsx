@@ -29,7 +29,7 @@ export default function RSVP() {
         regType: "personal" as "personal" | "business",
         businessName: "",
         participation: "individual" as "individual" | "table",
-        amount: "",
+        amount: "500",
         numGuests: 1,
         guestNames: "",
         stayOvernight: "" as "yes" | "no" | "",
@@ -80,10 +80,46 @@ export default function RSVP() {
         setStep(prev => (prev > 1 ? (prev - 1) as Step : prev));
     };
 
-    const handleSubmit = () => {
-        if (validateStep(4)) {
-            // Simulate API call
-            setIsSubmitted(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+
+    const handleSubmit = async () => {
+        if (!validateStep(4)) return;
+
+        setIsSubmitting(true);
+        setSubmitError(null);
+
+        const formDataToSend = new FormData();
+
+        // Append all our React state to the FormData
+        Object.entries(formData).forEach(([key, value]) => {
+            formDataToSend.append(key, value.toString());
+        });
+
+        // Web3Forms specific fields
+        const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_KEY || "";
+        formDataToSend.append("access_key", accessKey);
+        formDataToSend.append("subject", `New RSVP: ${formData.firstName} ${formData.lastName}`);
+
+        try {
+            const response = await fetch("https://api.web3forms.com/submit", {
+                method: "POST",
+                body: formDataToSend
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                setIsSubmitted(true);
+            } else {
+                console.error("Web3Forms Error:", data);
+                setSubmitError(data.message || "Failed to submit RSVP. Please try again.");
+            }
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (error) {
+            setSubmitError("Failed to connect to the submission server. Please try again later.");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -200,322 +236,350 @@ export default function RSVP() {
                         </div>
                     </div>
 
-                    {/* Main Form Area */}
-                    <div className="lg:col-span-9 bg-white/60 backdrop-blur-2xl border border-white p-5 md:p-12 rounded-[2rem] md:rounded-[3rem] shadow-2xl relative min-h-[500px] md:min-h-[600px] flex flex-col">
+                    {/* Main Content Area */}
+                    <div className="lg:col-span-9 bg-white/60 backdrop-blur-2xl border border-white p-5 md:p-12 rounded-[2rem] md:rounded-[3rem] shadow-2xl relative min-h-[500px] md:min-h-[600px] flex flex-col justify-center">
 
                         <AnimatePresence mode="wait">
-                            <motion.div
-                                key={step}
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -20 }}
-                                transition={{ duration: 0.4, ease: "easeOut" }}
-                                className="flex-1"
-                            >
-                                {step === 1 && (
-                                    <div className="space-y-8 md:space-y-10">
-                                        <div>
-                                            <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">Let's start with your identity</h3>
-                                            <p className="text-sm md:text-base text-slate-500">We want to ensure your welcome is personal and meaningful.</p>
-                                        </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-                                            {[
-                                                { id: "firstName", label: "First Name", type: "text", placeholder: "E.g. Michael" },
-                                                { id: "lastName", label: "Last Name", type: "text", placeholder: "E.g. Scott" },
-                                                { id: "email", label: "Digital Address", type: "email", placeholder: "michael@dundermifflin.com" },
-                                                { id: "phone", label: "Phone Line", type: "tel", placeholder: "(555) 000-0000" }
-                                            ].map((f) => (
-                                                <div key={f.id} className="group space-y-2">
-                                                    <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 transition-colors group-focus-within:text-brand-gold">{f.label}</label>
-                                                    <input
-                                                        type={f.type}
-                                                        value={(formData as any)[f.id]}
-                                                        onChange={(e) => updateFormData(f.id, e.target.value)}
-                                                        className="w-full bg-white/80 border border-brand-gray/20 p-4 md:p-5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold outline-none transition-all shadow-sm focus:shadow-md placeholder:text-slate-300 text-sm md:text-base"
-                                                        placeholder={f.placeholder}
-                                                    />
-                                                </div>
-                                            ))}
-                                        </div>
+                            {isSubmitted ? (
+                                <motion.div
+                                    key="success-state"
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="flex flex-col items-center justify-center text-center py-12"
+                                >
+                                    <div className="w-24 h-24 bg-brand-green/10 rounded-full flex items-center justify-center mb-8">
+                                        <CheckCircle2 size={48} className="text-brand-green" />
                                     </div>
-                                )}
-
-                                {step === 2 && (
-                                    <div className="space-y-8 md:space-y-10">
-                                        <div>
-                                            <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">The nature of your engagement</h3>
-                                            <p className="text-sm md:text-base text-slate-500">How would you like to partner with our vision tonight?</p>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                                            {[
-                                                { id: "personal", title: "Personal", desc: "Attending as an individual guest", icon: Heart },
-                                                { id: "business", title: "Corporate", desc: "Representing an organization", icon: Briefcase }
-                                            ].map((t) => (
-                                                <button
-                                                    key={t.id}
-                                                    onClick={() => updateFormData("regType", t.id)}
-                                                    className={`p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-2 text-left transition-all duration-500 group relative overflow-hidden ${formData.regType === t.id ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10 bg-white"}`}
-                                                >
-                                                    <t.icon className={`mb-3 md:mb-4 transition-colors ${formData.regType === t.id ? "text-brand-gold" : "text-brand-green/20"}`} size={28} />
-                                                    <p className={`font-bold text-lg md:text-xl mb-1 ${formData.regType === t.id ? "text-brand-green" : "text-slate-700"}`}>{t.title}</p>
-                                                    <p className="text-[10px] md:text-xs text-slate-400">{t.desc}</p>
-                                                    {formData.regType === t.id && (
-                                                        <motion.div layoutId="selection" className="absolute top-4 right-4 text-brand-gold">
-                                                            <CheckCircle2 size={20} className="md:w-6 md:h-6" />
-                                                        </motion.div>
-                                                    )}
-                                                </button>
-                                            ))}
-                                        </div>
-
-                                        {formData.regType === "business" && (
-                                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-2">
-                                                <label className="text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1">Business/Organization Name</label>
-                                                <input
-                                                    type="text"
-                                                    value={formData.businessName}
-                                                    onChange={(e) => updateFormData("businessName", e.target.value)}
-                                                    className="w-full bg-white/80 border border-brand-gray/20 p-5 rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold transition-all"
-                                                    placeholder="Enter name"
-                                                />
-                                            </motion.div>
-                                        )}
-
-                                        <div className="space-y-4 pt-4">
-                                            <p className="text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1">Participation Level</p>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <button
-                                                    onClick={() => {
-                                                        updateFormData("participation", "individual");
-                                                        if (parseInt(formData.amount) > 0) { } else updateFormData("amount", "500");
-                                                    }}
-                                                    className={`p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "individual" ? "border-brand-green bg-brand-green/5" : "border-brand-gray/10"}`}
-                                                >
-                                                    <p className="font-bold text-brand-green">Individual Ticket</p>
-                                                    <p className="text-[10px] text-slate-400">Standard entry</p>
-                                                </button>
-                                                <button
-                                                    onClick={() => {
-                                                        updateFormData("participation", "table");
-                                                        updateFormData("amount", "4000");
-                                                    }}
-                                                    className={`p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "table" ? "border-brand-green bg-brand-green/5" : "border-brand-gray/10"}`}
-                                                >
-                                                    <p className="font-bold text-brand-green">Full Table Sponsor</p>
-                                                    <p className="text-[10px] text-brand-gold font-bold">Recommended • Up to 8 guests</p>
-                                                </button>
+                                    <h2 className="text-4xl md:text-5xl font-serif font-bold text-brand-green mb-4">Registration Secured</h2>
+                                    <p className="text-brand-gold font-bold mb-6 uppercase tracking-widest text-sm">Welcome to the Legacy, {formData.firstName}</p>
+                                    <p className="text-slate-500 max-w-md mx-auto mb-10 text-baes leading-relaxed">
+                                        Your presence has been formally registered for the 2026 Vision Gala.
+                                        A formal digital invitation packet will be dispatched to <span className="font-bold">{formData.email}</span>.
+                                    </p>
+                                    <button
+                                        onClick={() => {
+                                            setIsSubmitted(false);
+                                            setStep(1);
+                                            setFormData({
+                                                firstName: "",
+                                                lastName: "",
+                                                email: "",
+                                                phone: "",
+                                                regType: "personal",
+                                                businessName: "",
+                                                participation: "individual",
+                                                amount: "500",
+                                                numGuests: 1,
+                                                guestNames: "",
+                                                stayOvernight: "",
+                                                dietary: "",
+                                                childCare: "no",
+                                                numChildren: 1,
+                                                agesChildren: "",
+                                                childNeeds: ""
+                                            });
+                                        }}
+                                        className="text-sm font-bold text-brand-green hover:text-brand-gold transition-colors underline underline-offset-4 decoration-2"
+                                    >
+                                        Register Another Guest
+                                    </button>
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    key={step}
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    transition={{ duration: 0.4, ease: "easeOut" }}
+                                    className="flex-1 flex flex-col"
+                                >
+                                    {/* (Rest of the form steps 1 to 4 render exactly the same here - just nested) */}
+                                    {step === 1 && (
+                                        <div className="space-y-8 md:space-y-10">
+                                            {/* Honeypot Spam Protection */}
+                                            <input
+                                                type="checkbox"
+                                                name="botcheck"
+                                                className="hidden"
+                                                style={{ display: 'none' }}
+                                                onChange={(e) => updateFormData("botcheck", e.target.checked)}
+                                            />
+                                            <div>
+                                                <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">Let's start with your identity</h3>
+                                                <p className="text-sm md:text-base text-slate-500">We want to ensure your welcome is personal and meaningful.</p>
                                             </div>
-                                            <div className="relative group">
-                                                <label className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-gold font-bold">$</label>
-                                                <input
-                                                    type="number"
-                                                    value={formData.amount}
-                                                    onChange={(e) => updateFormData("amount", e.target.value)}
-                                                    className="w-full pl-12 pr-6 py-5 rounded-2xl bg-brand-light/20 border-2 border-transparent focus:border-brand-gold outline-none transition-all font-serif font-bold text-2xl text-brand-green"
-                                                    placeholder="Contribution"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {step === 3 && (
-                                    <div className="space-y-8 md:space-y-10">
-                                        <div>
-                                            <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">Hospitality Details</h3>
-                                            <p className="text-sm md:text-base text-slate-500">Help us ensure your comfort and the safety of your family.</p>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                                            <div className="space-y-4">
-                                                <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 flex items-center gap-2">
-                                                    <Users size={14} /> Total Guests
-                                                </label>
-                                                <div className="flex flex-wrap items-center gap-2">
-                                                    {[1, 2, 4, 8].map(n => (
-                                                        <button
-                                                            key={n}
-                                                            onClick={() => updateFormData("numGuests", n)}
-                                                            className={`w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl border-2 transition-all ${formData.numGuests === n ? "border-brand-gold bg-brand-gold/10 text-brand-green font-bold" : "border-brand-gray/10 text-slate-400"}`}
-                                                        >
-                                                            {n}
-                                                        </button>
-                                                    ))}
-                                                    <input
-                                                        type="number"
-                                                        className="w-14 md:w-16 h-10 md:h-12 bg-white border border-brand-gray/20 rounded-lg md:rounded-xl px-2 outline-none text-center font-bold text-sm md:text-base"
-                                                        value={formData.numGuests}
-                                                        onChange={(e) => updateFormData("numGuests", parseInt(e.target.value))}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-4">
-                                                <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 flex items-center gap-2">
-                                                    <Utensils size={14} /> Dietary Specifics
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    value={formData.dietary}
-                                                    onChange={(e) => updateFormData("dietary", e.target.value)}
-                                                    className="w-full bg-white/80 border border-brand-gray/20 p-3 md:p-4 rounded-lg md:rounded-xl outline-none text-sm"
-                                                    placeholder="Allergies / Restrictions"
-                                                />
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+                                                {[
+                                                    { id: "firstName", label: "First Name", type: "text", placeholder: "E.g. Michael" },
+                                                    { id: "lastName", label: "Last Name", type: "text", placeholder: "E.g. Scott" },
+                                                    { id: "email", label: "Digital Address", type: "email", placeholder: "michael@dundermifflin.com" },
+                                                    { id: "phone", label: "Phone Line", type: "tel", placeholder: "(555) 000-0000" }
+                                                ].map((f) => (
+                                                    <div key={f.id} className="group space-y-2">
+                                                        <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 transition-colors group-focus-within:text-brand-gold">{f.label}</label>
+                                                        <input
+                                                            type={f.type}
+                                                            value={(formData as any)[f.id]}
+                                                            onChange={(e) => updateFormData(f.id, e.target.value)}
+                                                            className="w-full bg-white/80 border border-brand-gray/20 p-4 md:p-5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold outline-none transition-all shadow-sm focus:shadow-md placeholder:text-slate-300 text-sm md:text-base"
+                                                            placeholder={f.placeholder}
+                                                        />
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
+                                    )}
 
-                                        <div className="bg-brand-light/50 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-brand-gray/10 space-y-6">
-                                            <div className="flex items-start gap-3 md:gap-4">
-                                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white border border-brand-gold/20 flex items-center justify-center text-brand-gold shrink-0">
-                                                    <Baby size={20} className="md:w-6 md:h-6" />
-                                                </div>
-                                                <div className="flex-1">
-                                                    <p className="font-bold text-brand-green mb-0.5 uppercase text-xs md:text-sm">Complimentary Child Care</p>
-                                                    <p className="text-[10px] md:text-xs text-slate-500 leading-tight">On-site professional service for the duration.</p>
-                                                </div>
-                                                <div className="shrink-0">
+                                    {step === 2 && (
+                                        <div className="space-y-8 md:space-y-10">
+                                            <div>
+                                                <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">The nature of your engagement</h3>
+                                                <p className="text-sm md:text-base text-slate-500">How would you like to partner with our vision tonight?</p>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                                                {[
+                                                    { id: "personal", title: "Personal", desc: "Attending as an individual guest", icon: Heart },
+                                                    { id: "business", title: "Corporate", desc: "Representing an organization", icon: Briefcase }
+                                                ].map((t) => (
                                                     <button
-                                                        onClick={() => updateFormData("childCare", formData.childCare === "yes" ? "no" : "yes")}
-                                                        className={`w-12 md:w-14 h-6 md:h-8 rounded-full p-1 transition-colors duration-300 flex ${formData.childCare === "yes" ? "bg-brand-green justify-end" : "bg-brand-gray/30 justify-start"}`}
+                                                        key={t.id}
+                                                        onClick={() => updateFormData("regType", t.id)}
+                                                        className={`p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-2 text-left transition-all duration-500 group relative overflow-hidden ${formData.regType === t.id ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10 bg-white"}`}
                                                     >
-                                                        <motion.div layout className="w-4 h-4 md:w-6 md:h-6 bg-white rounded-full shadow-md" />
+                                                        <t.icon className={`mb-3 md:mb-4 transition-colors ${formData.regType === t.id ? "text-brand-gold" : "text-brand-green/20"}`} size={28} />
+                                                        <p className={`font-bold text-lg md:text-xl mb-1 ${formData.regType === t.id ? "text-brand-green" : "text-slate-700"}`}>{t.title}</p>
+                                                        <p className="text-[10px] md:text-xs text-slate-400">{t.desc}</p>
+                                                        {formData.regType === t.id && (
+                                                            <motion.div layoutId="selection" className="absolute top-4 right-4 text-brand-gold">
+                                                                <CheckCircle2 size={20} className="md:w-6 md:h-6" />
+                                                            </motion.div>
+                                                        )}
                                                     </button>
-                                                </div>
+                                                ))}
                                             </div>
 
-                                            {formData.childCare === "yes" && (
-                                                <motion.div
-                                                    initial={{ opacity: 0, scale: 0.95 }}
-                                                    animate={{ opacity: 1, scale: 1 }}
-                                                    className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 pt-4 border-t border-brand-gray/10"
-                                                >
-                                                    <div className="space-y-1.5">
-                                                        <p className="text-[10px] font-bold text-brand-green/60 uppercase">Quantity</p>
-                                                        <input type="number" className="w-full p-2.5 rounded-lg border border-brand-gray/20 text-sm" placeholder="1" />
-                                                    </div>
-                                                    <div className="space-y-1.5 col-span-2 md:col-span-2">
-                                                        <p className="text-[10px] font-bold text-brand-green/60 uppercase">Ages (e.g. 4, 7)</p>
-                                                        <input type="text" className="w-full p-2.5 rounded-lg border border-brand-gray/20 text-sm" placeholder="Enter ages" />
-                                                    </div>
+                                            {formData.regType === "business" && (
+                                                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-2">
+                                                    <label className="text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1">Business/Organization Name</label>
+                                                    <input
+                                                        type="text"
+                                                        value={formData.businessName}
+                                                        onChange={(e) => updateFormData("businessName", e.target.value)}
+                                                        className="w-full bg-white/80 border border-brand-gray/20 p-5 rounded-2xl outline-none focus:ring-2 focus:ring-brand-gold transition-all"
+                                                        placeholder="Enter name"
+                                                    />
                                                 </motion.div>
                                             )}
-                                        </div>
-                                    </div>
-                                )}
 
-                                {step === 4 && (
-                                    <div className="space-y-10">
-                                        <div className="text-center">
-                                            <div className="w-20 h-20 bg-brand-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                                                <Heart className="text-brand-gold fill-brand-gold" size={40} />
-                                            </div>
-                                            <h3 className="text-3xl font-serif font-bold text-brand-green mb-2">Ready to Make an Impact?</h3>
-                                            <p className="text-slate-500">Please review your selections and confirm your commitment to the legacy.</p>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {[
-                                                { label: "Role", value: formData.regType === "personal" ? "Private Guest" : "Corporate Partner" },
-                                                { label: "Level", value: formData.participation === "table" ? "Table Sponsorship" : "Individual" },
-                                                { label: "Gift", value: `$${formData.amount}` },
-                                                { label: "Group", value: `${formData.numGuests} People` }
-                                            ].map((item, i) => (
-                                                <div key={i} className="bg-brand-light/30 p-4 rounded-2xl flex justify-between items-center group hover:bg-white hover:shadow-lg transition-all duration-300">
-                                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{item.label}</span>
-                                                    <span className="font-bold text-brand-green">{item.value}</span>
+                                            <div className="space-y-4 pt-4">
+                                                <p className="text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1">Participation Level</p>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <button
+                                                        onClick={() => {
+                                                            updateFormData("participation", "individual");
+                                                            updateFormData("amount", "500");
+                                                        }}
+                                                        className={`p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "individual" ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10"}`}
+                                                    >
+                                                        <p className="font-bold text-brand-green text-lg">Individual Ticket</p>
+                                                        <p className="text-xs text-slate-500 mt-1">Standard entry • <span className="font-bold">$500</span></p>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            updateFormData("participation", "table");
+                                                            updateFormData("amount", "4000");
+                                                        }}
+                                                        className={`p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "table" ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10"}`}
+                                                    >
+                                                        <p className="font-bold text-brand-green text-lg">Full Table Sponsor</p>
+                                                        <p className="text-xs text-brand-gold font-bold mt-1">Recommended • Up to 8 guests • $4,000</p>
+                                                    </button>
                                                 </div>
+                                                <div className="relative group mt-4">
+                                                    <label className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-green/50 font-bold">$</label>
+                                                    <input
+                                                        type="number"
+                                                        value={formData.amount}
+                                                        readOnly
+                                                        className="w-full pl-12 pr-6 py-5 rounded-2xl bg-brand-gray/5 border-2 border-transparent outline-none transition-all font-serif font-bold text-2xl text-brand-green/70 cursor-not-allowed"
+                                                        placeholder="Contribution"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {step === 3 && (
+                                        <div className="space-y-8 md:space-y-10">
+                                            <div>
+                                                <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">Hospitality Details</h3>
+                                                <p className="text-sm md:text-base text-slate-500">Help us ensure your comfort and the safety of your family.</p>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                                                <div className="space-y-4">
+                                                    <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 flex items-center gap-2">
+                                                        <Users size={14} /> Total Guests
+                                                    </label>
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        {[1, 2, 4, 8].map(n => (
+                                                            <button
+                                                                key={n}
+                                                                onClick={() => updateFormData("numGuests", n)}
+                                                                className={`w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl border-2 transition-all ${formData.numGuests === n ? "border-brand-gold bg-brand-gold/10 text-brand-green font-bold" : "border-brand-gray/10 text-slate-400"}`}
+                                                            >
+                                                                {n}
+                                                            </button>
+                                                        ))}
+                                                        <input
+                                                            type="number"
+                                                            className="w-14 md:w-16 h-10 md:h-12 bg-white border border-brand-gray/20 rounded-lg md:rounded-xl px-2 outline-none text-center font-bold text-sm md:text-base"
+                                                            value={formData.numGuests}
+                                                            onChange={(e) => updateFormData("numGuests", parseInt(e.target.value))}
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-4">
+                                                    <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 flex items-center gap-2">
+                                                        <Utensils size={14} /> Dietary Specifics
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={formData.dietary}
+                                                        onChange={(e) => updateFormData("dietary", e.target.value)}
+                                                        className="w-full bg-white/80 border border-brand-gray/20 p-3 md:p-4 rounded-lg md:rounded-xl outline-none text-sm"
+                                                        placeholder="Allergies / Restrictions"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-brand-light/50 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-brand-gray/10 space-y-6">
+                                                <div className="flex items-start gap-3 md:gap-4">
+                                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white border border-brand-gold/20 flex items-center justify-center text-brand-gold shrink-0">
+                                                        <Baby size={20} className="md:w-6 md:h-6" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="font-bold text-brand-green mb-0.5 uppercase text-xs md:text-sm">Complimentary Child Care</p>
+                                                        <p className="text-[10px] md:text-xs text-slate-500 leading-tight">On-site professional service for the duration.</p>
+                                                    </div>
+                                                    <div className="shrink-0">
+                                                        <button
+                                                            onClick={() => updateFormData("childCare", formData.childCare === "yes" ? "no" : "yes")}
+                                                            className={`w-12 md:w-14 h-6 md:h-8 rounded-full p-1 transition-colors duration-300 flex ${formData.childCare === "yes" ? "bg-brand-green justify-end" : "bg-brand-gray/30 justify-start"}`}
+                                                        >
+                                                            <motion.div layout className="w-4 h-4 md:w-6 md:h-6 bg-white rounded-full shadow-md" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                {formData.childCare === "yes" && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, scale: 0.95 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 pt-4 border-t border-brand-gray/10"
+                                                    >
+                                                        <div className="space-y-1.5">
+                                                            <p className="text-[10px] font-bold text-brand-green/60 uppercase">Quantity</p>
+                                                            <input type="number" className="w-full p-2.5 rounded-lg border border-brand-gray/20 text-sm" placeholder="1" />
+                                                        </div>
+                                                        <div className="space-y-1.5 col-span-2 md:col-span-2">
+                                                            <p className="text-[10px] font-bold text-brand-green/60 uppercase">Ages (e.g. 4, 7)</p>
+                                                            <input type="text" className="w-full p-2.5 rounded-lg border border-brand-gray/20 text-sm" placeholder="Enter ages" />
+                                                        </div>
+                                                    </motion.div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {step === 4 && (
+                                        <div className="space-y-10">
+                                            <div className="text-center">
+                                                <div className="w-20 h-20 bg-brand-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                                                    <Heart className="text-brand-gold fill-brand-gold" size={40} />
+                                                </div>
+                                                <h3 className="text-3xl font-serif font-bold text-brand-green mb-2">Ready to Make an Impact?</h3>
+                                                <p className="text-slate-500">Please review your selections and confirm your commitment to the legacy.</p>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                {[
+                                                    { label: "Role", value: formData.regType === "personal" ? "Private Guest" : "Corporate Partner" },
+                                                    { label: "Level", value: formData.participation === "table" ? "Table Sponsorship" : "Individual" },
+                                                    { label: "Gift", value: `$${formData.amount}` },
+                                                    { label: "Group", value: `${formData.numGuests} People` }
+                                                ].map((item, i) => (
+                                                    <div key={i} className="bg-brand-light/30 p-4 rounded-2xl flex justify-between items-center group hover:bg-white hover:shadow-lg transition-all duration-300">
+                                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{item.label}</span>
+                                                        <span className="font-bold text-brand-green">{item.value}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <p className="text-xs text-center text-slate-400 italic px-8">
+                                                By submitting, you are confirming your attendance to "An Evening of Vision".
+                                                Our hospitality team will contact you shortly with formal details and invitation materials.
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {/* Error Messages (moved inside the normal form view) */}
+                                    <AnimatePresence>
+                                        {errors.length > 0 && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                className="mt-6 p-4 bg-red-50 border border-red-100 rounded-2xl"
+                                            >
+                                                {errors.map((err, i) => (
+                                                    <p key={i} className="text-xs text-red-600 font-bold flex items-center gap-2">
+                                                        <span className="w-1.5 h-1.5 bg-red-600 rounded-full" />
+                                                        {err}
+                                                    </p>
+                                                ))}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+
+                                    {/* Navigation Footer */}
+                                    <div className="mt-auto pt-8 border-t border-brand-gray/10 flex items-center justify-between">
+                                        <button
+                                            onClick={prevStep}
+                                            className={`flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all ${step === 1 ? "opacity-0 pointer-events-none" : "hover:bg-brand-gray/10 text-slate-500"}`}
+                                        >
+                                            <ChevronLeft size={18} /> Previous
+                                        </button>
+
+                                        <div className="flex items-center gap-1.5 lg:hidden">
+                                            {[1, 2, 3, 4].map(i => (
+                                                <div key={i} className={`h-1 rounded-full transition-all duration-500 ${step === i ? "w-6 bg-brand-gold" : "w-1.5 bg-brand-gray/30"}`} />
                                             ))}
                                         </div>
 
-                                        <p className="text-xs text-center text-slate-400 italic px-8">
-                                            By submitting, you are confirming your attendance to "An Evening of Vision".
-                                            Our hospitality team will contact you shortly with formal details and invitation materials.
-                                        </p>
+                                        <button
+                                            onClick={step === 4 ? handleSubmit : nextStep}
+                                            disabled={isSubmitting}
+                                            className={`group flex items-center gap-3 bg-brand-green text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-xl shadow-brand-green/20 ${isSubmitting ? "opacity-70 cursor-wait" : "hover:bg-brand-green/90 hover:translate-x-1 active:scale-95"}`}
+                                        >
+                                            {isSubmitting ? "Processing..." : step === 4 ? "Submit Presence" : "Continue"}
+                                            {!isSubmitting && step < 4 && <ChevronRight size={18} className="transition-transform group-hover:translate-x-1" />}
+                                        </button>
                                     </div>
-                                )}
-                            </motion.div>
-                        </AnimatePresence>
 
-                        {/* Error Messages */}
-                        <AnimatePresence>
-                            {errors.length > 0 && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
-                                    className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl"
-                                >
-                                    {errors.map((err, i) => (
-                                        <p key={i} className="text-xs text-red-600 font-bold flex items-center gap-2">
-                                            <span className="w-1.5 h-1.5 bg-red-600 rounded-full" />
-                                            {err}
-                                        </p>
-                                    ))}
+                                    {submitError && (
+                                        <div className="mt-4 p-4 bg-red-50 border border-red-100 rounded-2xl text-center">
+                                            <p className="text-xs text-red-600 font-bold">{submitError}</p>
+                                        </div>
+                                    )}
                                 </motion.div>
                             )}
                         </AnimatePresence>
-
-                        {/* Navigation Footer */}
-                        <div className="mt-auto pt-8 border-t border-brand-gray/10 flex items-center justify-between">
-                            <button
-                                onClick={prevStep}
-                                className={`flex items-center gap-2 font-bold px-6 py-3 rounded-xl transition-all ${step === 1 ? "opacity-0 pointer-events-none" : "hover:bg-brand-gray/10 text-slate-500"}`}
-                            >
-                                <ChevronLeft size={18} /> Previous
-                            </button>
-
-                            <div className="flex items-center gap-1.5 lg:hidden">
-                                {[1, 2, 3, 4].map(i => (
-                                    <div key={i} className={`h-1 rounded-full transition-all duration-500 ${step === i ? "w-6 bg-brand-gold" : "w-1.5 bg-brand-gray/30"}`} />
-                                ))}
-                            </div>
-
-                            <button
-                                onClick={step === 4 ? handleSubmit : nextStep}
-                                className="group flex items-center gap-3 bg-brand-green text-white font-bold px-8 py-4 rounded-2xl hover:bg-brand-green/90 shadow-xl shadow-brand-green/20 transition-all hover:translate-x-1 active:scale-95"
-                            >
-                                {step === 4 ? "Submit Presence" : "Continue"}
-                                {step < 4 && <ChevronRight size={18} className="transition-transform group-hover:translate-x-1" />}
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
-
-            {/* Success Overlay */}
-            <AnimatePresence>
-                {isSubmitted && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="fixed inset-0 z-[100] bg-brand-green/95 backdrop-blur-xl flex items-center justify-center p-6 text-center"
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ type: "spring", damping: 20 }}
-                            className="max-w-md w-full"
-                        >
-                            <div className="w-24 h-24 bg-brand-gold rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-brand-gold/40">
-                                <CheckCircle2 size={48} className="text-brand-green" />
-                            </div>
-                            <h2 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">Registration Secured</h2>
-                            <p className="text-brand-gold font-bold mb-8 uppercase tracking-widest text-sm">Welcome to the Legacy, {formData.firstName}</p>
-                            <p className="text-white/60 mb-12">
-                                Your presence has been formally registered for the 2026 Vision Gala.
-                                A formal digital invitation packet has been dispatched to your email address.
-                            </p>
-                            <button
-                                onClick={() => setIsSubmitted(false)}
-                                className="bg-white text-brand-green font-bold px-10 py-5 rounded-3xl hover:bg-brand-gold hover:text-white transition-all shadow-xl"
-                            >
-                                Return to Invitation
-                            </button>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
         </section>
     );
 }

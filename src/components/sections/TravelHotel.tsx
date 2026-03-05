@@ -32,7 +32,7 @@ export default function TravelHotel() {
                             <h3 className="text-3xl font-serif font-bold text-brand-green mb-6">Château Élan Winery & Resort</h3>
                             <div className="inline-flex flex-col bg-brand-light/50 rounded-2xl px-8 py-6 mb-8 border border-brand-gray/10 self-start">
                                 <span className="text-xs font-bold text-brand-green/60 uppercase tracking-widest mb-1">Exclusive Guest Rate</span>
-                                <div className="text-4xl font-bold text-brand-gold">$229 <span className="text-base font-medium text-slate-400">/ Night</span></div>
+                                <div className="text-4xl font-bold text-brand-gold">$299 <span className="text-base font-medium text-slate-400">/ Night</span></div>
                             </div>
                             <p className="text-slate-500 italic mb-10 text-sm">
                                 (Includes all taxes, resort fees, and self-parking)

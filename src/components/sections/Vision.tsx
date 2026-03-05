@@ -1,6 +1,7 @@
 "use client";
 
-import { Building2, Heart, MapPin } from "lucide-react";
+import Image from "next/image";
+import { Building2, Heart, MapPin, Sparkles } from "lucide-react";
 
 export default function Vision() {
     return (
@@ -26,7 +27,7 @@ export default function Vision() {
                 </div>
 
                 {/* Why This Matters - Grid */}
-                <div className="grid md:grid-cols-2 gap-12 mb-24 max-w-5xl mx-auto">
+                <div className="grid md:grid-cols-2 gap-12 mb-16 max-w-5xl mx-auto">
                     {/* For the City */}
                     <div className="bg-slate-50 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group">
                         <div className="h-64 overflow-hidden relative">
@@ -66,26 +67,117 @@ export default function Vision() {
                     </div>
                 </div>
 
-                {/* Visual Strategy / Map Placeholder */}
-                <div className="max-w-6xl mx-auto bg-slate-100 rounded-3xl overflow-hidden shadow-lg border border-slate-200">
-                    <div className="grid md:grid-cols-2">
-                        <div className="p-10 md:p-16 flex flex-col justify-center bg-primary text-white">
-                            <h3 className="text-3xl font-serif font-bold mb-6">Where Vision Becomes Reality</h3>
-                            <p className="text-primary-foreground/90 text-lg mb-8 leading-relaxed">
-                                We have secured a new parcel of land just one block away. This strategic move aligns perfectly with the city's growth while keeping us in the heart of the community we love.
+                {/* Map Context Section */}
+                <div className="max-w-7xl mx-auto bg-slate-50 rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-100 mb-24">
+                    <div className="grid lg:grid-cols-2 lg:gap-8 items-center">
+                        <div className="p-10 md:p-16 flex flex-col justify-center">
+                            <h3 className="text-3xl lg:text-4xl font-serif font-bold mb-6 text-primary leading-tight">
+                                Just One Block Away
+                            </h3>
+                            <p className="text-lg text-primary/80 leading-relaxed mb-8">
+                                We are not leaving our community; we are planting deeper roots. The new location is strategically positioned right next to the Downtown Expansion Area, ensuring we remain in the heart of Auburn's growth.
                             </p>
-                            <div className="flex items-center gap-3 text-secondary font-semibold">
-                                <MapPin className="w-5 h-5" />
-                                <span>Just 1 Block Away</span>
+
+                            <div className="space-y-4">
+                                <div className="flex items-start gap-4">
+                                    <div className="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0 mt-1">
+                                        <MapPin className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-primary mb-1">Downtown Expansion Area</h4>
+                                        <p className="text-sm text-gray-600">Our current location is part of the city's visionary redevelopment plan.</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-4">
+                                    <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 mt-1">
+                                        <Building2 className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-primary mb-1">Future Church & Community Center</h4>
+                                        <p className="text-sm text-gray-600">A dedicated, expanded campus to serve our growing congregation and city.</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div className="relative h-80 md:h-auto bg-slate-300 flex items-center justify-center group overflow-hidden">
-                            {/* Placeholder for Map Image */}
-                            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=2674&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 group-hover:scale-110 opacity-60 mix-blend-multiply"></div>
-                            <div className="relative z-10 text-center p-6">
-                                <span className="inline-block px-6 py-3 bg-white/90 backdrop-blur text-primary font-bold rounded-lg shadow-xl">
-                                    Map Visualization Coming Soon
+
+                        <div className="relative h-[400px] lg:h-full min-h-[500px] w-full bg-slate-200">
+                            <Image
+                                src="/images/map/map.jpg"
+                                alt="Map showing the future church location relative to the downtown expansion area"
+                                fill
+                                className="object-cover object-center"
+                                quality={90}
+                            />
+                            {/* Decorative overlay to make the image blend better with the clean design */}
+                            <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.1)] pointer-events-none"></div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Visual Strategy / 3D Renders */}
+                <div className="max-w-7xl mx-auto bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl border border-slate-800">
+                    <div className="grid lg:grid-cols-5">
+
+                        {/* Text Content - Spans 2 cols */}
+                        <div className="lg:col-span-2 p-10 md:p-16 flex flex-col justify-center bg-primary text-white relative overflow-hidden">
+                            {/* Decorative background element */}
+                            <div className="absolute top-0 right-0 p-8 opacity-10">
+                                <Building2 className="w-64 h-64 text-white transform translate-x-1/4 -translate-y-1/4" />
+                            </div>
+
+                            <div className="relative z-10">
+                                <span className="inline-block py-1.5 px-4 rounded-full bg-secondary/20 text-secondary font-bold tracking-wider uppercase mb-6 border border-secondary/30 text-xs">
+                                    The Future Design
                                 </span>
+                                <h3 className="text-3xl md:text-4xl font-serif font-bold mb-6 leading-tight">A Glimpse Into <br />Tomorrow</h3>
+                                <p className="text-primary-foreground/80 text-lg mb-8 leading-relaxed font-light">
+                                    We have secured a new parcel of land just one block away. Here is a faithful architectural rendering of what our new spiritual home will look like—a beacon of hope designed to serve our community for the next century.
+                                </p>
+                                <div className="flex items-center gap-4 text-white/90 font-medium bg-white/5 inline-flex p-4 rounded-2xl border border-white/10">
+                                    <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center text-secondary">
+                                        <Sparkles className="w-5 h-5" />
+                                    </div>
+                                    <span>Architectural Renderings</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Gallery - Spans 3 cols */}
+                        <div className="lg:col-span-3 bg-slate-100 relative h-[400px] lg:h-auto">
+                            <div className="absolute inset-0 grid grid-rows-2 grid-cols-2 gap-2 p-2">
+                                {/* Large Featured Image */}
+                                <div className="row-span-2 col-span-1 relative rounded-2xl overflow-hidden group">
+                                    <Image
+                                        src="/images/3d/03.jpeg"
+                                        alt="New church 3D render exterior"
+                                        fill
+                                        className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                </div>
+
+                                {/* Top Right Image */}
+                                <div className="relative rounded-2xl overflow-hidden group">
+                                    <Image
+                                        src="/images/3d/01.jpg"
+                                        alt="New church 3D render detail"
+                                        fill
+                                        className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                                    />
+                                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
+                                </div>
+
+                                {/* Bottom Right Image */}
+                                <div className="relative rounded-2xl overflow-hidden group">
+                                    <Image
+                                        src="/images/3d/02.jpeg"
+                                        alt="New church 3D render interior or alternative angle"
+                                        fill
+                                        className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                                    />
+                                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
+                                </div>
                             </div>
                         </div>
                     </div>

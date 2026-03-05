@@ -1,4 +1,12 @@
+"use client";
+
+import { useState } from "react";
+import Web3Form from "@/components/ui/forms/Web3Form";
+import FormInput from "@/components/ui/forms/FormInput";
+import SubmitButton from "@/components/ui/forms/SubmitButton";
+
 export default function Pledge() {
+    const [selectedAmount, setSelectedAmount] = useState<string>("$50,000");
     return (
         <section id="pledge" className="py-24 bg-slate-50">
             <div className="container mx-auto px-4 md:px-6">
@@ -18,7 +26,8 @@ export default function Pledge() {
                     </div>
 
                     <div className="bg-white p-8 md:p-12 rounded-3xl border border-border shadow-xl">
-                        <form className="space-y-8">
+                        <Web3Form className="space-y-8" successMessage="Thank you for your faith promise! Your pledge has been recorded securely.">
+                            <input type="hidden" name="subject" value="New Faith Promise Pledge" />
 
                             {/* 1. Your Information */}
                             <div>
@@ -37,21 +46,21 @@ export default function Pledge() {
                                             </label>
                                         </div>
                                     </div>
-                                    <div className="space-y-2 md:col-span-2">
-                                        <label htmlFor="pledgeName" className="text-sm font-semibold text-primary">Full Name / Business Name</label>
-                                        <input type="text" id="pledgeName" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary focus:border-transparent outline-none" />
+
+                                    <div className="md:col-span-2">
+                                        <FormInput label="Full Name / Business Name" name="fullName" required />
                                     </div>
-                                    <div className="space-y-2">
-                                        <label htmlFor="pledgePhone" className="text-sm font-semibold text-primary">Phone Number</label>
-                                        <input type="tel" id="pledgePhone" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary focus:border-transparent outline-none" />
+
+                                    <div>
+                                        <FormInput label="Phone Number" name="phone" type="tel" required />
                                     </div>
-                                    <div className="space-y-2">
-                                        <label htmlFor="pledgeEmail" className="text-sm font-semibold text-primary">Email Address</label>
-                                        <input type="email" id="pledgeEmail" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary focus:border-transparent outline-none" />
+
+                                    <div>
+                                        <FormInput label="Email Address" name="email" type="email" required />
                                     </div>
-                                    <div className="space-y-2 md:col-span-2">
-                                        <label htmlFor="pledgeAddress" className="text-sm font-semibold text-primary">Mailing Address</label>
-                                        <input type="text" id="pledgeAddress" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary focus:border-transparent outline-none" />
+
+                                    <div className="md:col-span-2">
+                                        <FormInput label="Mailing Address" name="address" required />
                                     </div>
                                 </div>
                             </div>
@@ -70,19 +79,26 @@ export default function Pledge() {
                                             { label: "Community Partner", amount: "$1,000" },
                                             { label: "Entry Contribution", amount: "$500" },
                                         ].map((tier) => (
-                                            <label key={tier.amount} className="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-primary/5 hover:border-primary/30 transition-all">
-                                                <input type="radio" name="amount" value={tier.amount} className="w-5 h-5 text-secondary focus:ring-secondary border-gray-300" />
+                                            <label key={tier.amount} className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${selectedAmount === tier.amount ? 'border-primary/50 bg-primary/5' : 'border-gray-200 hover:bg-primary/5 hover:border-primary/30'}`}>
+                                                <input type="radio" name="amount" value={tier.amount} checked={selectedAmount === tier.amount} onChange={(e) => setSelectedAmount(e.target.value)} className="w-5 h-5 text-secondary focus:ring-secondary border-gray-300" />
                                                 <div className="ml-3">
                                                     <span className="block font-bold text-primary">{tier.amount}</span>
                                                     <span className="block text-xs text-muted-foreground">{tier.label}</span>
                                                 </div>
                                             </label>
                                         ))}
-                                        <label className="flex items-center p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-primary/5 hover:border-primary/30 transition-all md:col-span-2">
-                                            <input type="radio" name="amount" value="other" className="w-5 h-5 text-secondary focus:ring-secondary border-gray-300" />
+                                        <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all md:col-span-2 ${selectedAmount === 'other' ? 'border-primary/50 bg-primary/5' : 'border-gray-200 hover:bg-primary/5 hover:border-primary/30'}`}>
+                                            <input type="radio" name="amount" value="other" checked={selectedAmount === "other"} onChange={(e) => setSelectedAmount(e.target.value)} className="w-5 h-5 text-secondary focus:ring-secondary border-gray-300" />
                                             <div className="ml-3 flex-grow flex items-center">
-                                                <span className="font-bold text-primary mr-3">Other Amount: $</span>
-                                                <input type="text" className="border-b border-gray-300 focus:border-secondary outline-none bg-transparent w-full py-1" placeholder="Enter amount" />
+                                                <span className={`font-bold mr-3 ${selectedAmount === 'other' ? 'text-primary' : 'text-primary/60'}`}>Other Amount: $</span>
+                                                <input
+                                                    type="number"
+                                                    name="customAmount"
+                                                    disabled={selectedAmount !== "other"}
+                                                    onFocus={() => setSelectedAmount("other")}
+                                                    className="border-b border-gray-300 focus:border-secondary outline-none bg-transparent w-full py-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:border-transparent"
+                                                    placeholder="Enter amount"
+                                                />
                                             </div>
                                         </label>
                                     </div>
@@ -97,12 +113,12 @@ export default function Pledge() {
                                         <label htmlFor="giveToday" className="text-sm font-semibold text-primary">Amount to Give Today</label>
                                         <div className="relative">
                                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                                            <input type="text" id="giveToday" className="w-full pl-8 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary focus:border-transparent outline-none" placeholder="0.00" />
+                                            <input type="text" id="giveToday" name="amountToGiveToday" className="w-full pl-8 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary focus:border-transparent outline-none" placeholder="0.00" />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-sm font-semibold text-primary">Remaining Balance Timeframe</label>
-                                        <select className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary focus:border-transparent outline-none">
+                                        <select name="balanceTimeframe" aria-label="Remaining Balance Timeframe" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary focus:border-transparent outline-none">
                                             <option value="30">30 Days</option>
                                             <option value="90">90 Days</option>
                                             <option value="date">By Specific Date</option>
@@ -137,14 +153,14 @@ export default function Pledge() {
                                 </div>
                             </div>
 
-                            <button type="button" className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-5 rounded-xl shadow-lg transform active:scale-[0.98] transition-all duration-200 text-lg">
+                            <SubmitButton isSubmitting={false} className="w-full py-5 text-lg rounded-xl shadow-lg">
                                 Submit Pledge
-                            </button>
+                            </SubmitButton>
 
                             <p className="text-xs text-center text-muted-foreground mt-4">
                                 * IMPORTANT: All donations are tax-deductible. Donors will receive a contribution receipt for tax purposes in accordance with applicable laws.
                             </p>
-                        </form>
+                        </Web3Form>
                     </div>
 
                 </div>
