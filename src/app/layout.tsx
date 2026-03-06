@@ -17,15 +17,15 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Auburn Seventh-day Adventist Church | Vision & Hope",
   description: "Join us for an evening of music, vision, and purpose at the historic Château Élan as we lay the foundation for the future of Auburn, Georgia.",
-  metadataBase: new URL("https://auburn-7days.vercel.app"),
+  metadataBase: new URL("http://gala.auburnsda.org"),
   openGraph: {
     title: "Auburn Seventh-day Adventist Church | Vision & Hope",
     description: "Join us for an evening of music, vision, and purpose at the historic Château Élan as we lay the foundation for the future of Auburn, Georgia.",
-    url: "https://auburn-7days.vercel.app",
+    url: "http://gala.auburnsda.org",
     siteName: "Auburn Seventh-day Adventist Church",
     images: [
       {
-        url: "/images/banquet/banquet.png", // High-quality image for the link preview
+        url: "http://gala.auburnsda.org/images/banquet/og-banquet.jpg", // High-quality image for the link preview (Full URL for WhatsApp)
         width: 1200,
         height: 630,
         alt: "Auburn SDA Church Vision & Hope Fundraising Banquet at Château Élan",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Auburn Seventh-day Adventist Church | Vision & Hope",
     description: "Join us for an evening of music, vision, and purpose at the historic Château Élan as we lay the foundation for the future of Auburn, Georgia.",
-    images: ["/images/banquet/banquet.png"], // Same image for Twitter cards
+    images: ["http://gala.auburnsda.org/images/banquet/og-banquet.jpg"], // Same image for Twitter cards (Full URL)
   },
 };
 
