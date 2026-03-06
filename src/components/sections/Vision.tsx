@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Building2, Heart, MapPin, Sparkles } from "lucide-react";
+import { Building2, Heart, MapPin, Sparkles, ArrowRight } from "lucide-react";
 
 export default function Vision() {
     return (
@@ -32,7 +32,7 @@ export default function Vision() {
                     <div className="bg-slate-50 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group">
                         <div className="h-64 overflow-hidden relative">
                             {/* Image: Diverse group of people laughing/talking outdoors */}
-                            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2670&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 group-hover:scale-110"></div>
+                            <div className="absolute inset-0 bg-[url('/images/ciudad.jpg')] bg-cover bg-center transition-transform duration-700 group-hover:scale-110"></div>
                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
                             <div className="absolute bottom-[-20px] left-8 w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center shadow-lg z-10">
                                 <Building2 className="w-8 h-8" />
@@ -143,41 +143,39 @@ export default function Vision() {
                             </div>
                         </div>
 
-                        {/* Gallery - Spans 3 cols */}
-                        <div className="lg:col-span-3 bg-slate-100 relative h-[400px] lg:h-auto">
-                            <div className="absolute inset-0 grid grid-rows-2 grid-cols-2 gap-2 p-2">
-                                {/* Large Featured Image */}
-                                <div className="row-span-2 col-span-1 relative rounded-2xl overflow-hidden group">
-                                    <Image
-                                        src="/images/3d/03.jpeg"
-                                        alt="New church 3D render exterior"
-                                        fill
-                                        className="object-cover transition-transform duration-1000 group-hover:scale-105"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                </div>
+                        {/* Gallery - Auto-Scrolling Carousel over the 8 Renders */}
+                        <div className="lg:col-span-3 bg-slate-100 relative h-[400px] lg:h-auto overflow-hidden group/carousel">
+                            <div className="absolute inset-0 p-2 flex gap-2 overflow-x-auto snap-x snap-mandatory hide-scrollbar">
+                                {[
+                                    { src: "/images/galeria/01.png", alt: "Aerial view of worship center" },
+                                    { src: "/images/galeria/02.png", alt: "Aerial view of multi-purpose area" },
+                                    { src: "/images/galeria/03.png", alt: "Side view of worship center" },
+                                    { src: "/images/galeria/04.png", alt: "View of entrance to soccer field" },
+                                    { src: "/images/galeria/05.png", alt: "Interior sanctuary view" },
+                                    { src: "/images/galeria/06.png", alt: "Fellowship hall view" },
+                                    { src: "/images/galeria/07.png", alt: "Lobby and reception area" },
+                                    { src: "/images/galeria/08.png", alt: "Elevated architectural render" },
+                                ].map((img, index) => (
+                                    <div key={index} className="relative min-w-[85%] sm:min-w-[45%] h-full rounded-2xl overflow-hidden snap-center shrink-0 group">
+                                        <Image
+                                            src={img.src}
+                                            alt={img.alt}
+                                            fill
+                                            className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                                            sizes="(max-width: 768px) 85vw, (max-width: 1200px) 45vw, 50vw"
+                                            quality={90}
+                                        />
+                                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                            <p className="text-white font-medium text-sm tracking-wide">{img.alt}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
 
-                                {/* Top Right Image */}
-                                <div className="relative rounded-2xl overflow-hidden group">
-                                    <Image
-                                        src="/images/3d/01.jpg"
-                                        alt="New church 3D render detail"
-                                        fill
-                                        className="object-cover transition-transform duration-1000 group-hover:scale-110"
-                                    />
-                                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
-                                </div>
-
-                                {/* Bottom Right Image */}
-                                <div className="relative rounded-2xl overflow-hidden group">
-                                    <Image
-                                        src="/images/3d/02.jpeg"
-                                        alt="New church 3D render interior or alternative angle"
-                                        fill
-                                        className="object-cover transition-transform duration-1000 group-hover:scale-110"
-                                    />
-                                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
-                                </div>
+                            {/* Decorative hint for scrolling */}
+                            <div className="absolute bottom-6 right-6 px-4 py-2 bg-black/50 backdrop-blur-md rounded-full text-white/90 text-xs font-semibold tracking-wider flex items-center gap-2 pointer-events-none opacity-80 z-20">
+                                <span>Swipe to view all</span>
+                                <ArrowRight className="w-4 h-4" />
                             </div>
                         </div>
                     </div>
