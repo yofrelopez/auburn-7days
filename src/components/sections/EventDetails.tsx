@@ -49,22 +49,39 @@ export default function EventDetails() {
                                 <div>
                                     <h4 className="text-xl font-bold text-brand-green mb-1">Château Élan Winery & Resort</h4>
                                     <p className="text-slate-600">100 Rue Charlemagne Dr, Braselton, GA 30517</p>
-                                    <a href="https://goo.gl/maps/placeholder" target="_blank" rel="noopener noreferrer" className="text-brand-gold hover:text-brand-gold/80 text-sm font-bold mt-3 inline-flex items-center transition-colors">
+                                    <a href="https://www.google.com/maps/search/?api=1&query=Chateau+Elan+Winery+and+Resort+Braselton+GA" target="_blank" rel="noopener noreferrer" className="text-brand-gold hover:text-brand-gold/80 text-sm font-bold mt-3 inline-flex items-center transition-colors">
                                         View Map & Directions
                                         <svg className="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                                     </a>
                                 </div>
                             </div>
 
-                            {/* Note */}
+                            {/* Dress Code */}
                             <div className="flex items-start group">
                                 <div className="w-14 h-14 rounded-2xl bg-white shadow-sm border border-brand-gray/10 flex items-center justify-center text-brand-gold shrink-0 mr-6 transition-transform group-hover:scale-110">
-                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                                 </div>
                                 <div>
-                                    <p className="text-slate-500 italic text-sm font-medium leading-relaxed">
-                                        To maintain the atmosphere of the evening, <br className="hidden md:block" />
-                                        this event is reserved for adults only.
+                                    <h4 className="text-xl font-bold text-brand-green mb-1">Dress Code: <span className="font-normal text-slate-700">Elegant Cocktail Attire</span></h4>
+                                    <p className="text-slate-600 font-medium text-sm leading-relaxed">
+                                        <span className="font-bold text-brand-gold">*Suggested Color Palette:</span> Ivory • Champagne • Beige • Soft Gray • White
+                                        <br />
+                                        <span className="italic text-slate-500">Black accents welcome.</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Childcare */}
+                            <div className="flex items-start group">
+                                <div className="w-14 h-14 rounded-2xl bg-white shadow-sm border border-brand-gray/10 flex items-center justify-center text-brand-gold shrink-0 mr-6 transition-transform group-hover:scale-110">
+                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                                </div>
+                                <div>
+                                    <p className="text-slate-600 font-medium leading-relaxed">
+                                        Complimentary childcare will be provided during the event.
+                                    </p>
+                                    <p className="text-brand-gold font-bold text-sm mt-1">
+                                        Space is limited; advance registration is required to reserve a spot.
                                     </p>
                                 </div>
                             </div>

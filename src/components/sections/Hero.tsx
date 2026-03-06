@@ -41,17 +41,17 @@ export default function Hero() {
                     {/* Buttons */}
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-5 w-full sm:w-auto">
                         <Link
-                            href="#rsvp"
+                            href="#vision"
                             className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-slate-900 rounded-full font-bold text-lg transition-all transform hover:scale-105 shadow-[0_0_30px_rgba(234,179,8,0.3)] flex items-center justify-center gap-2"
                         >
-                            Confirm Attendance
+                            Discover the Vision
                             <ArrowRight className="w-5 h-5" />
                         </Link>
                         <Link
-                            href="#donate"
+                            href="#event-details"
                             className="w-full sm:w-auto px-10 py-4 bg-white/10 hover:bg-white/20 border-2 border-white/30 text-white backdrop-blur-sm rounded-full font-bold text-lg transition-all flex items-center justify-center gap-2 hover:border-white/50"
                         >
-                            Invest in the Legacy
+                            Event Details
                         </Link>
                     </div>
                 </div>
