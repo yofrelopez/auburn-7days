@@ -8,6 +8,19 @@ export default function EventDetails() {
         <section id="event-details" className="py-24 bg-white relative overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
 
+                {/* Venue Hero Image */}
+                <div className="relative w-full h-[350px] md:h-[500px] rounded-[2rem] md:rounded-[3rem] overflow-hidden mb-16 md:mb-24 shadow-2xl border-4 border-white/50 relative z-20">
+                    <Image
+                        src="/images/vistas.jpeg"
+                        alt="Château Élan Exterior"
+                        fill
+                        className="object-cover hover:scale-105 transition-transform duration-1000"
+                        priority
+                    />
+                    {/* Subtle gradient overlay to make it look premium */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-brand-green/30 to-transparent mix-blend-multiply"></div>
+                </div>
+
                 {/* Header */}
                 <div className="text-center mb-20">
                     <span className="text-brand-gold font-bold tracking-[0.2em] uppercase mb-4 inline-block text-sm">The Event</span>
@@ -36,7 +49,7 @@ export default function EventDetails() {
                                     <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                 </div>
                                 <div>
-                                    <h4 className="text-xl font-bold text-brand-green mb-1">Thursday, April 30th, 2026</h4>
+                                    <h4 className="text-xl font-bold text-brand-green mb-1">Friday, May 8th, 2026</h4>
                                     <p className="text-slate-600">Reception begins at 6:00 PM</p>
                                 </div>
                             </div>
@@ -94,22 +107,34 @@ export default function EventDetails() {
                         </div>
                     </div>
 
-                    {/* Venue Image Column */}
-                    <div className="relative group">
-                        <div className="absolute -inset-4 bg-brand-gold/5 rounded-[3rem] transform rotate-2 group-hover:rotate-1 transition-transform duration-700"></div>
-                        <div className="relative h-[600px] rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white">
+                    {/* Venue Images Column */}
+                    <div className="relative group flex flex-col gap-6 md:gap-8">
+                        <div className="absolute -inset-4 bg-brand-gold/5 rounded-[3rem] transform rotate-2 group-hover:rotate-1 transition-transform duration-700 pointer-events-none"></div>
+
+                        {/* Top Image */}
+                        <div className="relative h-[300px] md:h-[400px] lg:h-[320px] rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white">
                             <Image
-                                src="/images/table.jpg"
-                                alt="Event Venue Detail"
+                                src="/images/01.jpeg"
+                                alt="Event Venue Detail 1"
                                 fill
-                                className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                                className="object-cover transition-transform duration-1000 hover:scale-105"
                                 priority
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-brand-green/20 to-transparent"></div>
+                        </div>
+
+                        {/* Bottom Image */}
+                        <div className="relative h-[300px] md:h-[400px] lg:h-[320px] rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white">
+                            <Image
+                                src="/images/02.jpeg"
+                                alt="Event Venue Detail 2"
+                                fill
+                                className="object-cover transition-transform duration-1000 hover:scale-105"
+                                priority
+                            />
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </section >
     );
 }

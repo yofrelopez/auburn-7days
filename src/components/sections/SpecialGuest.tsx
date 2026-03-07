@@ -1,5 +1,5 @@
 import Image from "next/image";
-import ImagePlaceholder from "@/components/ui/ImagePlaceholder";
+import { CheckCircle2 } from "lucide-react";
 
 export default function SpecialGuest() {
     return (
@@ -14,7 +14,7 @@ export default function SpecialGuest() {
                     <div className="w-full md:w-1/2 flex justify-center md:justify-end">
                         <div className="relative w-full max-w-md aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl border-4 border-white transform hover:scale-[1.02] transition-transform duration-500 bg-brand-gray/10">
                             <Image
-                                src="/images/guy.webp"
+                                src="/images/singer.jpg"
                                 alt="Guy Penrod"
                                 fill
                                 className="object-cover"
@@ -48,6 +48,21 @@ export default function SpecialGuest() {
                         <p className="mt-10 text-slate-500 leading-relaxed max-w-lg mx-auto md:mx-0 font-medium">
                             Known for his powerful vocals and heartfelt worship, Guy Penrod brings a message of hope and faith that resonates with audiences worldwide.
                         </p>
+
+                        <ul className="mt-8 space-y-4 max-w-lg mx-auto md:mx-0 text-left">
+                            {[
+                                "Former lead singer of Gaither Vocal Band (major influence in Christian music)",
+                                "Grammy and Dove award-winning gospel artist",
+                                "Career music sales over 4 million units",
+                                "One of the most in-demand touring gospel artists",
+                                "Albums have debuted #1 on Southern Gospel charts"
+                            ].map((fact, index) => (
+                                <li key={index} className="flex items-start gap-3 text-slate-600 font-medium bg-white/50 p-3 rounded-xl border border-brand-gray/10 shadow-sm hover:shadow-md hover:bg-white transition-all">
+                                    <CheckCircle2 className="w-5 h-5 text-brand-gold shrink-0 mt-0.5" />
+                                    <span className="leading-snug text-sm md:text-base">{fact}</span>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
             </div>

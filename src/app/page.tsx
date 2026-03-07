@@ -16,9 +16,11 @@ export default function Home() {
 
       <Vision />
 
-      <SpecialGuest />
 
       <LegacyCircles />
+
+      <SpecialGuest />
+
 
       <EventDetails />
 

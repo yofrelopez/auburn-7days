@@ -28,7 +28,7 @@ export default function RSVP() {
         phone: "",
         regType: "personal" as "personal" | "business",
         businessName: "",
-        participation: "individual" as "individual" | "table",
+        participation: "individual" as "individual" | "table" | "other",
         amount: "500",
         numGuests: 1,
         guestNames: "",
@@ -111,6 +111,10 @@ export default function RSVP() {
 
             if (data.success) {
                 setIsSubmitted(true);
+                setTimeout(() => {
+                    const el = document.getElementById("legacy-circles");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                }, 2000);
             } else {
                 console.error("Web3Forms Error:", data);
                 setSubmitError(data.message || "Failed to submit RSVP. Please try again.");
@@ -219,10 +223,9 @@ export default function RSVP() {
                                 )}
                                 {formData.participation && step > 1 && (
                                     <div className="animate-in fade-in slide-in-from-left-2 transition-all">
-                                        <p className="text-[10px] text-slate-400 uppercase font-bold">Contribution</p>
+                                        <p className="text-[10px] text-slate-400 uppercase font-bold">Level</p>
                                         <p className="text-sm font-bold text-brand-green">
-                                            {formData.participation === "table" ? "Full Table Sponsor" : "Individual Ticket"}
-                                            {formData.amount && ` • $${formData.amount}`}
+                                            {formData.participation === "table" ? "Full Table Sponsor" : formData.participation === "other" ? "Custom Contribution" : "Suggested Contribution"}
                                         </p>
                                     </div>
                                 )}
@@ -252,10 +255,21 @@ export default function RSVP() {
                                     </div>
                                     <h2 className="text-4xl md:text-5xl font-serif font-bold text-brand-green mb-4">Registration Secured</h2>
                                     <p className="text-brand-gold font-bold mb-6 uppercase tracking-widest text-sm">Welcome to the Legacy, {formData.firstName}</p>
-                                    <p className="text-slate-500 max-w-md mx-auto mb-10 text-baes leading-relaxed">
+                                    <p className="text-slate-500 max-w-md mx-auto mb-8 text-base leading-relaxed">
                                         Your presence has been formally registered for the 2026 Vision Gala.
                                         A formal digital invitation packet will be dispatched to <span className="font-bold">{formData.email}</span>.
                                     </p>
+
+                                    <button
+                                        onClick={() => {
+                                            const el = document.getElementById("legacy-circles");
+                                            if (el) el.scrollIntoView({ behavior: "smooth" });
+                                        }}
+                                        className="bg-brand-gold text-brand-green font-bold px-8 py-3 rounded-xl shadow-lg shadow-brand-gold/20 hover:opacity-90 transition-all mb-6 uppercase tracking-widest text-sm"
+                                    >
+                                        Explore Legacy Circles
+                                    </button>
+
                                     <button
                                         onClick={() => {
                                             setIsSubmitted(false);
@@ -374,26 +388,36 @@ export default function RSVP() {
 
                                             <div className="space-y-4 pt-4">
                                                 <p className="text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1">Participation Level</p>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
                                                     <button
                                                         onClick={() => {
                                                             updateFormData("participation", "individual");
                                                             updateFormData("amount", "500");
                                                         }}
-                                                        className={`p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "individual" ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10"}`}
+                                                        className={`p-4 md:p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "individual" ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10"}`}
                                                     >
-                                                        <p className="font-bold text-brand-green text-lg">Individual Ticket</p>
-                                                        <p className="text-xs text-slate-500 mt-1">Standard entry • <span className="font-bold">$500</span></p>
+                                                        <p className="font-bold text-brand-green text-sm md:text-base">Suggested Min. Contribution</p>
+                                                        <p className="text-[10px] md:text-xs text-slate-500 mt-1"><span className="font-bold text-brand-green">$500</span> per seat</p>
                                                     </button>
                                                     <button
                                                         onClick={() => {
                                                             updateFormData("participation", "table");
                                                             updateFormData("amount", "4000");
                                                         }}
-                                                        className={`p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "table" ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10"}`}
+                                                        className={`p-4 md:p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "table" ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10"}`}
                                                     >
-                                                        <p className="font-bold text-brand-green text-lg">Full Table Sponsor</p>
-                                                        <p className="text-xs text-brand-gold font-bold mt-1">Recommended • Up to 8 guests • $4,000</p>
+                                                        <p className="font-bold text-brand-green text-sm md:text-base">Full Table Sponsor</p>
+                                                        <p className="text-[10px] md:text-xs text-brand-gold font-bold mt-1">Recommended • 8 guests</p>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            updateFormData("participation", "other");
+                                                            updateFormData("amount", "");
+                                                        }}
+                                                        className={`p-4 md:p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "other" ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10"}`}
+                                                    >
+                                                        <p className="font-bold text-brand-green text-sm md:text-base">Other Amount</p>
+                                                        <p className="text-[10px] md:text-xs text-slate-500 mt-1">Custom initial contribution</p>
                                                     </button>
                                                 </div>
                                                 <div className="relative group mt-4">
@@ -401,9 +425,10 @@ export default function RSVP() {
                                                     <input
                                                         type="number"
                                                         value={formData.amount}
-                                                        readOnly
-                                                        className="w-full pl-12 pr-6 py-5 rounded-2xl bg-brand-gray/5 border-2 border-transparent outline-none transition-all font-serif font-bold text-2xl text-brand-green/70 cursor-not-allowed"
-                                                        placeholder="Contribution"
+                                                        onChange={(e) => updateFormData("amount", e.target.value)}
+                                                        readOnly={formData.participation !== "other"}
+                                                        className={`w-full pl-12 pr-6 py-5 rounded-2xl bg-brand-gray/5 border-2 outline-none transition-all font-serif font-bold text-2xl text-brand-green/70 ${formData.participation === "other" ? "border-brand-gray/20 focus:border-brand-gold focus:bg-white bg-white/50" : "border-transparent cursor-not-allowed"}`}
+                                                        placeholder={formData.participation === "other" ? "Enter custom amount" : "Contribution amount"}
                                                     />
                                                 </div>
                                             </div>
@@ -507,11 +532,10 @@ export default function RSVP() {
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 {[
                                                     { label: "Role", value: formData.regType === "personal" ? "Private Guest" : "Corporate Partner" },
-                                                    { label: "Level", value: formData.participation === "table" ? "Table Sponsorship" : "Individual" },
-                                                    { label: "Gift", value: `$${formData.amount}` },
+                                                    { label: "Level", value: formData.participation === "table" ? "Table Sponsorship" : formData.participation === "other" ? "Custom Contribution" : "Suggested Contribution" },
                                                     { label: "Group", value: `${formData.numGuests} People` }
                                                 ].map((item, i) => (
-                                                    <div key={i} className="bg-brand-light/30 p-4 rounded-2xl flex justify-between items-center group hover:bg-white hover:shadow-lg transition-all duration-300">
+                                                    <div key={i} className={`bg-brand-light/30 p-4 rounded-2xl flex justify-between items-center group hover:bg-white hover:shadow-lg transition-all duration-300 ${i === 2 ? "md:col-span-2" : ""}`}>
                                                         <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{item.label}</span>
                                                         <span className="font-bold text-brand-green">{item.value}</span>
                                                     </div>

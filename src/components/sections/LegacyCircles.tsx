@@ -79,6 +79,11 @@ export default function LegacyCircles() {
                         <br />
                         <span className="text-sm uppercase tracking-wide opacity-60 mt-2 block">— 2 Corinthians 9:7</span>
                     </p>
+
+                    <div className="mt-10 text-lg md:text-xl text-primary font-medium leading-relaxed max-w-3xl mx-auto px-6 md:px-8 bg-secondary/5 border border-secondary/10 py-6 md:py-8 rounded-3xl shadow-sm">
+                        <span className="block text-secondary font-bold uppercase tracking-widest text-sm mb-3">Our Goal</span>
+                        This Vision & Hope Fundraiser Gala aims to raise <span className="font-bold text-secondary text-2xl px-1">$400,000</span> to help <span className="font-bold text-secondary">break ground</span> for the future Vision & Hope Church & Community Center in Auburn.
+                    </div>
                 </div>
 
                 {/* Giving Levels Grid - Premium Cards */}
@@ -135,6 +140,31 @@ export default function LegacyCircles() {
                             </div>
                         </div>
                     ))}
+                </div>
+
+                {/* Contribution Information */}
+                <div className="max-w-3xl mx-auto mb-16 text-left space-y-8 bg-white p-8 md:p-10 rounded-[2rem] shadow-sm border border-slate-100">
+                    <div>
+                        <h4 className="text-xl font-serif font-bold text-primary mb-3">Flexible Giving</h4>
+                        <p className="text-muted-foreground leading-relaxed">
+                            You may make your donation in full or through convenient installments.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 className="text-xl font-serif font-bold text-primary mb-3">Contribution Information</h4>
+                        <div className="space-y-4 text-muted-foreground leading-relaxed text-sm md:text-base">
+                            <p>
+                                Contributions may be made in full or fulfilled over time through installments.
+                            </p>
+                            <p>
+                                Auburn Seventh-day Adventist Church is a registered 501(c)(3) nonprofit organization, and donations are tax-deductible to the extent permitted by law.
+                            </p>
+                            <p>
+                                An official receipt will be provided for your records.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Call to Action & Note */}
