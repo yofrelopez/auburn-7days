@@ -50,7 +50,7 @@ export default function EventDetails() {
                                 </div>
                                 <div>
                                     <h4 className="text-xl font-bold text-brand-green mb-1">Friday, May 8th, 2026</h4>
-                                    <p className="text-slate-600">Reception begins at 6:00 PM</p>
+                                    <p className="text-slate-600">Reception begins at 5:00 PM</p>
                                 </div>
                             </div>
 

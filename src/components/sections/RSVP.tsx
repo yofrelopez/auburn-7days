@@ -447,22 +447,42 @@ export default function RSVP() {
                                                     <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 flex items-center gap-2">
                                                         <Users size={14} /> Total Guests
                                                     </label>
-                                                    <div className="flex flex-wrap items-center gap-2">
+                                                    <div className="flex flex-wrap items-center gap-2 md:gap-3">
                                                         {[1, 2, 4, 8].map(n => (
                                                             <button
                                                                 key={n}
-                                                                onClick={() => updateFormData("numGuests", n)}
-                                                                className={`w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl border-2 transition-all ${formData.numGuests === n ? "border-brand-gold bg-brand-gold/10 text-brand-green font-bold" : "border-brand-gray/10 text-slate-400"}`}
+                                                                onClick={() => {
+                                                                    updateFormData("numGuests", n);
+                                                                    if (formData.participation !== "other") {
+                                                                        updateFormData("amount", (n * 500).toString());
+                                                                    }
+                                                                }}
+                                                                className={`flex flex-col items-center justify-center min-w-[3.5rem] h-[3.5rem] px-2 md:min-w-[4rem] md:h-[4rem] rounded-lg md:rounded-xl border-2 transition-all ${formData.numGuests === n ? "border-brand-gold bg-brand-gold/10 text-brand-green shadow-sm" : "border-brand-gray/10 text-slate-500 hover:border-brand-gray/30 bg-white"}`}
                                                             >
-                                                                {n}
+                                                                <span className="font-bold text-base md:text-lg leading-none mb-1 text-center">{n}</span>
+                                                                <span className={`text-[9px] md:text-[10px] font-medium leading-none text-center ${formData.numGuests === n ? "text-brand-green/80" : "text-slate-400"}`}>
+                                                                    ${(n * 500).toLocaleString()}
+                                                                </span>
                                                             </button>
                                                         ))}
-                                                        <input
-                                                            type="number"
-                                                            className="w-14 md:w-16 h-10 md:h-12 bg-white border border-brand-gray/20 rounded-lg md:rounded-xl px-2 outline-none text-center font-bold text-sm md:text-base"
-                                                            value={formData.numGuests}
-                                                            onChange={(e) => updateFormData("numGuests", parseInt(e.target.value))}
-                                                        />
+                                                        <div className={`relative flex flex-col items-center justify-center min-w-[3.5rem] h-[3.5rem] md:min-w-[4rem] md:h-[4rem] rounded-lg md:rounded-xl border-2 transition-all overflow-hidden bg-white ${![1, 2, 4, 8].includes(formData.numGuests) && formData.numGuests > 0 ? "border-brand-gold ring-1 ring-brand-gold shadow-sm" : "border-brand-gray/20 focus-within:border-brand-gold focus-within:ring-1 focus-within:ring-brand-gold"}`}>
+                                                            <input
+                                                                type="number"
+                                                                min="1"
+                                                                className="absolute inset-0 w-full h-full text-center font-bold text-base md:text-lg outline-none bg-transparent pb-3.5 md:pb-4 text-brand-green"
+                                                                value={formData.numGuests || ''}
+                                                                onChange={(e) => {
+                                                                    const val = parseInt(e.target.value) || 0;
+                                                                    updateFormData("numGuests", val);
+                                                                    if (formData.participation !== "other") {
+                                                                        updateFormData("amount", (val * 500).toString());
+                                                                    }
+                                                                }}
+                                                            />
+                                                            <span className={`absolute bottom-1.5 md:bottom-2 text-[9px] md:text-[10px] font-medium pointer-events-none text-center w-full px-1 overflow-hidden text-ellipsis ${![1, 2, 4, 8].includes(formData.numGuests) && formData.numGuests > 0 ? "text-brand-green/80" : "text-slate-400"}`}>
+                                                                ${((formData.numGuests || 0) * 500).toLocaleString()}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
 
