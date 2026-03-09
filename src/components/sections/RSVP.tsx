@@ -26,6 +26,7 @@ export default function RSVP() {
         lastName: "",
         email: "",
         phone: "",
+        intention: "attend" as "attend" | "pledge" | "both",
         regType: "personal" as "personal" | "business",
         businessName: "",
         participation: "individual" as "individual" | "table" | "other",
@@ -37,7 +38,10 @@ export default function RSVP() {
         childCare: "no" as "no" | "yes",
         numChildren: 1,
         agesChildren: "",
-        childNeeds: ""
+        childNeeds: "",
+        pledgeAmount: "50000",
+        pledgeFrequency: "one-time",
+        pledgeTimeframe: "30"
     });
 
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -53,11 +57,11 @@ export default function RSVP() {
         }
         if (currentStep === 2) {
             if (formData.regType === "business" && !formData.businessName) newErrors.push("Business name is required for corporate registration");
-            if (!formData.amount || parseInt(formData.amount) <= 0) newErrors.push("A contribution amount is required");
+            if (formData.intention !== "pledge" && (!formData.amount || parseInt(formData.amount) <= 0)) newErrors.push("A contribution amount is required");
         }
-        // Step 3 is mostly optional (dietary/childcare), but we could check numGuests
         if (currentStep === 3) {
-            if (formData.numGuests < 1) newErrors.push("Number of guests must be at least 1");
+            if (formData.intention !== "pledge" && formData.numGuests < 1) newErrors.push("Number of guests must be at least 1");
+            if (formData.intention !== "attend" && formData.pledgeAmount === "other" && (!formData.amount || parseInt(formData.amount) <= 0)) newErrors.push("Please specify a custom pledge amount");
         }
 
         setErrors(newErrors);
@@ -130,8 +134,8 @@ export default function RSVP() {
     const steps = [
         { id: 1, title: "Identity", icon: User },
         { id: 2, title: "Engagement", icon: Ticket },
-        { id: 3, title: "Hospitality", icon: Home },
-        { id: 4, title: "Commitment", icon: Heart },
+        { id: 3, title: formData.intention === "pledge" ? "Faith Promise" : "Hospitality", icon: formData.intention === "pledge" ? Heart : Home },
+        { id: 4, title: "Commitment", icon: CheckCircle2 },
     ];
 
     return (
@@ -279,6 +283,7 @@ export default function RSVP() {
                                                 lastName: "",
                                                 email: "",
                                                 phone: "",
+                                                intention: "attend",
                                                 regType: "personal",
                                                 businessName: "",
                                                 participation: "individual",
@@ -290,7 +295,10 @@ export default function RSVP() {
                                                 childCare: "no",
                                                 numChildren: 1,
                                                 agesChildren: "",
-                                                childNeeds: ""
+                                                childNeeds: "",
+                                                pledgeAmount: "50000",
+                                                pledgeFrequency: "one-time",
+                                                pledgeTimeframe: "30"
                                             });
                                         }}
                                         className="text-sm font-bold text-brand-green hover:text-brand-gold transition-colors underline underline-offset-4 decoration-2"
@@ -347,13 +355,31 @@ export default function RSVP() {
                                     {step === 2 && (
                                         <div className="space-y-8 md:space-y-10">
                                             <div>
-                                                <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">The nature of your engagement</h3>
-                                                <p className="text-sm md:text-base text-slate-500">How would you like to partner with our vision tonight?</p>
+                                                <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">Your Path of Impact</h3>
+                                                <p className="text-sm md:text-base text-slate-500">How would you like to partner with our vision?</p>
                                             </div>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
                                                 {[
-                                                    { id: "personal", title: "Personal", desc: "Attending as an individual guest", icon: Heart },
+                                                    { id: "attend", title: "Attend Gala", desc: "Join us at the event", icon: Ticket },
+                                                    { id: "pledge", title: "Make a Pledge", desc: "Faith promise contribution", icon: Heart },
+                                                    { id: "both", title: "Both", desc: "Attend & make a pledge", icon: Star }
+                                                ].map((t) => (
+                                                    <button
+                                                        key={t.id}
+                                                        onClick={() => updateFormData("intention", t.id as any)}
+                                                        className={`p-4 md:p-6 rounded-2xl border-2 text-left transition-all duration-300 relative overflow-hidden ${formData.intention === t.id ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10 bg-white"}`}
+                                                    >
+                                                        <t.icon className={`mb-3 transition-colors ${formData.intention === t.id ? "text-brand-gold" : "text-brand-green/20"}`} size={24} />
+                                                        <p className={`font-bold text-sm md:text-base mb-1 ${formData.intention === t.id ? "text-brand-green" : "text-slate-700"}`}>{t.title}</p>
+                                                        <p className="text-[10px] md:text-xs text-slate-400">{t.desc}</p>
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pt-4 border-t border-brand-gray/10">
+                                                {[
+                                                    { id: "personal", title: "Personal", desc: "Individual registration", icon: User },
                                                     { id: "business", title: "Corporate", desc: "Representing an organization", icon: Briefcase }
                                                 ].map((t) => (
                                                     <button
@@ -386,156 +412,240 @@ export default function RSVP() {
                                                 </motion.div>
                                             )}
 
-                                            <div className="space-y-4 pt-4">
-                                                <p className="text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1">Participation Level</p>
-                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-                                                    <button
-                                                        onClick={() => {
-                                                            updateFormData("participation", "individual");
-                                                            updateFormData("amount", "500");
-                                                        }}
-                                                        className={`p-4 md:p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "individual" ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10"}`}
-                                                    >
-                                                        <p className="font-bold text-brand-green text-sm md:text-base">Suggested Min. Contribution</p>
-                                                        <p className="text-[10px] md:text-xs text-slate-500 mt-1"><span className="font-bold text-brand-green">$500</span> per seat</p>
-                                                    </button>
-                                                    <button
-                                                        onClick={() => {
-                                                            updateFormData("participation", "table");
-                                                            updateFormData("amount", "4000");
-                                                        }}
-                                                        className={`p-4 md:p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "table" ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10"}`}
-                                                    >
-                                                        <p className="font-bold text-brand-green text-sm md:text-base">Full Table Sponsor</p>
-                                                        <p className="text-[10px] md:text-xs text-brand-gold font-bold mt-1">Recommended • 8 guests</p>
-                                                    </button>
-                                                    <button
-                                                        onClick={() => {
-                                                            updateFormData("participation", "other");
-                                                            updateFormData("amount", "");
-                                                        }}
-                                                        className={`p-4 md:p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "other" ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10"}`}
-                                                    >
-                                                        <p className="font-bold text-brand-green text-sm md:text-base">Other Amount</p>
-                                                        <p className="text-[10px] md:text-xs text-slate-500 mt-1">Custom initial contribution</p>
-                                                    </button>
+                                            {formData.intention !== "pledge" && (
+                                                <div className="space-y-4 pt-4 border-t border-brand-gray/10">
+                                                    <p className="text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1">Gala Participation Level</p>
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+                                                        <button
+                                                            onClick={() => {
+                                                                updateFormData("participation", "individual");
+                                                                updateFormData("amount", "500");
+                                                            }}
+                                                            className={`p-4 md:p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "individual" ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10"}`}
+                                                        >
+                                                            <p className="font-bold text-brand-green text-sm md:text-base">Suggested Min. Contribution</p>
+                                                            <p className="text-[10px] md:text-xs text-slate-500 mt-1"><span className="font-bold text-brand-green">$500</span> per seat</p>
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                updateFormData("participation", "table");
+                                                                updateFormData("amount", "4000");
+                                                            }}
+                                                            className={`p-4 md:p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "table" ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10"}`}
+                                                        >
+                                                            <p className="font-bold text-brand-green text-sm md:text-base">Full Table Sponsor</p>
+                                                            <p className="text-[10px] md:text-xs text-brand-gold font-bold mt-1">Recommended • 8 guests</p>
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                updateFormData("participation", "other");
+                                                                updateFormData("amount", "");
+                                                            }}
+                                                            className={`p-4 md:p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "other" ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10"}`}
+                                                        >
+                                                            <p className="font-bold text-brand-green text-sm md:text-base">Other Amount</p>
+                                                            <p className="text-[10px] md:text-xs text-slate-500 mt-1">Custom initial contribution</p>
+                                                        </button>
+                                                    </div>
+                                                    <div className="relative group mt-4">
+                                                        <label className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-green/50 font-bold">$</label>
+                                                        <input
+                                                            type="number"
+                                                            value={formData.amount}
+                                                            onChange={(e) => updateFormData("amount", e.target.value)}
+                                                            readOnly={formData.participation !== "other"}
+                                                            className={`w-full pl-12 pr-6 py-5 rounded-2xl bg-brand-gray/5 border-2 outline-none transition-all font-serif font-bold text-2xl text-brand-green/70 ${formData.participation === "other" ? "border-brand-gray/20 focus:border-brand-gold focus:bg-white bg-white/50" : "border-transparent cursor-not-allowed"}`}
+                                                            placeholder={formData.participation === "other" ? "Enter custom amount" : "Contribution amount"}
+                                                        />
+                                                    </div>
                                                 </div>
-                                                <div className="relative group mt-4">
-                                                    <label className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-green/50 font-bold">$</label>
-                                                    <input
-                                                        type="number"
-                                                        value={formData.amount}
-                                                        onChange={(e) => updateFormData("amount", e.target.value)}
-                                                        readOnly={formData.participation !== "other"}
-                                                        className={`w-full pl-12 pr-6 py-5 rounded-2xl bg-brand-gray/5 border-2 outline-none transition-all font-serif font-bold text-2xl text-brand-green/70 ${formData.participation === "other" ? "border-brand-gray/20 focus:border-brand-gold focus:bg-white bg-white/50" : "border-transparent cursor-not-allowed"}`}
-                                                        placeholder={formData.participation === "other" ? "Enter custom amount" : "Contribution amount"}
-                                                    />
-                                                </div>
-                                            </div>
+                                            )}
                                         </div>
                                     )}
 
                                     {step === 3 && (
                                         <div className="space-y-8 md:space-y-10">
-                                            <div>
-                                                <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">Hospitality Details</h3>
-                                                <p className="text-sm md:text-base text-slate-500">Help us ensure your comfort and the safety of your family.</p>
-                                            </div>
+                                            {formData.intention !== "pledge" && (
+                                                <>
+                                                    <div>
+                                                        <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">Hospitality Details</h3>
+                                                        <p className="text-sm md:text-base text-slate-500">Help us ensure your comfort and the safety of your family at the Gala.</p>
+                                                    </div>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                                                <div className="space-y-4">
-                                                    <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 flex items-center gap-2">
-                                                        <Users size={14} /> Total Guests
-                                                    </label>
-                                                    <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                                                        {[1, 2, 4, 8].map(n => (
-                                                            <button
-                                                                key={n}
-                                                                onClick={() => {
-                                                                    updateFormData("numGuests", n);
-                                                                    if (formData.participation !== "other") {
-                                                                        updateFormData("amount", (n * 500).toString());
-                                                                    }
-                                                                }}
-                                                                className={`flex flex-col items-center justify-center min-w-[3.5rem] h-[3.5rem] px-2 md:min-w-[4rem] md:h-[4rem] rounded-lg md:rounded-xl border-2 transition-all ${formData.numGuests === n ? "border-brand-gold bg-brand-gold/10 text-brand-green shadow-sm" : "border-brand-gray/10 text-slate-500 hover:border-brand-gray/30 bg-white"}`}
-                                                            >
-                                                                <span className="font-bold text-base md:text-lg leading-none mb-1 text-center">{n}</span>
-                                                                <span className={`text-[9px] md:text-[10px] font-medium leading-none text-center ${formData.numGuests === n ? "text-brand-green/80" : "text-slate-400"}`}>
-                                                                    ${(n * 500).toLocaleString()}
-                                                                </span>
-                                                            </button>
-                                                        ))}
-                                                        <div className={`relative flex flex-col items-center justify-center min-w-[3.5rem] h-[3.5rem] md:min-w-[4rem] md:h-[4rem] rounded-lg md:rounded-xl border-2 transition-all overflow-hidden bg-white ${![1, 2, 4, 8].includes(formData.numGuests) && formData.numGuests > 0 ? "border-brand-gold ring-1 ring-brand-gold shadow-sm" : "border-brand-gray/20 focus-within:border-brand-gold focus-within:ring-1 focus-within:ring-brand-gold"}`}>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                                                        <div className="space-y-4">
+                                                            <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 flex items-center gap-2">
+                                                                <Users size={14} /> Total Guests
+                                                            </label>
+                                                            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                                                                {[1, 2, 4, 8].map(n => (
+                                                                    <button
+                                                                        key={n}
+                                                                        onClick={() => {
+                                                                            updateFormData("numGuests", n);
+                                                                            if (formData.participation !== "other") {
+                                                                                updateFormData("amount", (n * 500).toString());
+                                                                            }
+                                                                        }}
+                                                                        className={`flex flex-col items-center justify-center min-w-[3.5rem] h-[3.5rem] px-2 md:min-w-[4rem] md:h-[4rem] rounded-lg md:rounded-xl border-2 transition-all ${formData.numGuests === n ? "border-brand-gold bg-brand-gold/10 text-brand-green shadow-sm" : "border-brand-gray/10 text-slate-500 hover:border-brand-gray/30 bg-white"}`}
+                                                                    >
+                                                                        <span className="font-bold text-base md:text-lg leading-none mb-1 text-center">{n}</span>
+                                                                        <span className={`text-[9px] md:text-[10px] font-medium leading-none text-center ${formData.numGuests === n ? "text-brand-green/80" : "text-slate-400"}`}>
+                                                                            ${(n * 500).toLocaleString()}
+                                                                        </span>
+                                                                    </button>
+                                                                ))}
+                                                                <div className={`relative flex flex-col items-center justify-center min-w-[3.5rem] h-[3.5rem] md:min-w-[4rem] md:h-[4rem] rounded-lg md:rounded-xl border-2 transition-all overflow-hidden bg-white ${![1, 2, 4, 8].includes(formData.numGuests) && formData.numGuests > 0 ? "border-brand-gold ring-1 ring-brand-gold shadow-sm" : "border-brand-gray/20 focus-within:border-brand-gold focus-within:ring-1 focus-within:ring-brand-gold"}`}>
+                                                                    <input
+                                                                        type="number"
+                                                                        min="1"
+                                                                        className="absolute inset-0 w-full h-full text-center font-bold text-base md:text-lg outline-none bg-transparent pb-3.5 md:pb-4 text-brand-green"
+                                                                        value={formData.numGuests || ''}
+                                                                        onChange={(e) => {
+                                                                            const val = parseInt(e.target.value) || 0;
+                                                                            updateFormData("numGuests", val);
+                                                                            if (formData.participation !== "other") {
+                                                                                updateFormData("amount", (val * 500).toString());
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                    <span className={`absolute bottom-1.5 md:bottom-2 text-[9px] md:text-[10px] font-medium pointer-events-none text-center w-full px-1 overflow-hidden text-ellipsis ${![1, 2, 4, 8].includes(formData.numGuests) && formData.numGuests > 0 ? "text-brand-green/80" : "text-slate-400"}`}>
+                                                                        ${((formData.numGuests || 0) * 500).toLocaleString()}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="space-y-4">
+                                                            <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 flex items-center gap-2">
+                                                                <Utensils size={14} /> Dietary Specifics
+                                                            </label>
                                                             <input
-                                                                type="number"
-                                                                min="1"
-                                                                className="absolute inset-0 w-full h-full text-center font-bold text-base md:text-lg outline-none bg-transparent pb-3.5 md:pb-4 text-brand-green"
-                                                                value={formData.numGuests || ''}
-                                                                onChange={(e) => {
-                                                                    const val = parseInt(e.target.value) || 0;
-                                                                    updateFormData("numGuests", val);
-                                                                    if (formData.participation !== "other") {
-                                                                        updateFormData("amount", (val * 500).toString());
-                                                                    }
-                                                                }}
+                                                                type="text"
+                                                                value={formData.dietary}
+                                                                onChange={(e) => updateFormData("dietary", e.target.value)}
+                                                                className="w-full bg-white/80 border border-brand-gray/20 p-3 md:p-4 rounded-lg md:rounded-xl outline-none text-sm"
+                                                                placeholder="Allergies / Restrictions"
                                                             />
-                                                            <span className={`absolute bottom-1.5 md:bottom-2 text-[9px] md:text-[10px] font-medium pointer-events-none text-center w-full px-1 overflow-hidden text-ellipsis ${![1, 2, 4, 8].includes(formData.numGuests) && formData.numGuests > 0 ? "text-brand-green/80" : "text-slate-400"}`}>
-                                                                ${((formData.numGuests || 0) * 500).toLocaleString()}
-                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="bg-brand-light/50 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-brand-gray/10 space-y-6">
+                                                        <div className="flex items-start gap-3 md:gap-4">
+                                                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white border border-brand-gold/20 flex items-center justify-center text-brand-gold shrink-0">
+                                                                <Baby size={20} className="md:w-6 md:h-6" />
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <p className="font-bold text-brand-green mb-0.5 uppercase text-xs md:text-sm">Complimentary Child Care</p>
+                                                                <p className="text-[10px] md:text-xs text-slate-500 leading-tight">On-site professional service for the duration.</p>
+                                                            </div>
+                                                            <div className="shrink-0">
+                                                                <button
+                                                                    onClick={() => updateFormData("childCare", formData.childCare === "yes" ? "no" : "yes")}
+                                                                    className={`w-12 md:w-14 h-6 md:h-8 rounded-full p-1 transition-colors duration-300 flex ${formData.childCare === "yes" ? "bg-brand-green justify-end" : "bg-brand-gray/30 justify-start"}`}
+                                                                >
+                                                                    <motion.div layout className="w-4 h-4 md:w-6 md:h-6 bg-white rounded-full shadow-md" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                        {formData.childCare === "yes" && (
+                                                            <motion.div
+                                                                initial={{ opacity: 0, scale: 0.95 }}
+                                                                animate={{ opacity: 1, scale: 1 }}
+                                                                className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 pt-4 border-t border-brand-gray/10"
+                                                            >
+                                                                <div className="space-y-1.5">
+                                                                    <p className="text-[10px] font-bold text-brand-green/60 uppercase">Quantity</p>
+                                                                    <input type="number" className="w-full p-2.5 rounded-lg border border-brand-gray/20 text-sm" placeholder="1" />
+                                                                </div>
+                                                                <div className="space-y-1.5 col-span-2 md:col-span-2">
+                                                                    <p className="text-[10px] font-bold text-brand-green/60 uppercase">Ages (e.g. 4, 7)</p>
+                                                                    <input type="text" className="w-full p-2.5 rounded-lg border border-brand-gray/20 text-sm" placeholder="Enter ages" />
+                                                                </div>
+                                                            </motion.div>
+                                                        )}
+                                                    </div>
+                                                </>
+                                            )}
+
+                                            {formData.intention !== "attend" && (
+                                                <div className={`space-y-8 ${formData.intention === "both" ? "pt-10 border-t-2 border-brand-gray/10" : ""}`}>
+                                                    <div>
+                                                        <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">Faith Promise Details</h3>
+                                                        <p className="text-sm md:text-base text-slate-500">Plant a seed today for a lasting legacy tomorrow.</p>
+                                                    </div>
+
+                                                    <div className="space-y-4">
+                                                        <label className="text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1">Total Pledge Amount</label>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                            {[
+                                                                { label: "Cornerstone Legacy Partner", amount: "50000" },
+                                                                { label: "Visionary Pillar", amount: "25000" },
+                                                                { label: "Heritage Builder", amount: "10000" },
+                                                                { label: "Faith Supporter", amount: "5000" },
+                                                                { label: "Community Partner", amount: "1000" },
+                                                                { label: "Other Amount", amount: "other" }
+                                                            ].map((tier) => (
+                                                                <button
+                                                                    key={tier.amount}
+                                                                    onClick={() => updateFormData("pledgeAmount", tier.amount)}
+                                                                    className={`p-4 rounded-xl border-2 text-left transition-all ${formData.pledgeAmount === tier.amount ? "border-brand-gold bg-brand-gold/10 ring-1 ring-brand-gold" : "border-brand-gray/10 hover:border-brand-gray/30 bg-white"}`}
+                                                                >
+                                                                    <p className="font-bold text-brand-green text-sm">{tier.amount === "other" ? "Custom Amount" : `$${parseInt(tier.amount).toLocaleString()}`}</p>
+                                                                    <p className="text-[10px] text-slate-500 mt-0.5">{tier.label}</p>
+                                                                </button>
+                                                            ))}
+                                                        </div>
+
+                                                        {formData.pledgeAmount === "other" && (
+                                                            <div className="relative group mt-4">
+                                                                <label className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-green/50 font-bold">$</label>
+                                                                <input
+                                                                    type="number"
+                                                                    value={formData.amount}
+                                                                    onChange={(e) => updateFormData("amount", e.target.value)}
+                                                                    className="w-full pl-12 pr-6 py-4 rounded-xl border-2 border-brand-gold/50 focus:border-brand-gold outline-none transition-all font-serif font-bold text-xl text-brand-green"
+                                                                    placeholder="Enter custom pledge amount"
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                        <div className="space-y-3">
+                                                            <label className="text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1">Remaining Balance Timeframe</label>
+                                                            <select
+                                                                value={formData.pledgeTimeframe}
+                                                                onChange={(e) => updateFormData("pledgeTimeframe", e.target.value)}
+                                                                className="w-full p-4 rounded-xl bg-white border border-brand-gray/20 outline-none focus:ring-2 focus:ring-brand-gold text-sm text-brand-green font-medium"
+                                                            >
+                                                                <option value="30">30 Days</option>
+                                                                <option value="90">90 Days</option>
+                                                                <option value="date">By Specific Date</option>
+                                                            </select>
+                                                        </div>
+                                                        <div className="space-y-3">
+                                                            <label className="text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1">Giving Frequency</label>
+                                                            <div className="flex gap-4">
+                                                                {["one-time", "monthly", "quarterly"].map((freq) => (
+                                                                    <label key={freq} className="flex items-center gap-2 cursor-pointer">
+                                                                        <input
+                                                                            type="radio"
+                                                                            name="pledgeFrequency"
+                                                                            value={freq}
+                                                                            checked={formData.pledgeFrequency === freq}
+                                                                            onChange={(e) => updateFormData("pledgeFrequency", e.target.value)}
+                                                                            className="w-4 h-4 text-brand-gold focus:ring-brand-gold"
+                                                                        />
+                                                                        <span className="text-sm text-brand-green capitalize">{freq.replace("-", " ")}</span>
+                                                                    </label>
+                                                                ))}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-
-                                                <div className="space-y-4">
-                                                    <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 flex items-center gap-2">
-                                                        <Utensils size={14} /> Dietary Specifics
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        value={formData.dietary}
-                                                        onChange={(e) => updateFormData("dietary", e.target.value)}
-                                                        className="w-full bg-white/80 border border-brand-gray/20 p-3 md:p-4 rounded-lg md:rounded-xl outline-none text-sm"
-                                                        placeholder="Allergies / Restrictions"
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div className="bg-brand-light/50 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-brand-gray/10 space-y-6">
-                                                <div className="flex items-start gap-3 md:gap-4">
-                                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white border border-brand-gold/20 flex items-center justify-center text-brand-gold shrink-0">
-                                                        <Baby size={20} className="md:w-6 md:h-6" />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <p className="font-bold text-brand-green mb-0.5 uppercase text-xs md:text-sm">Complimentary Child Care</p>
-                                                        <p className="text-[10px] md:text-xs text-slate-500 leading-tight">On-site professional service for the duration.</p>
-                                                    </div>
-                                                    <div className="shrink-0">
-                                                        <button
-                                                            onClick={() => updateFormData("childCare", formData.childCare === "yes" ? "no" : "yes")}
-                                                            className={`w-12 md:w-14 h-6 md:h-8 rounded-full p-1 transition-colors duration-300 flex ${formData.childCare === "yes" ? "bg-brand-green justify-end" : "bg-brand-gray/30 justify-start"}`}
-                                                        >
-                                                            <motion.div layout className="w-4 h-4 md:w-6 md:h-6 bg-white rounded-full shadow-md" />
-                                                        </button>
-                                                    </div>
-                                                </div>
-
-                                                {formData.childCare === "yes" && (
-                                                    <motion.div
-                                                        initial={{ opacity: 0, scale: 0.95 }}
-                                                        animate={{ opacity: 1, scale: 1 }}
-                                                        className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 pt-4 border-t border-brand-gray/10"
-                                                    >
-                                                        <div className="space-y-1.5">
-                                                            <p className="text-[10px] font-bold text-brand-green/60 uppercase">Quantity</p>
-                                                            <input type="number" className="w-full p-2.5 rounded-lg border border-brand-gray/20 text-sm" placeholder="1" />
-                                                        </div>
-                                                        <div className="space-y-1.5 col-span-2 md:col-span-2">
-                                                            <p className="text-[10px] font-bold text-brand-green/60 uppercase">Ages (e.g. 4, 7)</p>
-                                                            <input type="text" className="w-full p-2.5 rounded-lg border border-brand-gray/20 text-sm" placeholder="Enter ages" />
-                                                        </div>
-                                                    </motion.div>
-                                                )}
-                                            </div>
+                                            )}
                                         </div>
                                     )}
 
@@ -550,21 +660,33 @@ export default function RSVP() {
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                {[
-                                                    { label: "Role", value: formData.regType === "personal" ? "Private Guest" : "Corporate Partner" },
-                                                    { label: "Level", value: formData.participation === "table" ? "Table Sponsorship" : formData.participation === "other" ? "Custom Contribution" : "Suggested Contribution" },
-                                                    { label: "Group", value: `${formData.numGuests} People` }
-                                                ].map((item, i) => (
-                                                    <div key={i} className={`bg-brand-light/30 p-4 rounded-2xl flex justify-between items-center group hover:bg-white hover:shadow-lg transition-all duration-300 ${i === 2 ? "md:col-span-2" : ""}`}>
-                                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{item.label}</span>
-                                                        <span className="font-bold text-brand-green">{item.value}</span>
+                                                <div className="bg-brand-light/30 p-4 rounded-2xl flex justify-between items-center group hover:bg-white hover:shadow-lg transition-all duration-300">
+                                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Role</span>
+                                                    <span className="font-bold text-brand-green">{formData.regType === "personal" ? "Private Guest" : "Corporate Partner"}</span>
+                                                </div>
+                                                <div className="bg-brand-light/30 p-4 rounded-2xl flex justify-between items-center group hover:bg-white hover:shadow-lg transition-all duration-300">
+                                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Intention</span>
+                                                    <span className="font-bold text-brand-green capitalize">{formData.intention.replace("both", "Attend & Pledge")}</span>
+                                                </div>
+
+                                                {formData.intention !== "pledge" && (
+                                                    <div className="bg-brand-light/30 p-4 rounded-2xl flex justify-between items-center group hover:bg-white hover:shadow-lg transition-all duration-300 md:col-span-2">
+                                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Gala Group</span>
+                                                        <span className="font-bold text-brand-green">{formData.numGuests} People ({formData.participation === "table" ? "Table Sponsorship" : "Standard"})</span>
                                                     </div>
-                                                ))}
+                                                )}
+
+                                                {formData.intention !== "attend" && (
+                                                    <div className="bg-brand-light/30 p-4 rounded-2xl flex justify-between items-center group hover:bg-white hover:shadow-lg transition-all duration-300 md:col-span-2">
+                                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Faith Promise</span>
+                                                        <span className="font-bold text-brand-gold">${formData.pledgeAmount === "other" ? formData.amount : parseInt(formData.pledgeAmount).toLocaleString()} • {formData.pledgeFrequency.replace("-", " ")}</span>
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <p className="text-xs text-center text-slate-400 italic px-8">
-                                                By submitting, you are confirming your attendance to "An Evening of Vision".
-                                                Our hospitality team will contact you shortly with formal details and invitation materials.
+                                                By submitting, you are confirming your {formData.intention !== "pledge" ? "attendance and commitment" : "faith promise"} to our vision.
+                                                {formData.intention !== "pledge" && " Our hospitality team will contact you shortly with formal details and invitation materials."}
                                             </p>
                                         </div>
                                     )}

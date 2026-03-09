@@ -6,7 +6,6 @@ import EventDetails from "@/components/sections/EventDetails";
 import TravelHotel from "@/components/sections/TravelHotel";
 import SiteVisits from "@/components/sections/SiteVisits";
 import RSVP from "@/components/sections/RSVP";
-import Pledge from "@/components/sections/Pledge";
 
 
 export default function Home() {
@@ -29,8 +28,6 @@ export default function Home() {
       <SiteVisits />
 
       <RSVP />
-
-      <Pledge />
 
 
     </>
