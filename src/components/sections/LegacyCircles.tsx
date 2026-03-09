@@ -170,7 +170,7 @@ export default function LegacyCircles() {
                 {/* Call to Action & Note */}
                 <div className="max-w-2xl mx-auto">
                     <a
-                        href="#pledge"
+                        href="#rsvp"
                         className="inline-flex items-center justify-center px-10 py-5 text-base font-bold text-white transition-all duration-300 bg-primary rounded-full shadow-lg shadow-primary/30 hover:bg-primary/90 hover:shadow-xl hover:-translate-y-1"
                     >
                         Make a Legacy Pledge

@@ -48,7 +48,7 @@ export default function Hero() {
                             <ArrowRight className="w-5 h-5" />
                         </Link>
                         <Link
-                            href="#pledge"
+                            href="#rsvp"
                             className="w-full sm:w-auto px-10 py-4 bg-white/10 hover:bg-white/20 border-2 border-white/30 text-white backdrop-blur-sm rounded-full font-bold text-lg transition-all flex items-center justify-center gap-2 hover:border-white/50"
                         >
                             Donate &bull; Sponsor &bull; Participate
