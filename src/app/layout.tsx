@@ -3,6 +3,8 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { ModalProvider } from "@/context/ModalContext";
+import GivingModal from "@/components/modals/GivingModal";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -52,11 +54,14 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${playfair.variable} antialiased min-h-screen flex flex-col`}
       >
-        <Navbar />
-        <main className="flex-grow">
-          {children}
-        </main>
-        <Footer />
+        <ModalProvider>
+          <Navbar />
+          <main className="flex-grow">
+            {children}
+          </main>
+          <Footer />
+          <GivingModal />
+        </ModalProvider>
       </body>
     </html>
   );

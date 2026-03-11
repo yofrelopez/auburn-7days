@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     User,
@@ -103,7 +104,7 @@ export default function RSVP() {
         // Web3Forms specific fields
         const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_KEY || "";
         formDataToSend.append("access_key", accessKey);
-        formDataToSend.append("subject", `New RSVP: ${formData.firstName} ${formData.lastName}`);
+        formDataToSend.append("subject", `New Registration: ${formData.firstName} ${formData.lastName}`);
 
         try {
             const response = await fetch("https://api.web3forms.com/submit", {
@@ -121,7 +122,7 @@ export default function RSVP() {
                 }, 2000);
             } else {
                 console.error("Web3Forms Error:", data);
-                setSubmitError(data.message || "Failed to submit RSVP. Please try again.");
+                setSubmitError(data.message || "Failed to submit registration. Please try again.");
             }
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
@@ -269,10 +270,18 @@ export default function RSVP() {
                                             const el = document.getElementById("legacy-circles");
                                             if (el) el.scrollIntoView({ behavior: "smooth" });
                                         }}
-                                        className="bg-brand-gold text-brand-green font-bold px-8 py-3 rounded-xl shadow-lg shadow-brand-gold/20 hover:opacity-90 transition-all mb-6 uppercase tracking-widest text-sm"
+                                        className="bg-brand-gold text-brand-green font-bold px-8 py-3 rounded-xl shadow-lg shadow-brand-gold/20 hover:opacity-90 transition-all mb-4 uppercase tracking-widest text-xs w-full md:w-auto"
                                     >
                                         Explore Legacy Circles
                                     </button>
+
+                                    <Link
+                                        href="https://adventistgiving.org/donate/ANTFAU"
+                                        target="_blank"
+                                        className="bg-brand-green text-white font-bold px-8 py-3 rounded-xl shadow-lg shadow-brand-green/20 hover:bg-brand-green/90 transition-all mb-8 uppercase tracking-widest text-xs w-full md:w-auto"
+                                    >
+                                        Give Online via AdventistGiving
+                                    </Link>
 
                                     <button
                                         onClick={() => {
@@ -611,6 +620,7 @@ export default function RSVP() {
                                                             </div>
                                                         )}
                                                     </div>
+
 
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                         <div className="space-y-3">

@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X } from "lucide-react"; // Assuming lucide-react is available or I will need to use something else. 
+import { Menu, X } from "lucide-react"; 
+import { useModal } from "@/context/ModalContext";
 // Wait, I should check if lucide-react is installed. If not, I'll use simple SVG icons.
 // Checking package.json... it wasn't there. I'll use standard SVGs to avoid dependency check issues for now.
 
 export default function Navbar() {
+    const { openGivingModal } = useModal();
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
 
@@ -23,7 +25,7 @@ export default function Navbar() {
         { name: "Home", href: "/" },
         { name: "Vision", href: "#vision" },
         { name: "Legacy", href: "#legacy-circles" },
-        { name: "RSVP", href: "#rsvp" },
+        { name: "Register", href: "#rsvp" },
     ];
 
     return (
@@ -61,12 +63,12 @@ export default function Navbar() {
                                 {link.name}
                             </Link>
                         ))}
-                        <Link
-                            href="#rsvp"
+                        <button
+                            onClick={openGivingModal}
                             className={`px-6 py-2 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 ${scrolled ? "bg-secondary hover:bg-secondary/90 text-white" : "bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-slate-900 border-none"}`}
                         >
-                            Donate Now
-                        </Link>
+                            Ways to Give
+                        </button>
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -109,13 +111,15 @@ export default function Navbar() {
                             {link.name}
                         </Link>
                     ))}
-                    <Link
-                        href="#rsvp"
+                    <button
+                        onClick={() => {
+                            setIsOpen(false);
+                            openGivingModal();
+                        }}
                         className="bg-secondary hover:bg-secondary/90 text-white text-center py-3 rounded-md font-bold mt-4"
-                        onClick={() => setIsOpen(false)}
                     >
-                        Donate Now
-                    </Link>
+                        Ways to Give
+                    </button>
                 </div>
             </div>
         </nav>
