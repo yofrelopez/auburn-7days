@@ -51,14 +51,14 @@ export default function RSVP() {
     const validateStep = (currentStep: Step) => {
         const newErrors: string[] = [];
         if (currentStep === 1) {
+            if (formData.regType === "business" && !formData.businessName) newErrors.push("Business name is required for corporate registration");
+            if (formData.intention !== "pledge" && (!formData.amount || parseInt(formData.amount) <= 0)) newErrors.push("A contribution amount is required");
+        }
+        if (currentStep === 2) {
             if (!formData.firstName) newErrors.push("First name is required");
             if (!formData.lastName) newErrors.push("Last name is required");
             if (!formData.email || !formData.email.includes("@")) newErrors.push("Valid email is required");
             if (!formData.phone) newErrors.push("Phone number is required");
-        }
-        if (currentStep === 2) {
-            if (formData.regType === "business" && !formData.businessName) newErrors.push("Business name is required for corporate registration");
-            if (formData.intention !== "pledge" && (!formData.amount || parseInt(formData.amount) <= 0)) newErrors.push("A contribution amount is required");
         }
         if (currentStep === 3) {
             if (formData.intention !== "pledge" && formData.numGuests < 1) newErrors.push("Number of guests must be at least 1");
@@ -133,8 +133,8 @@ export default function RSVP() {
     };
 
     const steps = [
-        { id: 1, title: "Identity", icon: User },
-        { id: 2, title: "Engagement", icon: Ticket },
+        { id: 1, title: "Engagement", icon: Ticket },
+        { id: 2, title: "Identity", icon: User },
         { id: 3, title: formData.intention === "pledge" ? "Faith Promise" : "Hospitality", icon: formData.intention === "pledge" ? Heart : Home },
         { id: 4, title: "Commitment", icon: CheckCircle2 },
     ];
@@ -336,36 +336,8 @@ export default function RSVP() {
                                                 onChange={(e) => updateFormData("botcheck", e.target.checked)}
                                             />
                                             <div>
-                                                <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">Let's start with your identity</h3>
-                                                <p className="text-sm md:text-base text-slate-500">We want to ensure your welcome is personal and meaningful.</p>
-                                            </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-                                                {[
-                                                    { id: "firstName", label: "First Name", type: "text", placeholder: "E.g. Michael" },
-                                                    { id: "lastName", label: "Last Name", type: "text", placeholder: "E.g. Scott" },
-                                                    { id: "email", label: "Digital Address", type: "email", placeholder: "michael@dundermifflin.com" },
-                                                    { id: "phone", label: "Phone Line", type: "tel", placeholder: "(555) 000-0000" }
-                                                ].map((f) => (
-                                                    <div key={f.id} className="group space-y-2">
-                                                        <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 transition-colors group-focus-within:text-brand-gold">{f.label}</label>
-                                                        <input
-                                                            type={f.type}
-                                                            value={(formData as any)[f.id]}
-                                                            onChange={(e) => updateFormData(f.id, e.target.value)}
-                                                            className="w-full bg-white/80 border border-brand-gray/20 p-4 md:p-5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold outline-none transition-all shadow-sm focus:shadow-md placeholder:text-slate-300 text-sm md:text-base"
-                                                            placeholder={f.placeholder}
-                                                        />
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {step === 2 && (
-                                        <div className="space-y-8 md:space-y-10">
-                                            <div>
-                                                <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">Your Path of Impact</h3>
-                                                <p className="text-sm md:text-base text-slate-500">How would you like to partner with our vision?</p>
+                                                <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">Join the Vision</h3>
+                                                <p className="text-sm md:text-base text-slate-500">Choose how you would like to partner with our legacy.</p>
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
@@ -401,7 +373,7 @@ export default function RSVP() {
                                                         <p className="text-[10px] md:text-xs text-slate-400">{t.desc}</p>
                                                         {formData.regType === t.id && (
                                                             <motion.div layoutId="selection" className="absolute top-4 right-4 text-brand-gold">
-                                                                <CheckCircle2 size={20} className="md:w-6 md:h-6" />
+                                                                  <CheckCircle2 size={20} className="md:w-6 md:h-6" />
                                                             </motion.div>
                                                         )}
                                                     </button>
@@ -469,6 +441,34 @@ export default function RSVP() {
                                                     </div>
                                                 </div>
                                             )}
+                                        </div>
+                                    )}
+
+                                    {step === 2 && (
+                                        <div className="space-y-8 md:space-y-10">
+                                            <div>
+                                                <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">Personal Details</h3>
+                                                <p className="text-sm md:text-base text-slate-500">Tell us who you are so we can prepare your welcome.</p>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+                                                {[
+                                                    { id: "firstName", label: "First Name", type: "text", placeholder: "E.g. Michael" },
+                                                    { id: "lastName", label: "Last Name", type: "text", placeholder: "E.g. Scott" },
+                                                    { id: "email", label: "Digital Address", type: "email", placeholder: "michael@dundermifflin.com" },
+                                                    { id: "phone", label: "Phone Line", type: "tel", placeholder: "(555) 000-0000" }
+                                                ].map((f) => (
+                                                    <div key={f.id} className="group space-y-2">
+                                                        <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 transition-colors group-focus-within:text-brand-gold">{f.label}</label>
+                                                        <input
+                                                            type={f.type}
+                                                            value={(formData as any)[f.id]}
+                                                            onChange={(e) => updateFormData(f.id, e.target.value)}
+                                                            className="w-full bg-white/80 border border-brand-gray/20 p-4 md:p-5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold outline-none transition-all shadow-sm focus:shadow-md placeholder:text-slate-300 text-sm md:text-base"
+                                                            placeholder={f.placeholder}
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
                                     )}
 
