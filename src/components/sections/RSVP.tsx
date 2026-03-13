@@ -22,6 +22,7 @@ type Step = 1 | 2 | 3 | 4;
 
 export default function RSVP() {
     const [step, setStep] = useState<Step>(1);
+    const [isCustomGuestFocused, setIsCustomGuestFocused] = useState(false);
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -258,30 +259,37 @@ export default function RSVP() {
                                     <div className="w-24 h-24 bg-brand-green/10 rounded-full flex items-center justify-center mb-8">
                                         <CheckCircle2 size={48} className="text-brand-green" />
                                     </div>
-                                    <h2 className="text-4xl md:text-5xl font-serif font-bold text-brand-green mb-4">Registration Secured</h2>
+                                    <h2 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-4">Registration Secured</h2>
                                     <p className="text-brand-gold font-bold mb-6 uppercase tracking-widest text-sm">Welcome to the Legacy, {formData.firstName}</p>
                                     <p className="text-slate-500 max-w-md mx-auto mb-8 text-base leading-relaxed">
                                         Your presence has been formally registered for the 2026 Vision Gala.
                                         A formal digital invitation packet will be dispatched to <span className="font-bold">{formData.email}</span>.
                                     </p>
 
+                                    <motion.div
+                                        animate={{ scale: [1, 1.03, 1] }}
+                                        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                                        className="w-full md:w-auto"
+                                    >
+                                        <Link
+                                            href="https://adventistgiving.org/donate/ANTFAU"
+                                            target="_blank"
+                                            className="bg-brand-green text-white font-bold px-10 py-4 rounded-xl shadow-xl shadow-brand-green/30 hover:bg-brand-green/90 transition-all mb-6 uppercase tracking-widest text-sm w-full md:w-auto flex items-center justify-center gap-3"
+                                        >
+                                            <Heart size={18} className="fill-white" />
+                                            Give Online via AdventistGiving
+                                        </Link>
+                                    </motion.div>
+
                                     <button
                                         onClick={() => {
                                             const el = document.getElementById("legacy-circles");
                                             if (el) el.scrollIntoView({ behavior: "smooth" });
                                         }}
-                                        className="bg-brand-gold text-brand-green font-bold px-8 py-3 rounded-xl shadow-lg shadow-brand-gold/20 hover:opacity-90 transition-all mb-4 uppercase tracking-widest text-xs w-full md:w-auto"
+                                        className="text-brand-green/60 hover:text-brand-gold font-bold px-8 py-3 rounded-xl transition-all mb-8 uppercase tracking-widest text-xs w-full md:w-auto underline underline-offset-4"
                                     >
                                         Explore Legacy Circles
                                     </button>
-
-                                    <Link
-                                        href="https://adventistgiving.org/donate/ANTFAU"
-                                        target="_blank"
-                                        className="bg-brand-green text-white font-bold px-8 py-3 rounded-xl shadow-lg shadow-brand-green/20 hover:bg-brand-green/90 transition-all mb-8 uppercase tracking-widest text-xs w-full md:w-auto"
-                                    >
-                                        Give Online via AdventistGiving
-                                    </Link>
 
                                     <button
                                         onClick={() => {
@@ -394,8 +402,21 @@ export default function RSVP() {
                                             )}
 
                                             {formData.intention !== "pledge" && (
-                                                <div className="space-y-4 pt-4 border-t border-brand-gray/10">
-                                                    <p className="text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1">Gala Participation Level</p>
+                                                <div className="space-y-4 pt-6 border-t border-brand-gray/10">
+                                                    <div className="mb-2 space-y-4">
+                                                        <h4 className="text-lg md:text-xl font-serif font-bold text-brand-green ml-1">Gala Participation Level</h4>
+                                                        <div className="bg-brand-gold/10 border border-brand-gold/20 rounded-2xl p-4 md:p-5 flex items-start gap-3">
+                                                            <div className="mt-0.5 w-8 h-8 rounded-full bg-brand-gold/20 flex items-center justify-center shrink-0">
+                                                                <Star size={16} className="text-brand-gold" />
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-bold text-brand-green text-sm md:text-base mb-1">Flexible Giving Options</p>
+                                                                <p className="text-xs md:text-sm text-brand-green/80 leading-relaxed">
+                                                                    Your contribution may be made now, at the banquet, or through convenient installments.
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
                                                         <button
                                                             onClick={() => {
@@ -454,7 +475,7 @@ export default function RSVP() {
                                                 {[
                                                     { id: "firstName", label: "First Name", type: "text", placeholder: "E.g. Michael" },
                                                     { id: "lastName", label: "Last Name", type: "text", placeholder: "E.g. Scott" },
-                                                    { id: "email", label: "Digital Address", type: "email", placeholder: "michael@dundermifflin.com" },
+                                                    { id: "email", label: "Email Address", type: "email", placeholder: "michael@dundermifflin.com" },
                                                     { id: "phone", label: "Phone Line", type: "tel", placeholder: "(555) 000-0000" }
                                                 ].map((f) => (
                                                     <div key={f.id} className="group space-y-2">
@@ -496,10 +517,10 @@ export default function RSVP() {
                                                                                 updateFormData("amount", (n * 500).toString());
                                                                             }
                                                                         }}
-                                                                        className={`flex flex-col items-center justify-center min-w-[3.5rem] h-[3.5rem] px-2 md:min-w-[4rem] md:h-[4rem] rounded-lg md:rounded-xl border-2 transition-all ${formData.numGuests === n ? "border-brand-gold bg-brand-gold/10 text-brand-green shadow-sm" : "border-brand-gray/10 text-slate-500 hover:border-brand-gray/30 bg-white"}`}
+                                                                        className={`flex flex-col items-center justify-center min-w-[3.5rem] h-[3.5rem] px-2 md:min-w-[4rem] md:h-[4rem] rounded-lg md:rounded-xl border-2 transition-all ${formData.numGuests === n && !isCustomGuestFocused ? "border-brand-gold bg-brand-gold/10 text-brand-green shadow-sm" : "border-brand-gray/10 text-slate-500 hover:border-brand-gray/30 bg-white"}`}
                                                                     >
                                                                         <span className="font-bold text-base md:text-lg leading-none mb-1 text-center">{n}</span>
-                                                                        <span className={`text-[9px] md:text-[10px] font-medium leading-none text-center ${formData.numGuests === n ? "text-brand-green/80" : "text-slate-400"}`}>
+                                                                        <span className={`text-[9px] md:text-[10px] font-medium leading-none text-center ${formData.numGuests === n && !isCustomGuestFocused ? "text-brand-green/80" : "text-slate-400"}`}>
                                                                             ${(n * 500).toLocaleString()}
                                                                         </span>
                                                                     </button>
@@ -508,8 +529,11 @@ export default function RSVP() {
                                                                     <input
                                                                         type="number"
                                                                         min="1"
-                                                                        className="absolute inset-0 w-full h-full text-center font-bold text-base md:text-lg outline-none bg-transparent pb-3.5 md:pb-4 text-brand-green"
-                                                                        value={formData.numGuests || ''}
+                                                                        placeholder="+"
+                                                                        onFocus={() => setIsCustomGuestFocused(true)}
+                                                                        onBlur={() => setIsCustomGuestFocused(false)}
+                                                                        className="absolute inset-0 w-full h-full text-center font-bold text-base md:text-lg outline-none bg-transparent pb-3.5 md:pb-4 text-brand-green placeholder:text-slate-300"
+                                                                        value={(isCustomGuestFocused || ![1, 2, 4, 8].includes(formData.numGuests)) ? (formData.numGuests || '') : ''}
                                                                         onChange={(e) => {
                                                                             const val = parseInt(e.target.value) || 0;
                                                                             updateFormData("numGuests", val);
@@ -518,8 +542,8 @@ export default function RSVP() {
                                                                             }
                                                                         }}
                                                                     />
-                                                                    <span className={`absolute bottom-1.5 md:bottom-2 text-[9px] md:text-[10px] font-medium pointer-events-none text-center w-full px-1 overflow-hidden text-ellipsis ${![1, 2, 4, 8].includes(formData.numGuests) && formData.numGuests > 0 ? "text-brand-green/80" : "text-slate-400"}`}>
-                                                                        ${((formData.numGuests || 0) * 500).toLocaleString()}
+                                                                    <span className={`absolute bottom-1.5 md:bottom-2 text-[9px] md:text-[10px] font-medium pointer-events-none text-center w-full px-1 overflow-hidden text-ellipsis ${(![1, 2, 4, 8].includes(formData.numGuests) || isCustomGuestFocused) && formData.numGuests > 0 ? "text-brand-green/80" : "text-slate-400"}`}>
+                                                                        {(isCustomGuestFocused || ![1, 2, 4, 8].includes(formData.numGuests)) && formData.numGuests > 0 ? `$${(formData.numGuests * 500).toLocaleString()}` : "Custom"}
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -546,7 +570,7 @@ export default function RSVP() {
                                                             </div>
                                                             <div className="flex-1">
                                                                 <p className="font-bold text-brand-green mb-0.5 uppercase text-xs md:text-sm">Complimentary Child Care</p>
-                                                                <p className="text-[10px] md:text-xs text-slate-500 leading-tight">On-site professional service for the duration.</p>
+                                                                <p className="text-[10px] md:text-xs text-slate-500 leading-tight">Available during the gala for children ages 3–12.</p>
                                                             </div>
                                                             <div className="shrink-0">
                                                                 <button
