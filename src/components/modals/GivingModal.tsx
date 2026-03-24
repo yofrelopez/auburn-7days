@@ -41,23 +41,24 @@ export default function GivingModal() {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden"
+            className="relative w-full max-w-2xl max-h-[90dvh] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden"
           >
-            {/* Header */}
-            <div className="bg-brand-green p-8 text-white relative">
+            {/* Header - Fixed */}
+            <div className="bg-brand-green p-6 md:p-8 text-white relative shrink-0">
               <button
                 onClick={closeGivingModal}
-                className="absolute top-6 right-6 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                className="absolute top-4 right-4 md:top-6 md:right-6 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
                 aria-label="Close modal"
               >
                 <X className="w-5 h-5" />
               </button>
-              <h2 className="text-3xl font-serif font-bold mb-2">Ways to Give</h2>
-              <p className="text-white/80 font-light">Support the vision and legacy of Auburn SDA Church.</p>
+              <h2 className="text-2xl md:text-3xl font-serif font-bold mb-2 pr-8">Ways to Give</h2>
+              <p className="text-white/80 font-light text-sm md:text-base">Support the vision and legacy of Auburn SDA Church.</p>
             </div>
 
-            <div className="p-8 md:p-10 space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Content - Scrollable */}
+            <div className="p-6 md:p-10 space-y-6 md:space-y-8 overflow-y-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Option 1: Register Online */}
                 <button
                   onClick={handleRegisterClick}

@@ -77,7 +77,7 @@ export default function Pledge() {
                                             { label: "Heritage Builder", amount: "$10,000" },
                                             { label: "Faith Supporter", amount: "$5,000" },
                                             { label: "Community Partner", amount: "$1,000" },
-                                            { label: "Entry Contribution", amount: "$500" },
+                                            { label: "Seat of Hope", amount: "$500" },
                                         ].map((tier) => (
                                             <label key={tier.amount} className={`flex items-center p-4 border rounded-xl cursor-pointer transition-all ${selectedAmount === tier.amount ? 'border-primary/50 bg-primary/5' : 'border-gray-200 hover:bg-primary/5 hover:border-primary/30'}`}>
                                                 <input type="radio" name="amount" value={tier.amount} checked={selectedAmount === tier.amount} onChange={(e) => setSelectedAmount(e.target.value)} className="w-5 h-5 text-secondary focus:ring-secondary border-gray-300" />

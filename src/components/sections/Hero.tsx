@@ -7,7 +7,7 @@ import { useModal } from "@/context/ModalContext";
 export default function Hero() {
     const { openGivingModal } = useModal();
     return (
-        <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden bg-slate-900 text-white">
+        <section id="hero" className="relative min-h-dvh flex items-center justify-center overflow-hidden bg-slate-900 text-white">
             {/* Background Image: Evening Banquet */}
             <div className="absolute inset-0 z-0">
                 <div
@@ -20,8 +20,8 @@ export default function Hero() {
             </div>
 
             {/* Content Container */}
-            <div className="container relative z-10 px-4 md:px-6 mx-auto flex flex-col items-center justify-center h-full">
-                <div className="max-w-5xl mx-auto text-center">
+            <div className="container relative z-10 px-4 md:px-6 mx-auto flex flex-col items-center min-h-dvh pt-24 pb-12">
+                <div className="max-w-5xl mx-auto text-center flex-grow flex flex-col items-center justify-center">
 
                     {/* Tagline / Label */}
                     <span className="inline-flex items-center gap-2 py-2 px-6 rounded-full bg-black/40 border border-yellow-500/30 text-yellow-500 text-xs md:text-sm font-semibold tracking-[0.2em] uppercase mb-8 shadow-2xl backdrop-blur-md animate-fade-in-up">

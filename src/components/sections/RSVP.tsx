@@ -15,7 +15,8 @@ import {
     ChevronRight,
     ChevronLeft,
     Heart,
-    Star
+    Star,
+    PlusCircle
 } from "lucide-react";
 
 type Step = 1 | 2 | 3 | 4;
@@ -405,61 +406,124 @@ export default function RSVP() {
                                                 <div className="space-y-4 pt-6 border-t border-brand-gray/10">
                                                     <div className="mb-2 space-y-4">
                                                         <h4 className="text-lg md:text-xl font-serif font-bold text-brand-green ml-1">Gala Participation Level</h4>
-                                                        <div className="bg-brand-gold/10 border border-brand-gold/20 rounded-2xl p-4 md:p-5 flex items-start gap-3">
-                                                            <div className="mt-0.5 w-8 h-8 rounded-full bg-brand-gold/20 flex items-center justify-center shrink-0">
-                                                                <Star size={16} className="text-brand-gold" />
+                                                        <motion.div 
+                                                            initial={{ opacity: 0, y: 10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="bg-brand-gold/5 backdrop-blur-sm border border-brand-gold/20 rounded-2xl p-4 md:p-5 flex items-start gap-3 md:gap-4 shadow-sm"
+                                                        >
+                                                            <div className="mt-0.5 w-8 h-8 md:w-10 md:h-10 rounded-full bg-brand-gold/10 flex items-center justify-center shrink-0">
+                                                                <Star size={18} className="text-brand-gold" />
                                                             </div>
                                                             <div>
                                                                 <p className="font-bold text-brand-green text-sm md:text-base mb-1">Flexible Giving Options</p>
-                                                                <p className="text-xs md:text-sm text-brand-green/80 leading-relaxed">
+                                                                <p className="text-[10px] md:text-xs text-brand-green/70 leading-relaxed font-medium">
                                                                     Your contribution may be made now, at the banquet, or through convenient installments.
                                                                 </p>
                                                             </div>
-                                                        </div>
+                                                        </motion.div>
                                                     </div>
+                                                    
                                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-                                                        <button
-                                                            onClick={() => {
-                                                                updateFormData("participation", "individual");
-                                                                updateFormData("amount", "500");
-                                                            }}
-                                                            className={`p-4 md:p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "individual" ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10"}`}
-                                                        >
-                                                            <p className="font-bold text-brand-green text-sm md:text-base">Suggested Min. Contribution</p>
-                                                            <p className="text-[10px] md:text-xs text-slate-500 mt-1"><span className="font-bold text-brand-green">$500</span> per seat</p>
-                                                        </button>
-                                                        <button
-                                                            onClick={() => {
-                                                                updateFormData("participation", "table");
-                                                                updateFormData("amount", "4000");
-                                                            }}
-                                                            className={`p-4 md:p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "table" ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10"}`}
-                                                        >
-                                                            <p className="font-bold text-brand-green text-sm md:text-base">Full Table Sponsor</p>
-                                                            <p className="text-[10px] md:text-xs text-brand-gold font-bold mt-1">Recommended • 8 guests</p>
-                                                        </button>
-                                                        <button
-                                                            onClick={() => {
-                                                                updateFormData("participation", "other");
-                                                                updateFormData("amount", "");
-                                                            }}
-                                                            className={`p-4 md:p-6 rounded-2xl border-2 text-left transition-all ${formData.participation === "other" ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10"}`}
-                                                        >
-                                                            <p className="font-bold text-brand-green text-sm md:text-base">Other Amount</p>
-                                                            <p className="text-[10px] md:text-xs text-slate-500 mt-1">Custom initial contribution</p>
-                                                        </button>
+                                                        {[
+                                                            { 
+                                                                id: "individual", 
+                                                                title: "Suggested Min. Contribution", 
+                                                                sub: "$500 per seat", 
+                                                                icon: User,
+                                                                amount: "500"
+                                                            },
+                                                            { 
+                                                                id: "table", 
+                                                                title: "Full Table Sponsor", 
+                                                                sub: "Recommended • 8 guests", 
+                                                                badge: "$4,000",
+                                                                icon: Users,
+                                                                amount: "4000"
+                                                            },
+                                                            { 
+                                                                id: "other", 
+                                                                title: "Other Amount", 
+                                                                sub: "Custom initial contribution", 
+                                                                icon: PlusCircle,
+                                                                amount: ""
+                                                            }
+                                                        ].map((tier) => (
+                                                            <button
+                                                                key={tier.id}
+                                                                onClick={() => {
+                                                                    updateFormData("participation", tier.id);
+                                                                    updateFormData("amount", tier.amount);
+                                                                }}
+                                                                className={`
+                                                                    relative p-5 md:p-6 rounded-2xl border-2 text-left transition-all duration-300 group
+                                                                    ${formData.participation === tier.id 
+                                                                        ? "border-brand-green bg-brand-green/5 shadow-md scale-[1.02] z-10" 
+                                                                        : "border-brand-gray/10 bg-white hover:border-brand-gray/30 hover:bg-slate-50"
+                                                                    }
+                                                                `}
+                                                            >
+                                                                <div className="flex justify-between items-start mb-4">
+                                                                    <div className={`
+                                                                        w-10 h-10 rounded-xl flex items-center justify-center transition-colors
+                                                                        ${formData.participation === tier.id ? "bg-brand-green text-white" : "bg-brand-gray/5 text-brand-green/40 group-hover:text-brand-green/60"}
+                                                                    `}>
+                                                                        <tier.icon size={20} />
+                                                                    </div>
+                                                                    {formData.participation === tier.id && (
+                                                                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-brand-gold">
+                                                                            <CheckCircle2 size={20} />
+                                                                        </motion.div>
+                                                                    )}
+                                                                </div>
+                                                                
+                                                                <p className={`font-bold text-sm md:text-base mb-1 ${formData.participation === tier.id ? "text-brand-green" : "text-slate-700"}`}>
+                                                                    {tier.title}
+                                                                </p>
+                                                                <p className={`text-[10px] md:text-xs ${formData.participation === tier.id ? "text-brand-green/60" : "text-slate-400"}`}>
+                                                                    {tier.id === "individual" ? (
+                                                                        <><span className="font-bold text-brand-green">$500</span> per seat</>
+                                                                    ) : tier.sub}
+                                                                </p>
+                                                                
+                                                                {tier.id === "table" && (
+                                                                    <div className="mt-3 inline-block px-2 py-0.5 rounded-md bg-brand-gold/10 text-brand-gold text-[10px] font-bold uppercase tracking-wider">
+                                                                        Best for Groups
+                                                                    </div>
+                                                                )}
+                                                            </button>
+                                                        ))}
                                                     </div>
-                                                    <div className="relative group mt-4">
-                                                        <label className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-green/50 font-bold">$</label>
+
+                                                    <motion.div 
+                                                        animate={{ 
+                                                            opacity: formData.participation === "other" ? 1 : 0.8,
+                                                            scale: formData.participation === "other" ? 1 : 0.98
+                                                        }}
+                                                        className="relative group mt-4 overflow-hidden rounded-2xl shadow-sm"
+                                                    >
+                                                        <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
+                                                            <span className={`font-bold transition-colors ${formData.participation === "other" ? "text-brand-gold" : "text-brand-green/30"}`}>$</span>
+                                                        </div>
                                                         <input
                                                             type="number"
                                                             value={formData.amount}
                                                             onChange={(e) => updateFormData("amount", e.target.value)}
                                                             readOnly={formData.participation !== "other"}
-                                                            className={`w-full pl-12 pr-6 py-5 rounded-2xl bg-brand-gray/5 border-2 outline-none transition-all font-serif font-bold text-2xl text-brand-green/70 ${formData.participation === "other" ? "border-brand-gray/20 focus:border-brand-gold focus:bg-white bg-white/50" : "border-transparent cursor-not-allowed"}`}
-                                                            placeholder={formData.participation === "other" ? "Enter custom amount" : "Contribution amount"}
+                                                            className={`
+                                                                w-full pl-12 pr-6 py-6 outline-none transition-all font-serif font-bold text-3xl
+                                                                ${formData.participation === "other" 
+                                                                    ? "bg-white border-2 border-brand-gold text-brand-green" 
+                                                                    : "bg-brand-gray/5 border-2 border-transparent text-brand-green/40 cursor-not-allowed"
+                                                                }
+                                                            `}
+                                                            placeholder={formData.participation === "other" ? "0" : "Amount"}
                                                         />
-                                                    </div>
+                                                        {formData.participation === "other" && (
+                                                            <div className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-bold text-brand-gold uppercase tracking-widest hidden md:block">
+                                                                Custom Contribution
+                                                            </div>
+                                                        )}
+                                                    </motion.div>
                                                 </div>
                                             )}
                                         </div>

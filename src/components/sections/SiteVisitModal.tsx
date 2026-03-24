@@ -43,8 +43,8 @@ export default function SiteVisitModal() {
             ></div>
 
             {/* Modal Panel - Clean White UI for maximum readability and contrast */}
-            <div className="relative w-full max-w-md bg-white rounded-[2rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all border border-neutral-200">
-                <div className="absolute top-4 right-4 z-20">
+            <div className="relative w-full max-w-md max-h-[90dvh] flex flex-col bg-white rounded-[2rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all border border-neutral-200">
+                <div className="absolute top-4 right-4 z-20 shrink-0">
                     <button
                         onClick={() => setIsOpen(false)}
                         className="text-neutral-400 hover:text-neutral-900 bg-neutral-100 hover:bg-neutral-200 rounded-full p-2.5 transition-all"
@@ -53,7 +53,7 @@ export default function SiteVisitModal() {
                     </button>
                 </div>
 
-                <div className="p-8 md:p-10 text-left relative">
+                <div className="p-8 md:p-10 text-left relative overflow-y-auto w-full">
                     <div className="mb-8 space-y-2 text-center">
                         <div className="mx-auto w-14 h-14 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-5">
                             <Calendar className="w-7 h-7" />

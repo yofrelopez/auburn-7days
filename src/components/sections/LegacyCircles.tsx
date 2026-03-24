@@ -52,10 +52,10 @@ export default function LegacyCircles() {
             )
         },
         {
-            title: "Entry Contribution",
+            title: "Seat of Hope",
             amount: "$500",
-            subtitle: "/ per chair",
-            description: "Every gift matters. Help us check off each seat.",
+            subtitle: "per guest",
+            description: "To support this vision, we kindly suggest a minimum donation of $500 per guest. Every gift matters, help us check off each chair and bring this community center to life.",
             icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
