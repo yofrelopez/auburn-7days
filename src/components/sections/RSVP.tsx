@@ -427,7 +427,7 @@ export default function RSVP() {
                                                         {[
                                                             { 
                                                                 id: "individual", 
-                                                                title: "Suggested Min. Contribution", 
+                                                                title: "Suggested Contribution", 
                                                                 sub: "$500 per seat", 
                                                                 icon: User,
                                                                 amount: "500"
@@ -479,9 +479,11 @@ export default function RSVP() {
                                                                 <p className={`font-bold text-sm md:text-base mb-1 ${formData.participation === tier.id ? "text-brand-green" : "text-slate-700"}`}>
                                                                     {tier.title}
                                                                 </p>
-                                                                <p className={`text-[10px] md:text-xs ${formData.participation === tier.id ? "text-brand-green/60" : "text-slate-400"}`}>
+                                                                 <p className={`text-[10px] md:text-xs ${formData.participation === tier.id ? "text-brand-green/60" : "text-slate-400"}`}>
                                                                     {tier.id === "individual" ? (
                                                                         <><span className="font-bold text-brand-green">$500</span> per seat</>
+                                                                    ) : tier.id === "table" ? (
+                                                                        <><span className="font-bold text-brand-green">$4,000</span> for 8 guests</>
                                                                     ) : tier.sub}
                                                                 </p>
                                                                 

@@ -55,7 +55,7 @@ export default function LegacyCircles() {
             title: "Seat of Hope",
             amount: "$500",
             subtitle: "per guest",
-            description: "To support this vision, we kindly suggest a minimum donation of $500 per guest. Every gift matters, help us check off each chair and bring this community center to life.",
+            description: "To support this vision, we kindly suggest a donation of $500 per guest. Every gift matters, help us check off each chair and bring this community center to life.",
             icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -144,16 +144,7 @@ export default function LegacyCircles() {
 
                 {/* Contribution Information */}
                 <div className="max-w-3xl mx-auto mb-16 text-left space-y-8 bg-white p-8 md:p-10 rounded-[2rem] shadow-sm border border-slate-100">
-                    <div>
-                        <h4 className="text-xl font-serif font-bold text-primary mb-3">Flexible Giving</h4>
-                        <p className="text-muted-foreground leading-relaxed">
-                            You may make your donation in full or through convenient installments.
-                        </p>
-                    </div>
-
-                    <div>
-                        <h4 className="text-xl font-serif font-bold text-primary mb-3">Contribution Information</h4>
-                        <div className="space-y-4 text-muted-foreground leading-relaxed text-sm md:text-base">
+                    <div className="space-y-4 text-muted-foreground leading-relaxed text-sm md:text-base">
                             <p>
                                 Contributions may be made in full or fulfilled over time through installments.
                             </p>
@@ -165,7 +156,6 @@ export default function LegacyCircles() {
                             </p>
                         </div>
                     </div>
-                </div>
 
                 {/* Call to Action & Note */}
                 <div className="max-w-2xl mx-auto">
