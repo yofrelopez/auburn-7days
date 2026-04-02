@@ -9,11 +9,16 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@react-email/components": "^1.0.11",
+    "@stripe/react-stripe-js": "^6.1.0",
+    "@stripe/stripe-js": "^9.0.1",
     "framer-motion": "^12.34.3",
     "lucide-react": "^0.574.0",
     "next": "16.1.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "resend": "^6.10.0",
+    "stripe": "^21.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

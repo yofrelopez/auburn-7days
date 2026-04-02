@@ -16,8 +16,12 @@ import {
     ChevronLeft,
     Heart,
     Star,
-    PlusCircle
+    PlusCircle,
+    Loader2
 } from "lucide-react";
+import { createCheckoutSession } from "@/app/actions/stripe";
+import { sendRSVPConfirmation } from "@/app/actions/email";
+
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -89,6 +93,7 @@ export default function RSVP() {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
+    const [isRedirecting, setIsRedirecting] = useState(false);
 
     const handleSubmit = async () => {
         if (!validateStep(4)) return;
@@ -117,7 +122,46 @@ export default function RSVP() {
             const data = await response.json();
 
             if (data.success) {
-                setIsSubmitted(true);
+                // Fire off the confirmation email asynchronously
+                sendRSVPConfirmation({
+                    firstName: formData.firstName,
+                    email: formData.email,
+                    intention: formData.intention,
+                    regType: formData.regType,
+                    numGuests: formData.numGuests,
+                    amount: formData.intention === "pledge" ? formData.pledgeAmount : formData.amount
+                }).catch(err => console.error("Auto-email Error:", err));
+
+                // If the user is attending and has a donation amount, redirect to Stripe
+                const donationAmount = parseInt(formData.amount);
+
+                
+                if (donationAmount > 0 && (formData.intention === "attend" || formData.intention === "both")) {
+                    setIsRedirecting(true);
+                    try {
+                        const { url } = await createCheckoutSession({
+                            amount: donationAmount,
+                            email: formData.email,
+                            firstName: formData.firstName,
+                            lastName: formData.lastName
+                        });
+                        
+                        if (url) {
+                            window.location.href = url;
+                            return; // Stop here as we are redirecting
+                        }
+                    } catch (stripeError: any) {
+                        console.error("Stripe Redirect Error:", stripeError);
+                        // If stripe fails, we still show the success message because 
+                        // the registration (Web3Forms) was successful.
+                        setIsSubmitted(true);
+                    } finally {
+                        setIsRedirecting(false);
+                    }
+                } else {
+                    // Standard success for pledges or non-monetary attendances
+                    setIsSubmitted(true);
+                }
             } else {
                 console.error("Web3Forms Error:", data);
                 setSubmitError(data.message || "Failed to submit registration. Please try again.");
@@ -262,6 +306,11 @@ export default function RSVP() {
                                         Your presence has been formally registered for the 2026 Vision Gala.
                                         A formal digital invitation packet will be dispatched to <span className="font-bold">{formData.email}</span>.
                                     </p>
+                                    
+                                    {/* Professional Deliverability Note */}
+                                    <div className="bg-brand-gold/5 border border-brand-gold/10 p-4 rounded-xl mb-8 max-w-sm mx-auto text-[11px] text-brand-green/70 italic leading-snug">
+                                        Note: If you don&apos;t see our confirmation email in your inbox within a few minutes, please verify your <strong>Spam or Junk folder</strong> and mark our address as &quot;No es Spam&quot; to ensure future updates reach you.
+                                    </div>
 
                                     <motion.div
                                         animate={{ scale: [1, 1.03, 1] }}
@@ -345,41 +394,54 @@ export default function RSVP() {
                                                 <p className="text-sm md:text-base text-slate-500">Choose how you would like to partner with our legacy.</p>
                                             </div>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+                                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                                                 {[
                                                     { id: "attend", title: "Attend Gala", desc: "Join us at the event", icon: Ticket },
-                                                    { id: "pledge", title: "Make a Pledge", desc: "Faith promise contribution", icon: Heart },
-                                                    { id: "both", title: "Both", desc: "Attend & make a pledge", icon: Star }
-                                                ].map((t) => (
+                                                    { id: "pledge", title: "Make a Pledge", desc: "Faith promise", icon: Heart },
+                                                    { id: "both", title: "Both", desc: "Attend & Pledge", icon: Star }
+                                                ].map((t, idx) => (
                                                     <button
                                                         key={t.id}
                                                         onClick={() => updateFormData("intention", t.id as any)}
-                                                        className={`p-4 md:p-6 rounded-2xl border-2 text-left transition-all duration-300 relative overflow-hidden ${formData.intention === t.id ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10 bg-white"}`}
+                                                        className={`p-2 md:p-3 rounded-xl border-2 text-left transition-all duration-300 relative overflow-hidden flex items-center gap-2 md:gap-3 ${idx === 2 ? "col-span-2 md:col-span-1" : ""} ${formData.intention === t.id ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green shadow-sm" : "border-brand-gray/10 bg-white hover:border-brand-gray/30"}`}
                                                     >
-                                                        <t.icon className={`mb-3 transition-colors ${formData.intention === t.id ? "text-brand-gold" : "text-brand-green/20"}`} size={24} />
-                                                        <p className={`font-bold text-sm md:text-base mb-1 ${formData.intention === t.id ? "text-brand-green" : "text-slate-700"}`}>{t.title}</p>
-                                                        <p className="text-[10px] md:text-xs text-slate-400">{t.desc}</p>
+                                                        <div className={`transition-colors shrink-0 ${formData.intention === t.id ? "text-brand-green" : "text-brand-green/20"}`}>
+                                                            <t.icon size={14} className="md:w-[18px] md:h-[18px]" />
+                                                        </div>
+                                                        <div className="min-w-0">
+                                                            <p className={`font-bold text-[10px] md:text-sm truncate ${formData.intention === t.id ? "text-brand-green" : "text-slate-700"}`}>{t.title}</p>
+                                                            <p className="text-[8px] md:text-[10px] text-slate-400 leading-tight truncate">{t.desc}</p>
+                                                        </div>
+                                                        {formData.intention === t.id && (
+                                                            <div className="ml-auto text-brand-gold shrink-0">
+                                                                <CheckCircle2 size={12} className="md:w-[14px] md:h-[14px]" />
+                                                            </div>
+                                                        )}
                                                     </button>
                                                 ))}
                                             </div>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pt-4 border-t border-brand-gray/10">
+                                            <div className="grid grid-cols-2 md:grid-cols-2 gap-2 pt-3 border-t border-brand-gray/10">
                                                 {[
-                                                    { id: "personal", title: "Personal", desc: "Individual registration", icon: User },
-                                                    { id: "business", title: "Corporate", desc: "Representing an organization", icon: Briefcase }
+                                                    { id: "personal", title: "Personal", desc: "Individual", icon: User },
+                                                    { id: "business", title: "Corporate", desc: "Organization", icon: Briefcase }
                                                 ].map((t) => (
                                                     <button
                                                         key={t.id}
                                                         onClick={() => updateFormData("regType", t.id)}
-                                                        className={`p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border-2 text-left transition-all duration-500 group relative overflow-hidden ${formData.regType === t.id ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green" : "border-brand-gray/10 bg-white"}`}
+                                                        className={`p-2 md:p-3 rounded-xl border-2 text-left transition-all duration-300 flex items-center gap-2 md:gap-3 relative overflow-hidden ${formData.regType === t.id ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green shadow-sm" : "border-brand-gray/10 bg-white hover:border-brand-gray/30"}`}
                                                     >
-                                                        <t.icon className={`mb-3 md:mb-4 transition-colors ${formData.regType === t.id ? "text-brand-gold" : "text-brand-green/20"}`} size={28} />
-                                                        <p className={`font-bold text-lg md:text-xl mb-1 ${formData.regType === t.id ? "text-brand-green" : "text-slate-700"}`}>{t.title}</p>
-                                                        <p className="text-[10px] md:text-xs text-slate-400">{t.desc}</p>
+                                                        <div className={`transition-colors shrink-0 ${formData.regType === t.id ? "text-brand-green" : "text-brand-green/20"}`}>
+                                                            <t.icon size={14} className="md:w-[18px] md:h-[18px]" />
+                                                        </div>
+                                                        <div className="min-w-0">
+                                                            <p className={`font-bold text-[10px] md:text-sm truncate ${formData.regType === t.id ? "text-brand-green" : "text-slate-700"}`}>{t.title}</p>
+                                                            <p className="text-[8px] md:text-[10px] text-slate-400 leading-tight truncate">{t.desc}</p>
+                                                        </div>
                                                         {formData.regType === t.id && (
-                                                            <motion.div layoutId="selection" className="absolute top-4 right-4 text-brand-gold">
-                                                                  <CheckCircle2 size={20} className="md:w-6 md:h-6" />
-                                                            </motion.div>
+                                                            <div className="ml-auto text-brand-gold shrink-0">
+                                                                <CheckCircle2 size={12} className="md:w-[14px] md:h-[14px]" />
+                                                            </div>
                                                         )}
                                                     </button>
                                                 ))}
@@ -399,93 +461,63 @@ export default function RSVP() {
                                             )}
 
                                             {formData.intention !== "pledge" && (
-                                                <div className="space-y-4 pt-6 border-t border-brand-gray/10">
-                                                    <div className="mb-2 space-y-4">
-                                                        <h4 className="text-lg md:text-xl font-serif font-bold text-brand-green ml-1">Gala Participation Level</h4>
-                                                        <motion.div 
-                                                            initial={{ opacity: 0, y: 10 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            className="bg-brand-gold/5 backdrop-blur-sm border border-brand-gold/20 rounded-2xl p-4 md:p-5 flex items-start gap-3 md:gap-4 shadow-sm"
-                                                        >
-                                                            <div className="mt-0.5 w-8 h-8 md:w-10 md:h-10 rounded-full bg-brand-gold/10 flex items-center justify-center shrink-0">
-                                                                <Star size={18} className="text-brand-gold" />
+                                                <div className="space-y-4 pt-3 border-t border-brand-gray/10">
+                                                        <div className="mb-1 flex flex-col md:flex-row md:items-center justify-between gap-1 border-b border-brand-gray/10 pb-2">
+                                                            <h4 className="text-lg md:text-xl font-serif font-bold text-brand-green">Gala Participation</h4>
+                                                            <div className="flex items-center gap-2 bg-brand-gold/10 px-2 py-1 rounded-full border border-brand-gold/10">
+                                                                <Star size={10} className="text-brand-gold shrink-0" />
+                                                                <p className="text-[8px] font-bold text-brand-green/80 uppercase tracking-widest whitespace-nowrap">Flexible Giving</p>
                                                             </div>
-                                                            <div>
-                                                                <p className="font-bold text-brand-green text-sm md:text-base mb-1">Flexible Giving Options</p>
-                                                                <p className="text-[10px] md:text-xs text-brand-green/70 leading-relaxed font-medium">
-                                                                    Your contribution may be made now, at the banquet, or through convenient installments.
-                                                                </p>
-                                                            </div>
-                                                        </motion.div>
-                                                    </div>
+                                                        </div>
                                                     
-                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+                                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                                                         {[
                                                             { 
                                                                 id: "individual", 
-                                                                title: "Suggested Contribution", 
-                                                                sub: "$500 per seat", 
+                                                                title: "Individual Presence", 
+                                                                sub: "$500 / seat", 
                                                                 icon: User,
                                                                 amount: "500"
                                                             },
                                                             { 
                                                                 id: "table", 
-                                                                title: "Full Table Sponsor", 
-                                                                sub: "Recommended • 8 guests", 
-                                                                badge: "$4,000",
+                                                                title: "Table Sponsor", 
+                                                                sub: "$4,000 / 8 guests", 
+                                                                badge: "Best",
                                                                 icon: Users,
                                                                 amount: "4000"
                                                             },
                                                             { 
                                                                 id: "other", 
-                                                                title: "Other Amount", 
-                                                                sub: "Custom initial contribution", 
+                                                                title: "Custom", 
+                                                                sub: "Specify below", 
                                                                 icon: PlusCircle,
                                                                 amount: ""
                                                             }
-                                                        ].map((tier) => (
+                                                        ].map((tier, idx) => (
                                                             <button
                                                                 key={tier.id}
                                                                 onClick={() => {
                                                                     updateFormData("participation", tier.id);
                                                                     updateFormData("amount", tier.amount);
                                                                 }}
-                                                                className={`
-                                                                    relative p-5 md:p-6 rounded-2xl border-2 text-left transition-all duration-300 group
-                                                                    ${formData.participation === tier.id 
-                                                                        ? "border-brand-green bg-brand-green/5 shadow-md scale-[1.02] z-10" 
-                                                                        : "border-brand-gray/10 bg-white hover:border-brand-gray/30 hover:bg-slate-50"
-                                                                    }
-                                                                `}
+                                                                className={`p-2 md:p-3 rounded-xl border-2 text-left transition-all duration-300 flex items-center gap-2 md:gap-3 relative overflow-hidden ${idx === 2 ? "col-span-2 md:col-span-1" : ""} ${formData.participation === tier.id ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green shadow-sm" : "border-brand-gray/10 bg-white hover:border-brand-gray/30"}`}
                                                             >
-                                                                <div className="flex justify-between items-start mb-4">
-                                                                    <div className={`
-                                                                        w-10 h-10 rounded-xl flex items-center justify-center transition-colors
-                                                                        ${formData.participation === tier.id ? "bg-brand-green text-white" : "bg-brand-gray/5 text-brand-green/40 group-hover:text-brand-green/60"}
-                                                                    `}>
-                                                                        <tier.icon size={20} />
-                                                                    </div>
-                                                                    {formData.participation === tier.id && (
-                                                                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-brand-gold">
-                                                                            <CheckCircle2 size={20} />
-                                                                        </motion.div>
-                                                                    )}
+                                                                <div className={`transition-colors shrink-0 ${formData.participation === tier.id ? "text-brand-green" : "text-brand-green/20"}`}>
+                                                                    <tier.icon size={14} className="md:w-[18px] md:h-[18px]" />
                                                                 </div>
-                                                                
-                                                                <p className={`font-bold text-sm md:text-base mb-1 ${formData.participation === tier.id ? "text-brand-green" : "text-slate-700"}`}>
-                                                                    {tier.title}
-                                                                </p>
-                                                                 <p className={`text-[10px] md:text-xs ${formData.participation === tier.id ? "text-brand-green/60" : "text-slate-400"}`}>
-                                                                    {tier.id === "individual" ? (
-                                                                        <><span className="font-bold text-brand-green">$500</span> per seat</>
-                                                                    ) : tier.id === "table" ? (
-                                                                        <><span className="font-bold text-brand-green">$4,000</span> for 8 guests</>
-                                                                    ) : tier.sub}
-                                                                </p>
-                                                                
-                                                                {tier.id === "table" && (
-                                                                    <div className="mt-3 inline-block px-2 py-0.5 rounded-md bg-brand-gold/10 text-brand-gold text-[10px] font-bold uppercase tracking-wider">
-                                                                        Best for Groups
+                                                                <div className="min-w-0 flex-1">
+                                                                    <div className="flex items-center gap-1">
+                                                                        <p className={`font-bold text-[10px] md:text-sm truncate ${formData.participation === tier.id ? "text-brand-green" : "text-slate-700"}`}>{tier.title}</p>
+                                                                        {tier.badge && (
+                                                                            <span className="hidden md:block bg-brand-gold/10 text-brand-gold text-[7px] font-bold px-1 py-0.5 rounded uppercase">Best</span>
+                                                                        )}
+                                                                    </div>
+                                                                    <p className="text-[8px] md:text-[10px] text-slate-400 leading-tight truncate">{tier.sub}</p>
+                                                                </div>
+                                                                {formData.participation === tier.id && (
+                                                                    <div className="text-brand-gold shrink-0">
+                                                                        <CheckCircle2 size={12} className="md:w-[14px] md:h-[14px]" />
                                                                     </div>
                                                                 )}
                                                             </button>
@@ -497,7 +529,7 @@ export default function RSVP() {
                                                             opacity: formData.participation === "other" ? 1 : 0.8,
                                                             scale: formData.participation === "other" ? 1 : 0.98
                                                         }}
-                                                        className="relative group mt-4 overflow-hidden rounded-2xl shadow-sm"
+                                                        className="relative group mt-3 overflow-hidden rounded-xl shadow-sm"
                                                     >
                                                         <div className="absolute left-6 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
                                                             <span className={`font-bold transition-colors ${formData.participation === "other" ? "text-brand-gold" : "text-brand-green/30"}`}>$</span>
@@ -508,7 +540,7 @@ export default function RSVP() {
                                                             onChange={(e) => updateFormData("amount", e.target.value)}
                                                             readOnly={formData.participation !== "other"}
                                                             className={`
-                                                                w-full pl-12 pr-6 py-6 outline-none transition-all font-serif font-bold text-3xl
+                                                                w-full pl-12 pr-6 py-4 outline-none transition-all font-serif font-bold text-2xl
                                                                 ${formData.participation === "other" 
                                                                     ? "bg-white border-2 border-brand-gold text-brand-green" 
                                                                     : "bg-brand-gray/5 border-2 border-transparent text-brand-green/40 cursor-not-allowed"
@@ -516,11 +548,6 @@ export default function RSVP() {
                                                             `}
                                                             placeholder={formData.participation === "other" ? "0" : "Amount"}
                                                         />
-                                                        {formData.participation === "other" && (
-                                                            <div className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-bold text-brand-gold uppercase tracking-widest hidden md:block">
-                                                                Custom Contribution
-                                                            </div>
-                                                        )}
                                                     </motion.div>
                                                 </div>
                                             )}
@@ -823,11 +850,16 @@ export default function RSVP() {
 
                                         <button
                                             onClick={step === 4 ? handleSubmit : nextStep}
-                                            disabled={isSubmitting}
-                                            className={`group flex items-center gap-3 bg-brand-green text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-xl shadow-brand-green/20 ${isSubmitting ? "opacity-70 cursor-wait" : "hover:bg-brand-green/90 hover:translate-x-1 active:scale-95"}`}
+                                            disabled={isSubmitting || isRedirecting}
+                                            className={`group flex items-center gap-3 bg-brand-green text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-xl shadow-brand-green/20 ${isSubmitting || isRedirecting ? "opacity-70 cursor-wait" : "hover:bg-brand-green/90 hover:translate-x-1 active:scale-95"}`}
                                         >
-                                            {isSubmitting ? "Processing..." : step === 4 ? "Submit Presence" : "Continue"}
-                                            {!isSubmitting && step < 4 && <ChevronRight size={18} className="transition-transform group-hover:translate-x-1" />}
+                                            {isRedirecting ? (
+                                                <>
+                                                    <Loader2 className="animate-spin" size={18} />
+                                                    Redirecting to Payment...
+                                                </>
+                                            ) : isSubmitting ? "Processing..." : step === 4 ? "Submit Presence" : "Continue"}
+                                            {!isSubmitting && !isRedirecting && step < 4 && <ChevronRight size={18} className="transition-transform group-hover:translate-x-1" />}
                                         </button>
                                     </div>
 
