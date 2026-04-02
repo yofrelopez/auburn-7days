@@ -118,10 +118,6 @@ export default function RSVP() {
 
             if (data.success) {
                 setIsSubmitted(true);
-                setTimeout(() => {
-                    const el = document.getElementById("legacy-circles");
-                    if (el) el.scrollIntoView({ behavior: "smooth" });
-                }, 2000);
             } else {
                 console.error("Web3Forms Error:", data);
                 setSubmitError(data.message || "Failed to submit registration. Please try again.");
