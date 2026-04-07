@@ -20,7 +20,7 @@ import {
     Loader2
 } from "lucide-react";
 import { createCheckoutSession } from "@/app/actions/stripe";
-import { sendRSVPConfirmation } from "@/app/actions/email";
+import { sendRSVPConfirmation, sendAdminRegistrationAlert } from "@/app/actions/email";
 
 
 type Step = 1 | 2 | 3 | 4;
@@ -101,40 +101,37 @@ export default function RSVP() {
         setIsSubmitting(true);
         setSubmitError(null);
 
-        const formDataToSend = new FormData();
-
-        // Append all our React state to the FormData
-        Object.entries(formData).forEach(([key, value]) => {
-            formDataToSend.append(key, value.toString());
-        });
-
-        // Web3Forms specific fields
-        const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_KEY || "";
-        formDataToSend.append("access_key", accessKey);
-        formDataToSend.append("subject", `New Registration: ${formData.firstName} ${formData.lastName}`);
+        const displayAmount = formData.intention === "pledge" 
+            ? (formData.pledgeAmount === "other" ? formData.amount : formData.pledgeAmount)
+            : formData.amount;
 
         try {
-            const response = await fetch("https://api.web3forms.com/submit", {
-                method: "POST",
-                body: formDataToSend
+            // Send the admin notification via Resend
+            const adminResult = await sendAdminRegistrationAlert({
+                ...formData,
+                amount: displayAmount, // Override with the computed display amount
+                pledgeAmount: displayAmount // Also ensure pledgeAmount is clean for the template
             });
 
-            const data = await response.json();
-
-            if (data.success) {
-                // Fire off the confirmation email asynchronously
+            if (adminResult.success) {
+                // Fire off the confirmation email asynchronously to the user
                 sendRSVPConfirmation({
                     firstName: formData.firstName,
+                    lastName: formData.lastName,
                     email: formData.email,
+                    phone: formData.phone,
                     intention: formData.intention,
                     regType: formData.regType,
                     numGuests: formData.numGuests,
-                    amount: formData.intention === "pledge" ? formData.pledgeAmount : formData.amount
+                    amount: displayAmount,
+                    dietary: formData.dietary,
+                    childCare: formData.childCare,
+                    numChildren: formData.numChildren,
+                    agesChildren: formData.agesChildren
                 }).catch(err => console.error("Auto-email Error:", err));
 
-                // If the user is attending and has a donation amount, redirect to Stripe
+                // Handle Stripe redirect if applicable
                 const donationAmount = parseInt(formData.amount);
-
                 
                 if (donationAmount > 0 && (formData.intention === "attend" || formData.intention === "both")) {
                     setIsRedirecting(true);
@@ -148,27 +145,24 @@ export default function RSVP() {
                         
                         if (url) {
                             window.location.href = url;
-                            return; // Stop here as we are redirecting
+                            return; 
                         }
                     } catch (stripeError: any) {
                         console.error("Stripe Redirect Error:", stripeError);
-                        // If stripe fails, we still show the success message because 
-                        // the registration (Web3Forms) was successful.
                         setIsSubmitted(true);
                     } finally {
                         setIsRedirecting(false);
                     }
                 } else {
-                    // Standard success for pledges or non-monetary attendances
                     setIsSubmitted(true);
                 }
             } else {
-                console.error("Web3Forms Error:", data);
-                setSubmitError(data.message || "Failed to submit registration. Please try again.");
+                console.error("Admin Alert Error:", adminResult.error);
+                setSubmitError("Failed to submit registration. Please try again.");
             }
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
-            setSubmitError("Failed to connect to the submission server. Please try again later.");
+            console.error("Submission Error:", error);
+            setSubmitError("An unexpected error occurred. Please try again.");
         } finally {
             setIsSubmitting(false);
         }
@@ -679,11 +673,23 @@ export default function RSVP() {
                                                             >
                                                                 <div className="space-y-1.5">
                                                                     <p className="text-[10px] font-bold text-brand-green/60 uppercase">Quantity</p>
-                                                                    <input type="number" className="w-full p-2.5 rounded-lg border border-brand-gray/20 text-sm" placeholder="1" />
+                                                                    <input 
+                                                                        type="number" 
+                                                                        value={formData.numChildren}
+                                                                        onChange={(e) => updateFormData("numChildren", parseInt(e.target.value) || 0)}
+                                                                        className="w-full p-2.5 rounded-lg border border-brand-gray/20 text-sm" 
+                                                                        placeholder="1" 
+                                                                    />
                                                                 </div>
                                                                 <div className="space-y-1.5 col-span-2 md:col-span-2">
                                                                     <p className="text-[10px] font-bold text-brand-green/60 uppercase">Ages (e.g. 4, 7)</p>
-                                                                    <input type="text" className="w-full p-2.5 rounded-lg border border-brand-gray/20 text-sm" placeholder="Enter ages" />
+                                                                    <input 
+                                                                        type="text" 
+                                                                        value={formData.agesChildren}
+                                                                        onChange={(e) => updateFormData("agesChildren", e.target.value)}
+                                                                        className="w-full p-2.5 rounded-lg border border-brand-gray/20 text-sm" 
+                                                                        placeholder="Enter ages" 
+                                                                    />
                                                                 </div>
                                                             </motion.div>
                                                         )}

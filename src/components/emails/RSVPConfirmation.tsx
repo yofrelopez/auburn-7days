@@ -17,20 +17,32 @@ import * as React from "react";
 
 interface RSVPConfirmationEmailProps {
     firstName: string;
+    lastName?: string;
     intention: string;
     regType: string;
     amount?: string;
     numGuests?: number;
     participation?: string;
+    dietary?: string;
+    childCare?: string;
+    numChildren?: number;
+    agesChildren?: string;
 }
+
+const baseUrl = process.env.NEXT_PUBLIC_URL || "https://gala.auburnsda.org";
 
 export const RSVPConfirmationEmail = ({
     firstName,
+    lastName,
     intention,
     regType,
     amount,
     numGuests,
     participation,
+    dietary,
+    childCare,
+    numChildren,
+    agesChildren,
 }: RSVPConfirmationEmailProps) => {
     const previewText = `Your registration for the 2026 Vision Gala is confirmed, ${firstName}!`;
 
@@ -41,7 +53,13 @@ export const RSVPConfirmationEmail = ({
             <Body style={main}>
                 <Container style={container}>
                     <Section style={headerSection}>
-                         {/* Placeholder for Logo - You should replace with your actual URL */}
+                        <Img
+                            src={`${baseUrl}/logo/SDA-Logo-2.png`}
+                            width="110"
+                            height="auto"
+                            alt="Auburn SDA Logo"
+                            style={logo}
+                        />
                         <Heading style={heading}>2026 VISION GALA</Heading>
                         <Text style={subheading}>FOUNDATION FOR THE FUTURE</Text>
                     </Section>
@@ -82,12 +100,35 @@ export const RSVPConfirmationEmail = ({
                             )}
                         </Section>
 
+                        {(dietary || childCare === "yes") && (
+                            <Section style={detailsCard}>
+                                <Heading style={detailsTitle}>Special Requirements</Heading>
+                                <Hr style={hr} />
+                                
+                                {dietary && (
+                                    <Row style={detailRow}>
+                                        <Column style={detailLabel}>Dietary</Column>
+                                        <Column style={detailValue}>{dietary}</Column>
+                                    </Row>
+                                )}
+                                
+                                {childCare === "yes" && (
+                                    <Row style={detailRow}>
+                                        <Column style={detailLabel}>Child Care</Column>
+                                        <Column style={detailValue}>
+                                            {numChildren} {numChildren === 1 ? 'Child' : 'Children'} (Ages: {agesChildren || "Standard"})
+                                        </Column>
+                                    </Row>
+                                )}
+                            </Section>
+                        )}
+
                         <Text style={paragraph}>
                             Our hospitality team is already preparing for your arrival. You will receive a formal digital invitation packet with venue details and schedule closer to the event date.
                         </Text>
 
                         <Section style={buttonContainer}>
-                            <Link href="https://gala.auburnsda.org" style={button}>
+                            <Link href={`${baseUrl}`} style={button}>
                                 View Event Details
                             </Link>
                         </Section>
@@ -98,7 +139,11 @@ export const RSVPConfirmationEmail = ({
                         <Text style={footerText}>
                             Auburn Seventh-day Adventist Church<br />
                             Foundation Gala 2026<br />
-                            <Link href="https://gala.auburnsda.org" style={footerLink}>gala.auburnsda.org</Link>
+                            <Link href={`${baseUrl}`} style={footerLink}>gala.auburnsda.org</Link>
+                        </Text>
+                        <Text style={privacyText}>
+                            This email was sent to you because of your recent registration at Auburn Vision Gala. 
+                            Your information is stored securely and only accessible by authorized event coordinators.
                         </Text>
                     </Section>
                 </Container>
@@ -122,22 +167,29 @@ const container = {
 
 const headerSection = {
     textAlign: "center" as const,
-    paddingBottom: "30px",
+    padding: "50px 20px",
+    backgroundColor: "#6B6F4C",
+    borderRadius: "16px 16px 0 0",
+};
+
+const logo = {
+    margin: "0 auto 20px",
+    display: "block",
 };
 
 const heading = {
-    fontSize: "32px",
+    fontSize: "18px",
     fontWeight: "bold",
-    color: "#6B6F4C",
+    color: "#ffffff",
     margin: "0",
     letterSpacing: "4px",
 };
 
 const subheading = {
-    fontSize: "12px",
+    fontSize: "10px",
     fontWeight: "bold",
-    color: "#b89a3b",
-    margin: "8px 0 0",
+    color: "#e2e2e2",
+    margin: "12px 0 0",
     letterSpacing: "2px",
     textTransform: "uppercase" as const,
 };
@@ -237,4 +289,12 @@ const footerText = {
 const footerLink = {
     color: "#b89a3b",
     textDecoration: "underline",
+};
+
+const privacyText = {
+    fontSize: "10px",
+    color: "#aaaaaa",
+    lineHeight: "14px",
+    marginTop: "20px",
+    textAlign: "center" as const,
 };
