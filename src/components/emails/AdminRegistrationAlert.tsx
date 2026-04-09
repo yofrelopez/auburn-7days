@@ -61,7 +61,7 @@ export const AdminRegistrationAlert = ({
     pledgeFrequency,
     pledgeTimeframe,
 }: AdminRegistrationAlertProps) => {
-    const previewText = `New Gala Registration: ${firstName} ${lastName}`;
+    const previewText = `New Dinner Gala Registration: ${firstName} ${lastName}`;
 
     return (
         <Html>
@@ -78,7 +78,7 @@ export const AdminRegistrationAlert = ({
                             style={logo}
                         />
                         <Heading style={heading}>REGISTRATION ALERT</Heading>
-                        <Text style={subheading}>2026 VISION GALA • INTERNAL NOTIFICATION</Text>
+                        <Text style={subheading}>2026 VISION & HOPE DINNER GALA • INTERNAL NOTIFICATION</Text>
                     </Section>
 
                     <Section style={contentSection}>
@@ -172,22 +172,40 @@ export const AdminRegistrationAlert = ({
 
                         {intention !== "attend" && (
                             <Section style={detailsCard}>
-                                <Heading style={detailsTitle}>Pledge Commitments</Heading>
+                                <Heading style={detailsTitle}>Faith Promise Commitment</Heading>
                                 <Hr style={hr} />
                                 <Row style={detailRow}>
-                                    <Column style={detailLabel}>Freq</Column>
-                                    <Column style={detailValue}>{pledgeFrequency || "one-time"}</Column>
+                                    <Column style={detailLabel}>Total Amount</Column>
+                                    <Column style={detailValue}>${parseInt(pledgeAmount || "0").toLocaleString()}</Column>
+                                </Row>
+                                <Row style={detailRow}>
+                                    <Column style={detailLabel}>Frequency</Column>
+                                    <Column style={detailValue}>{(pledgeFrequency || "one-time").toUpperCase()}</Column>
                                 </Row>
                                 <Row style={detailRow}>
                                     <Column style={detailLabel}>Timeframe</Column>
                                     <Column style={detailValue}>{pledgeTimeframe} days</Column>
                                 </Row>
+                                
+                                {/* Installment Breakdown Calculation */}
+                                {pledgeFrequency !== "one-time" && pledgeAmount && (
+                                    <Section style={pillBox}>
+                                        <Text style={pillText}>
+                                            ESTIMATED SCHEDULE: 
+                                            {pledgeFrequency === "monthly" ? (
+                                                ` ${Math.round(parseInt(pledgeTimeframe || "30") / 30)} monthly installments of $${Math.round(parseInt(pledgeAmount) / Math.round(parseInt(pledgeTimeframe || "30") / 30)).toLocaleString()}`
+                                            ) : (
+                                                ` Quarterly distribution over ${pledgeTimeframe} days`
+                                            )}
+                                        </Text>
+                                    </Section>
+                                )}
                             </Section>
                         )}
                     </Section>
 
                     <Text style={footerText}>
-                        This is an automated notification from the Vision Gala 2026 Admin Panel.<br />
+                        This is an automated notification from the Vision & Hope Dinner Gala 2026 Admin Panel.<br />
                         Confidentiality: For internal use only.
                     </Text>
                 </Container>
@@ -295,6 +313,22 @@ const detailValue = {
 const hr = {
     borderColor: "#f3f4f6",
     margin: "12px 0",
+};
+
+const pillBox = {
+    backgroundColor: "#6B6F4C0D",
+    padding: "12px",
+    borderRadius: "8px",
+    marginTop: "12px",
+    borderLeft: "4px solid #6B6F4C",
+};
+
+const pillText = {
+    fontSize: "11px",
+    fontWeight: "700",
+    color: "#6B6F4C",
+    margin: "0",
+    letterSpacing: "0.02em",
 };
 
 const footerText = {

@@ -26,8 +26,8 @@ export async function createCheckoutSession(data: CheckoutData) {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: '2026 Vision Gala Donation',
-              description: `Contribution for ${data.firstName} ${data.lastName}`,
+              name: '2026 Vision & Hope Support Gift',
+              description: `Support Contribution for the Vision & Hope Project - ${data.firstName} ${data.lastName}`,
             },
             unit_amount: Math.round(data.amount * 100), // Stripe expects cents
           },
@@ -41,7 +41,7 @@ export async function createCheckoutSession(data: CheckoutData) {
       metadata: {
         firstName: data.firstName,
         lastName: data.lastName,
-        source: 'Gala Website RSVP',
+        source: 'Dinner Gala Website RSVP',
       },
     });
 

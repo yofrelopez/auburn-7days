@@ -54,10 +54,10 @@ export async function sendRSVPConfirmation(params: Partial<SendRSVPEmailParams> 
         );
 
         const { data, error } = await resend.emails.send({
-            from: 'Auburn Vision Gala <noreply@gala.auburnsda.org>',
+            from: 'Auburn Dinner Gala <noreply@gala.auburnsda.org>',
             to: [params.email],
             replyTo: 'community@auburnsda.org',
-            subject: 'Confirmation: 2026 Vision Gala Registration',
+            subject: 'Confirmation: 2026 Vision & Hope Dinner Gala',
             html: html,
         });
 
@@ -91,7 +91,7 @@ export async function sendAdminRegistrationAlert(params: SendRSVPEmailParams) {
         );
 
         const { data, error } = await resend.emails.send({
-            from: 'Gala System <noreply@gala.auburnsda.org>',
+            from: 'Dinner Gala System <noreply@gala.auburnsda.org>',
             to: adminEmails,
             replyTo: 'community@auburnsda.org',
             subject: `NEW REGISTRATION: ${params.firstName} ${params.lastName}`,

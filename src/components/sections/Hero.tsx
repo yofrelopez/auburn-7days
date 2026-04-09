@@ -26,7 +26,7 @@ export default function Hero() {
                     {/* Tagline / Label */}
                     <span className="inline-flex items-center gap-2 py-2 px-6 rounded-full bg-black/40 border border-yellow-500/30 text-yellow-500 text-xs md:text-sm font-semibold tracking-[0.2em] uppercase mb-8 shadow-2xl backdrop-blur-md animate-fade-in-up">
                         <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span>
-                        Vision & Hope Fundraising Banquet
+                        Vision & Hope Dinner Gala
                     </span>
 
                     {/* Headline (H1) */}

@@ -44,7 +44,7 @@ export const RSVPConfirmationEmail = ({
     numChildren,
     agesChildren,
 }: RSVPConfirmationEmailProps) => {
-    const previewText = `Your registration for the 2026 Vision Gala is confirmed, ${firstName}!`;
+    const previewText = `Your registration for the 2026 Vision & Hope Dinner Gala is confirmed, ${firstName}!`;
 
     return (
         <Html>
@@ -60,19 +60,19 @@ export const RSVPConfirmationEmail = ({
                             alt="Auburn SDA Logo"
                             style={logo}
                         />
-                        <Heading style={heading}>2026 VISION GALA</Heading>
+                        <Heading style={heading}>2026 VISION & HOPE DINNER GALA</Heading>
                         <Text style={subheading}>FOUNDATION FOR THE FUTURE</Text>
                     </Section>
 
                     <Section style={contentSection}>
-                        <Heading style={greeting}>Welcome to the Legacy, {firstName}!</Heading>
+                        <Heading style={greeting}>Thank you for your Support, {firstName}!</Heading>
                         <Text style={paragraph}>
-                            We are honored to confirm your registration for the upcoming <strong>2026 Vision Gala</strong>. 
-                            Your commitment helps us build a lasting foundation for generations to come.
+                            We are honored to confirm your registration and support for the <strong>2026 Vision & Hope Dinner Gala</strong>. 
+                            Your generous gift helps us build a lasting foundation for generations to come.
                         </Text>
 
                         <Section style={detailsCard}>
-                            <Heading style={detailsTitle}>Registration Summary</Heading>
+                            <Heading style={detailsTitle}>Contribution & Attendance Summary</Heading>
                             <Hr style={hr} />
                             
                             <Row style={detailRow}>
@@ -82,7 +82,7 @@ export const RSVPConfirmationEmail = ({
                             
                             <Row style={detailRow}>
                                 <Column style={detailLabel}>Intention</Column>
-                                <Column style={detailValue}>{intention === "both" ? "Attend & Pledge" : intention === "attend" ? "Attend Gala" : "Faith Promise"}</Column>
+                                <Column style={detailValue}>{intention === "both" ? "Attend & Pledge" : intention === "attend" ? "Attend Dinner Gala" : "Faith Promise"}</Column>
                             </Row>
 
                             {intention !== "pledge" && (
@@ -94,7 +94,7 @@ export const RSVPConfirmationEmail = ({
 
                             {amount && (
                                 <Row style={detailRow}>
-                                    <Column style={detailLabel}>Commitment</Column>
+                                    <Column style={detailLabel}>Support Gift</Column>
                                     <Column style={detailValue}>${amount}</Column>
                                 </Row>
                             )}
@@ -138,12 +138,12 @@ export const RSVPConfirmationEmail = ({
                         <Hr style={footerHr} />
                         <Text style={footerText}>
                             Auburn Seventh-day Adventist Church<br />
-                            Foundation Gala 2026<br />
+                            Vision & Hope Dinner Gala 2026<br />
                             <Link href={`${baseUrl}`} style={footerLink}>gala.auburnsda.org</Link>
                         </Text>
                         <Text style={privacyText}>
-                            This email was sent to you because of your recent registration at Auburn Vision Gala. 
-                            Your information is stored securely and only accessible by authorized event coordinators.
+                            This email was sent to you because of your recent contribution and registration for the Auburn Vision & Hope Dinner Gala. 
+                            Your information is stored securely and only accessible by authorized coordinators.
                         </Text>
                     </Section>
                 </Container>

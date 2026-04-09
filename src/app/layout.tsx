@@ -17,12 +17,12 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Auburn Seventh-day Adventist Church | Vision & Hope",
-  description: "Join us for an evening of music, vision, and purpose at the historic Château Élan as we lay the foundation for the future of Auburn, Georgia.",
+  title: "Vision & Hope Dinner Gala | Auburn Seventh-day Adventist Church",
+  description: "Join us for an evening of music, vision, and purpose at the Vision & Hope Dinner Gala as we lay the foundation for the future of Auburn, Georgia.",
   metadataBase: new URL("http://gala.auburnsda.org"),
   openGraph: {
-    title: "Auburn Seventh-day Adventist Church | Vision & Hope",
-    description: "Join us for an evening of music, vision, and purpose at the historic Château Élan as we lay the foundation for the future of Auburn, Georgia.",
+    title: "Vision & Hope Dinner Gala | Auburn Seventh-day Adventist Church",
+    description: "Join us for an evening of music, vision, and purpose at the Vision & Hope Dinner Gala as we lay the foundation for the future of Auburn, Georgia.",
     url: "http://gala.auburnsda.org",
     siteName: "Auburn Seventh-day Adventist Church",
     images: [
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
         url: "http://gala.auburnsda.org/images/banquet/og-banquet.jpg", // High-quality image for the link preview (Full URL for WhatsApp)
         width: 1200,
         height: 630,
-        alt: "Auburn SDA Church Vision & Hope Fundraising Banquet at Château Élan",
+        alt: "Vision & Hope Dinner Gala at Château Élan",
       },
     ],
     locale: "en_US",
@@ -38,8 +38,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Auburn Seventh-day Adventist Church | Vision & Hope",
-    description: "Join us for an evening of music, vision, and purpose at the historic Château Élan as we lay the foundation for the future of Auburn, Georgia.",
+    title: "Vision & Hope Dinner Gala | Auburn Seventh-day Adventist Church",
+    description: "Join us for an evening of music, vision, and purpose at the Vision & Hope Dinner Gala as we lay the foundation for the future of Auburn, Georgia.",
     images: ["http://gala.auburnsda.org/images/banquet/og-banquet.jpg"], // Same image for Twitter cards (Full URL)
   },
 };

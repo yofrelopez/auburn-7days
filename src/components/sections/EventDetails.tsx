@@ -25,10 +25,10 @@ export default function EventDetails() {
                 <div className="text-center mb-20">
                     <span className="text-brand-gold font-bold tracking-[0.2em] uppercase mb-4 inline-block text-sm">The Event</span>
                     <h2 className="text-5xl md:text-6xl font-serif font-bold text-brand-green mb-8">
-                        An Evening of Vision & Hope
+                        Vision & Hope Dinner Gala
                     </h2>
                     <p className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto font-medium opacity-90">
-                        Join us for a meaningful evening of fellowship, music, and purpose as we unveil the next chapter of what God is building in our community.
+                        Join us for a meaningful evening of fellowship, music, and purpose at our inaugural Dinner Gala as we unveil the next chapter of what God is building in our community.
                     </p>
                 </div>
 
@@ -39,7 +39,7 @@ export default function EventDetails() {
                         <div className="absolute top-0 right-0 w-32 h-32 bg-brand-gold/5 rounded-full -mr-16 -mt-16 pointer-events-none"></div>
 
                         <h3 className="text-3xl font-serif font-bold text-brand-green mb-10 border-b border-brand-gray/20 pb-6">
-                            Fundraising Banquet Details
+                            Dinner Gala Details
                         </h3>
 
                         <div className="space-y-10">
