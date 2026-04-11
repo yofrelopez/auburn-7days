@@ -27,7 +27,8 @@ interface RSVPConfirmationEmailProps {
     childCare?: string;
     numChildren?: number;
     agesChildren?: string;
-    commitmentType?: string;
+    commitmentType?: "immediate" | "pledge" | "installment";
+    initialAmount?: string;
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_URL || "https://gala.auburnsda.org";
@@ -45,6 +46,7 @@ export const RSVPConfirmationEmail = ({
     numChildren,
     agesChildren,
     commitmentType,
+    initialAmount,
 }: RSVPConfirmationEmailProps) => {
     const previewText = `Your registration for the 2026 Vision & Hope Dinner Gala is confirmed, ${firstName}!`;
 
@@ -94,17 +96,24 @@ export const RSVPConfirmationEmail = ({
                                 </Row>
                             )}
 
-                            {amount && (
+                            <Row style={detailRow}>
+                                <Column style={detailLabel}>Total Gift</Column>
+                                <Column style={detailValue}>${amount}</Column>
+                            </Row>
+
+                            {commitmentType === "installment" && initialAmount && (
                                 <Row style={detailRow}>
-                                    <Column style={detailLabel}>Gift Amount</Column>
-                                    <Column style={detailValue}>${amount}</Column>
+                                    <Column style={detailLabel}>Initial Paid</Column>
+                                    <Column style={detailValue}>${initialAmount}</Column>
                                 </Row>
                             )}
 
                             <Row style={detailRow}>
                                 <Column style={detailLabel}>Status</Column>
                                 <Column style={detailValue}>
-                                    {commitmentType === "pledge" ? "Faith Promise / Future Gift" : "Fulfilled via Card"}
+                                    <span style={commitmentType === "immediate" ? statusBadgeFulfilled : commitmentType === "installment" ? statusBadgePartial : statusBadgePledge}>
+                                        {commitmentType === "immediate" ? "Fulfilled Today" : commitmentType === "installment" ? "Initial Installment Paid" : "Faith Promise / Later"}
+                                    </span>
                                 </Column>
                             </Row>
                         </Section>
@@ -301,9 +310,36 @@ const footerLink = {
 };
 
 const privacyText = {
-    fontSize: "10px",
-    color: "#aaaaaa",
-    lineHeight: "14px",
     marginTop: "20px",
     textAlign: "center" as const,
+};
+
+const statusBadgeFulfilled = {
+    backgroundColor: "#ecfdf5",
+    color: "#059669",
+    padding: "4px 10px",
+    borderRadius: "12px",
+    fontSize: "10px",
+    fontWeight: "bold",
+    textTransform: "uppercase" as const,
+};
+
+const statusBadgePartial = {
+    backgroundColor: "#fffbeb",
+    color: "#b45309",
+    padding: "4px 10px",
+    borderRadius: "12px",
+    fontSize: "10px",
+    fontWeight: "bold",
+    textTransform: "uppercase" as const,
+};
+
+const statusBadgePledge = {
+    backgroundColor: "#f1f5f9",
+    color: "#475569",
+    padding: "4px 10px",
+    borderRadius: "12px",
+    fontSize: "10px",
+    fontWeight: "bold",
+    textTransform: "uppercase" as const,
 };

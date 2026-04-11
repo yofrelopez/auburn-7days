@@ -29,7 +29,8 @@ interface SendRSVPEmailParams {
     pledgeAmount?: string;
     pledgeFrequency?: string;
     pledgeTimeframe?: string;
-    commitmentType?: "immediate" | "pledge";
+    commitmentType?: "immediate" | "pledge" | "installment";
+    initialAmount?: string;
 }
 
 export async function sendRSVPConfirmation(params: Partial<SendRSVPEmailParams> & { firstName: string, email: string, commitmentType?: string }) {
@@ -51,7 +52,8 @@ export async function sendRSVPConfirmation(params: Partial<SendRSVPEmailParams> 
                 childCare: params.childCare,
                 numChildren: params.numChildren,
                 agesChildren: params.agesChildren,
-                commitmentType: params.commitmentType,
+                commitmentType: params.commitmentType || "pledge",
+                initialAmount: params.initialAmount,
             })
         );
 

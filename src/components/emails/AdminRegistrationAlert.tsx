@@ -33,9 +33,10 @@ interface AdminRegistrationAlertProps {
     agesChildren?: string;
     childNeeds?: string;
     pledgeAmount?: string;
+    initialAmount?: string;
     pledgeFrequency?: string;
     pledgeTimeframe?: string;
-    commitmentType?: string;
+    commitmentType?: "immediate" | "pledge" | "installment";
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_URL || "https://gala.auburnsda.org";
@@ -59,6 +60,7 @@ export const AdminRegistrationAlert = ({
     agesChildren,
     childNeeds,
     pledgeAmount,
+    initialAmount,
     pledgeFrequency,
     pledgeTimeframe,
     commitmentType,
@@ -107,6 +109,39 @@ export const AdminRegistrationAlert = ({
                         </Section>
 
                         <Section style={detailsCard}>
+                            <Heading style={detailsTitle}>Fulfillment Breakdown</Heading>
+                            <Hr style={hr} />
+                            
+                            <Row style={detailRow}>
+                                <Column style={detailLabel}>Total Amount</Column>
+                                <Column style={detailValue}>${amount}</Column>
+                            </Row>
+
+                            {commitmentType === "installment" && initialAmount && (
+                                <Row style={detailRow}>
+                                    <Column style={detailLabel}>Initial Paid Today</Column>
+                                    <Column style={detailValue}><span style={{ color: "#059669" }}>${initialAmount} (Processed)</span></Column>
+                                </Row>
+                            )}
+
+                            <Row style={detailRow}>
+                                <Column style={detailLabel}>Remaining Promise</Column>
+                                <Column style={detailValue}>
+                                    ${Math.max(0, parseInt(amount || "0") - (parseInt(initialAmount || "0"))).toLocaleString()}
+                                </Column>
+                            </Row>
+
+                            <Row style={detailRow}>
+                                <Column style={detailLabel}>Fulfillment Mode</Column>
+                                <Column style={detailValue}>
+                                    <span style={commitmentType === "immediate" ? statusBadgeFulfilled : commitmentType === "installment" ? statusBadgePartial : statusBadgePledge}>
+                                        {commitmentType === "immediate" ? "FULFILLED (CARD)" : commitmentType === "installment" ? "PARTIAL + PLEDGE" : "FAITH PROMISE ONLY"}
+                                    </span>
+                                </Column>
+                            </Row>
+                        </Section>
+
+                        <Section style={detailsCard}>
                             <Heading style={detailsTitle}>Registration Details</Heading>
                             <Hr style={hr} />
                             <Row style={detailRow}>
@@ -128,8 +163,8 @@ export const AdminRegistrationAlert = ({
                                 <Column style={detailValue}>{participation || "N/A"}</Column>
                             </Row>
                             <Row style={detailRow}>
-                                <Column style={detailLabel}>Gift/Pledge Amount</Column>
-                                <Column style={detailValue}>${amount || pledgeAmount || "0"}</Column>
+                                <Column style={detailLabel}>Total Commitment</Column>
+                                <Column style={detailValue}>${amount || "0"}</Column>
                             </Row>
                             <Row style={detailRow}>
                                 <Column style={detailLabel}>Fulfillment Status</Column>
@@ -342,8 +377,35 @@ const pillText = {
 };
 
 const footerText = {
-    fontSize: "12px",
-    textAlign: "center" as const,
-    color: "#9ca3af",
     marginTop: "24px",
+};
+
+const statusBadgeFulfilled = {
+    backgroundColor: "#ecfdf5",
+    color: "#059669",
+    padding: "4px 10px",
+    borderRadius: "12px",
+    fontSize: "10px",
+    fontWeight: "bold",
+    textTransform: "uppercase" as const,
+};
+
+const statusBadgePartial = {
+    backgroundColor: "#fffbeb",
+    color: "#b45309",
+    padding: "4px 10px",
+    borderRadius: "12px",
+    fontSize: "10px",
+    fontWeight: "bold",
+    textTransform: "uppercase" as const,
+};
+
+const statusBadgePledge = {
+    backgroundColor: "#f1f5f9",
+    color: "#475569",
+    padding: "4px 10px",
+    borderRadius: "12px",
+    fontSize: "10px",
+    fontWeight: "bold",
+    textTransform: "uppercase" as const,
 };
