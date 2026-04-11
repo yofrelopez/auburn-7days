@@ -35,6 +35,7 @@ interface AdminRegistrationAlertProps {
     pledgeAmount?: string;
     pledgeFrequency?: string;
     pledgeTimeframe?: string;
+    commitmentType?: string;
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_URL || "https://gala.auburnsda.org";
@@ -60,6 +61,7 @@ export const AdminRegistrationAlert = ({
     pledgeAmount,
     pledgeFrequency,
     pledgeTimeframe,
+    commitmentType,
 }: AdminRegistrationAlertProps) => {
     const previewText = `New Dinner Gala Registration: ${firstName} ${lastName}`;
 
@@ -126,8 +128,16 @@ export const AdminRegistrationAlert = ({
                                 <Column style={detailValue}>{participation || "N/A"}</Column>
                             </Row>
                             <Row style={detailRow}>
-                                <Column style={detailLabel}>Amount/Pledge</Column>
+                                <Column style={detailLabel}>Gift/Pledge Amount</Column>
                                 <Column style={detailValue}>${amount || pledgeAmount || "0"}</Column>
+                            </Row>
+                            <Row style={detailRow}>
+                                <Column style={detailLabel}>Fulfillment Status</Column>
+                                <Column style={detailValue}>
+                                    {commitmentType === "immediate" 
+                                        ? "FULFILLED (Credit/Debit)" 
+                                        : "PLEDGE (Faith Promise / Deferred)"}
+                                </Column>
                             </Row>
                         </Section>
 

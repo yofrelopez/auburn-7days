@@ -27,6 +27,7 @@ interface RSVPConfirmationEmailProps {
     childCare?: string;
     numChildren?: number;
     agesChildren?: string;
+    commitmentType?: string;
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_URL || "https://gala.auburnsda.org";
@@ -43,6 +44,7 @@ export const RSVPConfirmationEmail = ({
     childCare,
     numChildren,
     agesChildren,
+    commitmentType,
 }: RSVPConfirmationEmailProps) => {
     const previewText = `Your registration for the 2026 Vision & Hope Dinner Gala is confirmed, ${firstName}!`;
 
@@ -94,10 +96,17 @@ export const RSVPConfirmationEmail = ({
 
                             {amount && (
                                 <Row style={detailRow}>
-                                    <Column style={detailLabel}>Support Gift</Column>
+                                    <Column style={detailLabel}>Gift Amount</Column>
                                     <Column style={detailValue}>${amount}</Column>
                                 </Row>
                             )}
+
+                            <Row style={detailRow}>
+                                <Column style={detailLabel}>Status</Column>
+                                <Column style={detailValue}>
+                                    {commitmentType === "pledge" ? "Faith Promise / Future Gift" : "Fulfilled via Card"}
+                                </Column>
+                            </Row>
                         </Section>
 
                         {(dietary || childCare === "yes") && (

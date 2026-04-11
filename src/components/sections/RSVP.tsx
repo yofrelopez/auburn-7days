@@ -48,7 +48,8 @@ export default function RSVP() {
         childNeeds: "",
         pledgeAmount: "50000",
         pledgeFrequency: "one-time",
-        pledgeTimeframe: "30"
+        pledgeTimeframe: "30",
+        commitmentType: "immediate" as "immediate" | "pledge"
     });
 
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -143,13 +144,18 @@ export default function RSVP() {
                     dietary: formData.dietary,
                     childCare: formData.childCare,
                     numChildren: formData.numChildren,
-                    agesChildren: formData.agesChildren
+                    agesChildren: formData.agesChildren,
+                    commitmentType: formData.commitmentType
                 }).catch(err => console.error("Auto-email Error:", err));
 
-                // Handle Stripe redirect if applicable
+                // Handle Stripe redirect IF it's an immediate gift
                 const donationAmount = parseInt(formData.amount);
                 
-                if (donationAmount > 0 && (formData.intention === "attend" || formData.intention === "both")) {
+                if (
+                    donationAmount > 0 && 
+                    (formData.intention === "attend" || formData.intention === "both") && 
+                    formData.commitmentType === "immediate"
+                ) {
                     setIsRedirecting(true);
                     try {
                         const { url } = await createCheckoutSession({
@@ -170,6 +176,7 @@ export default function RSVP() {
                         setIsRedirecting(false);
                     }
                 } else {
+                    // It's either a pledge only, or they chose to fulfill the attendance gift later
                     setIsSubmitted(true);
                 }
             } else {
@@ -426,8 +433,10 @@ export default function RSVP() {
                                                         <div className="flex flex-col gap-1 items-start md:items-end">
                                                             {formData.intention !== 'pledge' && (
                                                                 <div className="flex items-center gap-3">
-                                                                    <p className="text-[10px] font-bold text-brand-green/60 uppercase tracking-widest leading-none">Gift Today</p>
-                                                                    <div className="flex items-baseline gap-1 bg-brand-green/10 px-2 py-0.5 rounded-lg border border-brand-green/10">
+                                                                    <p className="text-[10px] font-bold text-brand-green/60 uppercase tracking-widest leading-none">
+                                                                        {formData.commitmentType === 'pledge' ? 'Future Gift' : 'Gift Today'}
+                                                                    </p>
+                                                                    <div className={`flex items-baseline gap-1 px-2 py-0.5 rounded-lg border ${formData.commitmentType === 'pledge' ? 'bg-brand-gold/10 border-brand-gold/10' : 'bg-brand-green/10 border-brand-green/10'}`}>
                                                                         <span className="text-brand-gold font-bold text-xs font-serif">$</span>
                                                                         <span className="text-brand-green font-bold text-sm md:text-base font-serif">
                                                                             {parseInt(formData.amount || "0").toLocaleString()}
@@ -478,54 +487,50 @@ export default function RSVP() {
                                                 <p className="text-sm md:text-base text-slate-500">Choose how you would like to partner with our legacy.</p>
                                             </div>
 
-                                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                                                 {[
-                                                    { id: "attend", title: "Attend Dinner Gala", desc: "Join us at the event", icon: Ticket },
+                                                    { id: "attend", title: "Attend Gala", desc: "Join us at the event", icon: Ticket },
                                                     { id: "pledge", title: "Make a Pledge", desc: "Faith promise", icon: Heart },
                                                     { id: "both", title: "Both", desc: "Attend & Pledge", icon: Star }
                                                 ].map((t, idx) => (
                                                     <button
                                                         key={t.id}
                                                         onClick={() => updateFormData("intention", t.id as any)}
-                                                        className={`p-2 md:p-3 rounded-xl border-2 text-left transition-all duration-300 relative overflow-hidden flex items-center gap-2 md:gap-3 ${idx === 2 ? "col-span-2 md:col-span-1" : ""} ${formData.intention === t.id ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green shadow-sm" : "border-brand-gray/10 bg-white hover:border-brand-gray/30"}`}
+                                                        className={`p-4 md:p-6 rounded-2xl border-2 text-left transition-all duration-300 relative overflow-hidden flex flex-col gap-3 group ${idx === 2 ? "col-span-2 lg:col-span-1" : ""} ${formData.intention === t.id ? "border-brand-gold bg-brand-gold/5 shadow-lg shadow-brand-gold/5" : "border-brand-gray/10 bg-white hover:border-brand-gray/30"}`}
                                                     >
-                                                        <div className={`transition-colors shrink-0 ${formData.intention === t.id ? "text-brand-green" : "text-brand-green/20"}`}>
-                                                            <t.icon size={14} className="md:w-[18px] md:h-[18px]" />
+                                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${formData.intention === t.id ? "bg-brand-gold text-white" : "bg-brand-gray/5 text-brand-green/30 group-hover:text-brand-green/50"}`}>
+                                                            <t.icon size={20} />
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <p className={`font-bold text-[10px] md:text-sm truncate ${formData.intention === t.id ? "text-brand-green" : "text-slate-700"}`}>{t.title}</p>
-                                                            <p className="text-[8px] md:text-[10px] text-slate-400 leading-tight truncate">{t.desc}</p>
+                                                            <p className={`font-bold text-sm md:text-base ${formData.intention === t.id ? "text-brand-green" : "text-slate-700"}`}>{t.title}</p>
+                                                            <p className="text-[10px] md:text-xs text-slate-400 leading-tight">{t.desc}</p>
                                                         </div>
                                                         {formData.intention === t.id && (
-                                                            <div className="ml-auto text-brand-gold shrink-0">
-                                                                <CheckCircle2 size={12} className="md:w-[14px] md:h-[14px]" />
-                                                            </div>
+                                                            <motion.div layoutId="intention-active" className="absolute -inset-[2px] border-2 border-brand-gold rounded-2xl pointer-events-none" />
                                                         )}
                                                     </button>
                                                 ))}
                                             </div>
 
-                                            <div className="grid grid-cols-2 md:grid-cols-2 gap-2 pt-3 border-t border-brand-gray/10">
+                                            <div className="grid grid-cols-2 gap-3 md:gap-4 pt-4 border-t border-brand-gray/10">
                                                 {[
-                                                    { id: "personal", title: "Personal", desc: "Individual", icon: User },
-                                                    { id: "business", title: "Corporate", desc: "Organization", icon: Briefcase }
+                                                    { id: "personal", title: "Personal", desc: "Individual Partner", icon: User },
+                                                    { id: "business", title: "Corporate", desc: "Organization Sponsor", icon: Briefcase }
                                                 ].map((t) => (
                                                     <button
                                                         key={t.id}
                                                         onClick={() => updateFormData("regType", t.id)}
-                                                        className={`p-2 md:p-3 rounded-xl border-2 text-left transition-all duration-300 flex items-center gap-2 md:gap-3 relative overflow-hidden ${formData.regType === t.id ? "border-brand-green bg-brand-green/5 ring-1 ring-brand-green shadow-sm" : "border-brand-gray/10 bg-white hover:border-brand-gray/30"}`}
+                                                        className={`p-4 md:p-5 rounded-2xl border-2 transition-all duration-300 relative flex items-center gap-4 ${formData.regType === t.id ? "border-brand-gold bg-brand-gold/5 shadow-md shadow-brand-gold/5" : "border-brand-gray/10 bg-white hover:border-brand-gray/30"}`}
                                                     >
-                                                        <div className={`transition-colors shrink-0 ${formData.regType === t.id ? "text-brand-green" : "text-brand-green/20"}`}>
-                                                            <t.icon size={14} className="md:w-[18px] md:h-[18px]" />
+                                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${formData.regType === t.id ? "bg-brand-gold text-white" : "bg-brand-gray/5 text-brand-green/30"}`}>
+                                                            <t.icon size={18} />
                                                         </div>
-                                                        <div className="min-w-0">
-                                                            <p className={`font-bold text-[10px] md:text-sm truncate ${formData.regType === t.id ? "text-brand-green" : "text-slate-700"}`}>{t.title}</p>
-                                                            <p className="text-[8px] md:text-[10px] text-slate-400 leading-tight truncate">{t.desc}</p>
+                                                        <div className="min-w-0 flex-1">
+                                                            <p className={`font-bold text-sm md:text-base ${formData.regType === t.id ? "text-brand-green" : "text-slate-700"}`}>{t.title}</p>
+                                                            <p className="text-[10px] md:text-xs text-slate-400 leading-tight">{t.desc}</p>
                                                         </div>
                                                         {formData.regType === t.id && (
-                                                            <div className="ml-auto text-brand-gold shrink-0">
-                                                                <CheckCircle2 size={12} className="md:w-[14px] md:h-[14px]" />
-                                                            </div>
+                                                            <motion.div layoutId="reg-active" className="absolute -inset-[2px] border-2 border-brand-gold rounded-2xl pointer-events-none" />
                                                         )}
                                                     </button>
                                                 ))}
@@ -649,12 +654,12 @@ export default function RSVP() {
                                             {/* Hospitality Section (If Attending) */}
                                             {formData.intention !== "pledge" && (
                                                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                                    <div>
-                                                        <div className="flex items-center gap-3 mb-2">
-                                                            <div className="w-8 h-8 rounded-full bg-brand-green/10 flex items-center justify-center text-brand-green font-bold text-sm">1</div>
-                                                            <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green">Hospitality Details</h3>
+                                                    <div className="flex flex-col gap-2 mb-8">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 rounded-2xl bg-brand-green/10 flex items-center justify-center text-brand-green font-bold text-lg shadow-sm border border-brand-green/5">1</div>
+                                                            <h3 className="text-3xl md:text-4xl font-serif font-bold text-brand-green tracking-tight">Hospitality Details</h3>
                                                         </div>
-                                                        <p className="text-sm md:text-base text-slate-500">Help us ensure your comfort and the safety of your family at the Dinner Gala.</p>
+                                                        <p className="text-sm md:text-base text-slate-400 ml-13">Enhancing your experience at the 2026 Vision & Hope Dinner Gala.</p>
                                                     </div>
 
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
@@ -705,42 +710,89 @@ export default function RSVP() {
                                                         </div>
 
                                                         {/* Voluntary Donation Adjustment Section */}
-                                                        <div className="bg-brand-green/5 border border-brand-green/10 rounded-2xl md:rounded-3xl p-6 md:p-8 space-y-4 relative overflow-hidden">
-                                                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
-                                                                <div className="space-y-1">
-                                                                    <label className="text-[10px] md:text-xs font-bold text-brand-green uppercase tracking-widest flex items-center gap-2">
-                                                                        <Heart size={14} className="fill-brand-green/20" /> Your Voluntary Gift
-                                                                    </label>
-                                                                    <p className="text-[10px] md:text-xs text-slate-500 leading-tight">
-                                                                        Adjust your contribution to support the project. <br className="hidden md:block" />
-                                                                        Every gift, regardless of size, makes a difference.
+                                                        <div className="bg-white border border-brand-green/10 rounded-[2rem] p-8 space-y-8 relative overflow-hidden shadow-xl shadow-brand-green/5">
+                                                            {/* Decorative Background */}
+                                                            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-green/5 rounded-bl-full pointer-events-none" />
+                                                            
+                                                            <div className="relative z-10 flex flex-col gap-6">
+                                                                <div className="space-y-2">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <div className="p-1.5 rounded-lg bg-brand-green/10 text-brand-green">
+                                                                            <Heart size={16} className="fill-brand-green/20" />
+                                                                        </div>
+                                                                        <label className="text-xs font-bold text-brand-green uppercase tracking-[0.2em]">Your Voluntary Gift</label>
+                                                                    </div>
+                                                                    <p className="text-[11px] text-slate-400 leading-relaxed max-w-[240px]">
+                                                                        Adjust your contribution to support the project. Every gift makes a lasting impact.
                                                                     </p>
                                                                 </div>
                                                                 
-                                                                <div className="relative min-w-[160px] md:min-w-[200px]">
-                                                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-green/40 font-serif font-bold text-xl">$</div>
+                                                                <div className="relative group">
+                                                                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-gold font-serif font-bold text-2xl group-focus-within:scale-110 transition-transform">$</div>
                                                                     <input
                                                                         type="number"
                                                                         value={formData.amount}
                                                                         onChange={(e) => updateFormData("amount", e.target.value)}
-                                                                        className="w-full bg-white border-2 border-brand-green/10 focus:border-brand-gold focus:ring-1 focus:ring-brand-gold rounded-xl md:rounded-2xl py-4 pl-10 pr-4 text-xl md:text-2xl font-serif font-bold text-brand-green outline-none transition-all"
+                                                                        className="w-full bg-brand-green/[0.02] border-2 border-brand-green/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 rounded-2xl py-6 pl-12 pr-6 text-3xl font-serif font-bold text-brand-green outline-none transition-all shadow-inner"
                                                                         placeholder="0"
                                                                     />
                                                                 </div>
                                                             </div>
                                                             
-                                                            {/* Optional suggestion helper */}
-                                                            <div className="pt-3 border-t border-brand-green/5 flex items-center justify-between">
-                                                                <p className="text-[9px] font-bold text-brand-green/40 uppercase tracking-widest">Suggested: ${(formData.numGuests * 500).toLocaleString()}</p>
-                                                                <button 
-                                                                    type="button"
-                                                                    onClick={() => updateFormData("amount", (formData.numGuests * 500).toString())}
-                                                                    className="text-[9px] font-bold text-brand-gold hover:text-brand-green uppercase tracking-widest underline underline-offset-2 decoration-1"
+                                                        {/* Philanthropic Commitment Type Selector */}
+                                                        <div className="space-y-5 pt-6 border-t border-brand-green/5">
+                                                            <div className="flex items-center justify-between">
+                                                                <label className="text-[10px] font-bold text-brand-green/40 uppercase tracking-[0.2em]">Fulfillment Preference</label>
+                                                                <Star size={12} className="text-brand-gold/40" />
+                                                            </div>
+                                                            
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                                <button
+                                                                    onClick={() => updateFormData("commitmentType", "immediate")}
+                                                                    className={`group p-5 rounded-2xl border-2 transition-all duration-300 relative flex flex-col gap-1 ${formData.commitmentType === "immediate" ? "border-brand-gold bg-brand-gold/5 shadow-md shadow-brand-gold/5" : "border-brand-gray/10 bg-white hover:border-brand-gray/30"}`}
                                                                 >
-                                                                    Reset to Suggestion
+                                                                    <div className="flex items-center justify-between w-full">
+                                                                        <p className={`font-bold text-sm ${formData.commitmentType === "immediate" ? "text-brand-green" : "text-slate-600"}`}>Give Today</p>
+                                                                        <div className={`p-1 rounded-md transition-colors ${formData.commitmentType === "immediate" ? "bg-brand-gold text-white" : "bg-slate-100 text-slate-400"}`}>
+                                                                            <Star size={10} className="fill-current" />
+                                                                        </div>
+                                                                    </div>
+                                                                    <p className="text-[10px] text-slate-400 group-hover:text-slate-500 transition-colors">Digital card processing</p>
+                                                                    {formData.commitmentType === "immediate" && (
+                                                                        <motion.div layoutId="pref-active" className="absolute -inset-[2px] border-2 border-brand-gold rounded-2xl pointer-events-none" />
+                                                                    )}
+                                                                </button>
+
+                                                                <button
+                                                                    onClick={() => updateFormData("commitmentType", "pledge")}
+                                                                    className={`group p-5 rounded-2xl border-2 transition-all duration-300 relative flex flex-col gap-1 ${formData.commitmentType === "pledge" ? "border-brand-gold bg-brand-gold/5 shadow-md shadow-brand-gold/5" : "border-brand-gray/10 bg-white hover:border-brand-gray/30"}`}
+                                                                >
+                                                                    <div className="flex items-center justify-between w-full">
+                                                                        <p className={`font-bold text-sm ${formData.commitmentType === "pledge" ? "text-brand-green" : "text-slate-600"}`}>Faith Promise</p>
+                                                                        <div className={`p-1 rounded-md transition-colors ${formData.commitmentType === "pledge" ? "bg-brand-gold text-white" : "bg-slate-100 text-slate-400"}`}>
+                                                                            <Heart size={10} className="fill-current" />
+                                                                        </div>
+                                                                    </div>
+                                                                    <p className="text-[10px] text-slate-400 group-hover:text-slate-500 transition-colors">Commit to give later</p>
+                                                                    {formData.commitmentType === "pledge" && (
+                                                                        <motion.div layoutId="pref-active" className="absolute -inset-[2px] border-2 border-brand-gold rounded-2xl pointer-events-none" />
+                                                                    )}
                                                                 </button>
                                                             </div>
                                                         </div>
+
+                                                        {/* Optional suggestion helper */}
+                                                        <div className="pt-3 border-t border-brand-green/5 flex items-center justify-between">
+                                                            <p className="text-[9px] font-bold text-brand-green/40 uppercase tracking-widest">Suggested: ${(formData.numGuests * 500).toLocaleString()}</p>
+                                                            <button 
+                                                                type="button"
+                                                                onClick={() => updateFormData("amount", (formData.numGuests * 500).toString())}
+                                                                className="text-[9px] font-bold text-brand-gold hover:text-brand-green uppercase tracking-widest underline underline-offset-2 decoration-1"
+                                                            >
+                                                                Reset to Suggestion
+                                                            </button>
+                                                        </div>
+                                                    </div>
 
                                                         <div className="space-y-4">
                                                             <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 flex items-center gap-2">
@@ -1009,9 +1061,9 @@ export default function RSVP() {
                                             {isRedirecting ? (
                                                 <>
                                                     <Loader2 className="animate-spin" size={18} />
-                                                    Redirecting to Payment...
+                                                    Finalizing Gift...
                                                 </>
-                                            ) : isSubmitting ? "Processing..." : step === 4 ? "Confirm Contribution" : "Continue"}
+                                            ) : isSubmitting ? "Processing..." : step === 4 ? "Confirm Commitment" : "Continue"}
                                             {!isSubmitting && !isRedirecting && step < 4 && <ChevronRight size={18} className="transition-transform group-hover:translate-x-1" />}
                                         </button>
                                     </div>

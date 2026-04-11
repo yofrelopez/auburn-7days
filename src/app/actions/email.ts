@@ -29,9 +29,10 @@ interface SendRSVPEmailParams {
     pledgeAmount?: string;
     pledgeFrequency?: string;
     pledgeTimeframe?: string;
+    commitmentType?: "immediate" | "pledge";
 }
 
-export async function sendRSVPConfirmation(params: Partial<SendRSVPEmailParams> & { firstName: string, email: string }) {
+export async function sendRSVPConfirmation(params: Partial<SendRSVPEmailParams> & { firstName: string, email: string, commitmentType?: string }) {
     if (!process.env.RESEND_API_KEY) {
         console.error('RESEND_API_KEY is not defined');
         return { success: false, error: 'Missing API Key' };
@@ -50,6 +51,7 @@ export async function sendRSVPConfirmation(params: Partial<SendRSVPEmailParams> 
                 childCare: params.childCare,
                 numChildren: params.numChildren,
                 agesChildren: params.agesChildren,
+                commitmentType: params.commitmentType,
             })
         );
 
