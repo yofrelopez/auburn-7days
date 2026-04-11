@@ -378,7 +378,8 @@ export default function RSVP() {
                                                 childNeeds: "",
                                                 pledgeAmount: "50000",
                                                 pledgeFrequency: "one-time",
-                                                pledgeTimeframe: "30"
+                                                pledgeTimeframe: "30",
+                                                commitmentType: "immediate"
                                             });
                                         }}
                                         className="text-sm font-bold text-brand-green hover:text-brand-gold transition-colors underline underline-offset-4 decoration-2"
