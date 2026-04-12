@@ -27,7 +27,7 @@ interface RSVPConfirmationEmailProps {
     childCare?: string;
     numChildren?: number;
     agesChildren?: string;
-    commitmentType?: "immediate" | "pledge" | "installment";
+    commitmentType?: "immediate" | "pledge" | "installment" | "at-gala";
     initialAmount?: string;
 }
 

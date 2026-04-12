@@ -36,7 +36,7 @@ interface AdminRegistrationAlertProps {
     initialAmount?: string;
     pledgeFrequency?: string;
     pledgeTimeframe?: string;
-    commitmentType?: "immediate" | "pledge" | "installment";
+    commitmentType?: "immediate" | "pledge" | "installment" | "at-gala";
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_URL || "https://gala.auburnsda.org";
@@ -134,8 +134,8 @@ export const AdminRegistrationAlert = ({
                             <Row style={detailRow}>
                                 <Column style={detailLabel}>Fulfillment Mode</Column>
                                 <Column style={detailValue}>
-                                    <span style={commitmentType === "immediate" ? statusBadgeFulfilled : commitmentType === "installment" ? statusBadgePartial : statusBadgePledge}>
-                                        {commitmentType === "immediate" ? "FULFILLED (CARD)" : commitmentType === "installment" ? "PARTIAL + PLEDGE" : "FAITH PROMISE ONLY"}
+                                    <span style={commitmentType === "immediate" ? statusBadgeFulfilled : commitmentType === "installment" ? statusBadgePartial : commitmentType === "at-gala" ? statusBadgeGala : statusBadgePledge}>
+                                        {commitmentType === "immediate" ? "FULFILLED (CARD)" : commitmentType === "installment" ? "PARTIAL + PLEDGE" : commitmentType === "at-gala" ? "GIFT AT EVENT" : "FAITH PROMISE ONLY"}
                                     </span>
                                 </Column>
                             </Row>
@@ -171,7 +171,7 @@ export const AdminRegistrationAlert = ({
                                 <Column style={detailValue}>
                                     {commitmentType === "immediate" 
                                         ? "FULFILLED (Credit/Debit)" 
-                                        : "PLEDGE (Faith Promise / Deferred)"}
+                                        : commitmentType === "at-gala" ? "EVENT DAY (Cheque/Cash)" : "PLEDGE (Faith Promise / Deferred)"}
                                 </Column>
                             </Row>
                         </Section>
@@ -393,6 +393,16 @@ const statusBadgeFulfilled = {
 const statusBadgePartial = {
     backgroundColor: "#fffbeb",
     color: "#b45309",
+    padding: "4px 10px",
+    borderRadius: "12px",
+    fontSize: "10px",
+    fontWeight: "bold",
+    textTransform: "uppercase" as const,
+};
+
+const statusBadgeGala = {
+    backgroundColor: "#fef3c7",
+    color: "#92400e",
     padding: "4px 10px",
     borderRadius: "12px",
     fontSize: "10px",

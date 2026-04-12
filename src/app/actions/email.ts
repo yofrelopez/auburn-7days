@@ -29,7 +29,7 @@ interface SendRSVPEmailParams {
     pledgeAmount?: string;
     pledgeFrequency?: string;
     pledgeTimeframe?: string;
-    commitmentType?: "immediate" | "pledge" | "installment";
+    commitmentType?: "immediate" | "pledge" | "installment" | "at-gala";
     initialAmount?: string;
 }
 

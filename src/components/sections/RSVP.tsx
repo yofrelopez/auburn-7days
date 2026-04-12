@@ -61,7 +61,7 @@ export default function RSVP() {
         pledgeAmount: "50000",
         pledgeFrequency: "one-time",
         pledgeTimeframe: "30",
-        commitmentType: "immediate" as "immediate" | "pledge" | "installment",
+        commitmentType: "immediate" as "immediate" | "pledge" | "installment" | "at-gala",
         initialAmount: "",
         customPledgeAmount: ""
     });
@@ -140,7 +140,9 @@ export default function RSVP() {
             const adminResult = await sendAdminRegistrationAlert({
                 ...formData,
                 amount: displayAmount, 
-                pledgeAmount: formData.intention === "pledge" ? displayAmount : (formData.pledgeAmount === "other" ? formData.customPledgeAmount : formData.pledgeAmount),
+                pledgeAmount: (formData.intention === "pledge" || formData.intention === "both") 
+                    ? (formData.pledgeAmount === "other" ? formData.customPledgeAmount : formData.pledgeAmount) 
+                    : "0",
                 participation: tierLabel 
             });
 
@@ -441,9 +443,9 @@ export default function RSVP() {
                                                             {formData.intention !== 'pledge' && (
                                                                 <div className="flex items-center gap-3">
                                                                     <p className="text-[10px] font-bold text-brand-green/60 uppercase tracking-widest leading-none">
-                                                                        {formData.commitmentType === 'pledge' ? 'Future Gift' : 'Gift Today'}
+                                                                        {formData.commitmentType === 'pledge' ? 'Future Gift' : formData.commitmentType === 'at-gala' ? 'Gift at Event' : 'Gift Today'}
                                                                     </p>
-                                                                    <div className={`flex items-baseline gap-1 px-2 py-0.5 rounded-lg border ${formData.commitmentType === 'pledge' ? 'bg-brand-gold/10 border-brand-gold/10' : 'bg-brand-green/10 border-brand-green/10'}`}>
+                                                                    <div className={`flex items-baseline gap-1 px-2 py-0.5 rounded-lg border ${formData.commitmentType === 'pledge' || formData.commitmentType === 'at-gala' ? 'bg-brand-gold/10 border-brand-gold/10' : 'bg-brand-green/10 border-brand-green/10'}`}>
                                                                         <span className="text-brand-gold font-bold text-xs font-serif">$</span>
                                                                         <span className="text-brand-green font-bold text-sm md:text-base font-serif">
                                                                             {parseInt(formData.amount || "0").toLocaleString()}
@@ -566,7 +568,7 @@ export default function RSVP() {
                                                             </div>
                                                         </div>
                                                         <p className="text-[10px] md:text-xs text-slate-500 mb-4 bg-brand-gray/5 p-3 rounded-lg border-l-2 border-brand-gold/50">
-                                                            Your presence honors our legacy foundations. While we invite a suggested contribution of $500 per guest to help reach our $400,000 goal, we welcome your support at any level that feels right to you.
+                                                            Your presence honors our legacy. While we invite a suggested contribution of $500 per guest to help reach our $400,000 goal, <span className="italic">we welcome your support in any amount that feels right to you. Your presence is truly valued, and any contribution is appreciated.</span> <span className="italic">Donations may be made in full or through flexible payments.</span>
                                                         </p>
                                                     
                                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -623,6 +625,35 @@ export default function RSVP() {
                                                         ))}
                                                     </div>
 
+                                                    {/* Custom Contribution Input for "Other" in Step 1 */}
+                                                    <AnimatePresence>
+                                                        {formData.participation === "other" && (
+                                                            <motion.div
+                                                                initial={{ opacity: 0, height: 0 }}
+                                                                animate={{ opacity: 1, height: "auto" }}
+                                                                exit={{ opacity: 0, height: 0 }}
+                                                                className="mt-6 space-y-4 pt-4 border-t border-brand-gray/10"
+                                                            >
+                                                                <div className="flex items-center justify-between mb-1">
+                                                                    <label className="text-[10px] font-bold text-brand-green/60 uppercase tracking-widest ml-1">Custom Contribution</label>
+                                                                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-brand-gold/10 border border-brand-gold/10">
+                                                                        <Heart size={8} className="text-brand-gold fill-brand-gold" />
+                                                                        <span className="text-[8px] font-bold text-brand-green/80 uppercase tracking-[0.1em]">Impactful Gift</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="relative group">
+                                                                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-gold font-serif font-bold text-2xl group-focus-within:scale-110 transition-transform">$</div>
+                                                                    <input
+                                                                        type="number"
+                                                                        value={formData.amount}
+                                                                        onChange={(e) => updateFormData("amount", e.target.value)}
+                                                                        className="w-full bg-white/80 border-2 border-brand-gray/10 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 rounded-2xl py-6 pl-12 pr-6 text-3xl font-serif font-bold text-brand-green outline-none transition-all shadow-inner"
+                                                                        placeholder="0"
+                                                                    />
+                                                                </div>
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
                                                 </div>
                                             )}
                                         </div>
@@ -677,8 +708,9 @@ export default function RSVP() {
                                                             </div>
                                                         </div>
 
-                                                        {/* Voluntary Donation Adjustment Section */}
-                                                        <div className="bg-white border border-brand-green/10 rounded-[2rem] p-8 space-y-8 relative overflow-hidden shadow-xl shadow-brand-green/5">
+                                                        {/* Voluntary Donation Adjustment Section - Restricted to Custom cases as per user request */}
+                                                        {formData.participation === "other" && (
+                                                            <div className="bg-white border border-brand-green/10 rounded-[2rem] p-8 space-y-8 relative overflow-hidden shadow-xl shadow-brand-green/5">
                                                             {/* Decorative Background */}
                                                             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-green/5 rounded-bl-full pointer-events-none" />
                                                             
@@ -704,8 +736,10 @@ export default function RSVP() {
                                                                         className="w-full bg-brand-green/[0.02] border-2 border-brand-green/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 rounded-2xl py-6 pl-12 pr-6 text-3xl font-serif font-bold text-brand-green outline-none transition-all shadow-inner"
                                                                         placeholder="0"
                                                                     />
+                                                                    </div>
                                                                 </div>
                                                             </div>
+                                                        )}
                                                             
                                                         {/* Philanthropic Commitment Type Selector */}
                                                         <div className="space-y-5 pt-6 border-t border-brand-green/5">
@@ -714,53 +748,33 @@ export default function RSVP() {
                                                                 <Star size={12} className="text-brand-gold/40" />
                                                             </div>
                                                             
-                                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                                                <button
-                                                                    onClick={() => updateFormData("commitmentType", "immediate")}
-                                                                    className={`group p-4 rounded-2xl border-2 transition-all duration-300 relative flex flex-col gap-1 ${formData.commitmentType === "immediate" ? "border-brand-gold bg-brand-gold/5 shadow-md shadow-brand-gold/5" : "border-brand-gray/10 bg-white hover:border-brand-gray/30"}`}
-                                                                >
-                                                                    <Star size={14} className={`absolute top-3 right-3 md:top-4 md:right-4 transition-all ${formData.commitmentType === "immediate" ? "text-brand-gold fill-brand-gold scale-110" : "text-slate-200"}`} />
-                                                                    <div className="flex flex-col w-full pr-4">
-                                                                        <p className={`font-bold text-[10px] sm:text-[9px] md:text-xs uppercase tracking-widest break-words leading-tight ${formData.commitmentType === "immediate" ? "text-brand-green" : "text-slate-600"}`}>Give Today</p>
-                                                                    </div>
-                                                                    <p className="text-[9px] text-slate-400 group-hover:text-slate-500 transition-colors">Card processing</p>
-                                                                    {formData.commitmentType === "immediate" && (
-                                                                        <motion.div layoutId="pref-active" className="absolute -inset-[2px] border-2 border-brand-gold rounded-2xl pointer-events-none" />
-                                                                    )}
-                                                                </button>
-
-                                                                <button
-                                                                    onClick={() => {
-                                                                        updateFormData("commitmentType", "installment");
-                                                                        if (formData.initialAmount === "0") {
-                                                                            updateFormData("initialAmount", (parseInt(formData.amount) / 4).toString());
-                                                                        }
-                                                                    }}
-                                                                    className={`group p-4 rounded-2xl border-2 transition-all duration-300 relative flex flex-col gap-1 ${formData.commitmentType === "installment" ? "border-brand-gold bg-brand-gold/5 shadow-md shadow-brand-gold/5" : "border-brand-gray/10 bg-white hover:border-brand-gray/30"}`}
-                                                                >
-                                                                    <ArrowRightCircle size={14} className={`absolute top-3 right-3 md:top-4 md:right-4 transition-all ${formData.commitmentType === "installment" ? "text-brand-gold scale-110" : "text-slate-200"}`} />
-                                                                    <div className="flex flex-col w-full pr-4">
-                                                                        <p className={`font-bold text-[10px] sm:text-[9px] md:text-xs uppercase tracking-widest break-words leading-tight ${formData.commitmentType === "installment" ? "text-brand-green" : "text-slate-600"}`}>Installment</p>
-                                                                    </div>
-                                                                    <p className="text-[9px] text-slate-400 group-hover:text-slate-500 transition-colors">Partial gift today</p>
-                                                                    {formData.commitmentType === "installment" && (
-                                                                        <motion.div layoutId="pref-active" className="absolute -inset-[2px] border-2 border-brand-gold rounded-2xl pointer-events-none" />
-                                                                    )}
-                                                                </button>
-
-                                                                <button
-                                                                    onClick={() => updateFormData("commitmentType", "pledge")}
-                                                                    className={`group p-4 rounded-2xl border-2 transition-all duration-300 relative flex flex-col gap-1 ${formData.commitmentType === "pledge" ? "border-brand-gold bg-brand-gold/5 shadow-md shadow-brand-gold/5" : "border-brand-gray/10 bg-white hover:border-brand-gray/30"}`}
-                                                                >
-                                                                    <Heart size={14} className={`absolute top-3 right-3 md:top-4 md:right-4 transition-all ${formData.commitmentType === "pledge" ? "text-brand-gold fill-brand-gold scale-110" : "text-slate-200"}`} />
-                                                                    <div className="flex flex-col w-full pr-4">
-                                                                        <p className={`font-bold text-[10px] sm:text-[9px] md:text-xs uppercase tracking-widest break-words leading-tight ${formData.commitmentType === "pledge" ? "text-brand-green" : "text-slate-600"}`}>Faith Promise</p>
-                                                                    </div>
-                                                                    <p className="text-[9px] text-slate-400 group-hover:text-slate-500 transition-colors">Commit to later</p>
-                                                                    {formData.commitmentType === "pledge" && (
-                                                                        <motion.div layoutId="pref-active" className="absolute -inset-[2px] border-2 border-brand-gold rounded-2xl pointer-events-none" />
-                                                                    )}
-                                                                </button>
+                                                            <div className="grid grid-cols-2 gap-3">
+                                                                {[
+                                                                    { id: "immediate", label: "Give Today", sub: "Full gift today" },
+                                                                    { id: "installment", label: "Installment", sub: "Partial gift today" },
+                                                                    { id: "pledge", label: "Faith Promise", sub: "Commit to later" },
+                                                                    { id: "at-gala", label: "At the Gala", sub: "Gift on event day" }
+                                                                ].map((type) => (
+                                                                    <button
+                                                                        key={type.id}
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            updateFormData("commitmentType", type.id);
+                                                                            if (type.id === "installment" && formData.initialAmount === "0") {
+                                                                                updateFormData("initialAmount", (parseInt(formData.amount) / 4).toString());
+                                                                            }
+                                                                        }}
+                                                                        className={`group p-4 rounded-2xl border-2 transition-all duration-300 relative flex flex-col gap-1 ${formData.commitmentType === type.id ? "border-brand-gold bg-brand-gold/5 shadow-md shadow-brand-gold/5" : "border-brand-gray/10 bg-white hover:border-brand-gray/30"}`}
+                                                                    >
+                                                                        <div className="flex flex-col w-full">
+                                                                            <p className={`font-bold text-[10px] md:text-xs uppercase tracking-widest leading-tight ${formData.commitmentType === type.id ? "text-brand-green" : "text-slate-600"}`}>{type.label}</p>
+                                                                        </div>
+                                                                        <p className="text-[9px] text-slate-400 group-hover:text-slate-500 transition-colors uppercase tracking-wider">{type.sub}</p>
+                                                                        {formData.commitmentType === type.id && (
+                                                                            <motion.div layoutId="pref-active" className="absolute -inset-[2px] border-2 border-brand-gold rounded-2xl pointer-events-none" />
+                                                                        )}
+                                                                    </button>
+                                                                ))}
                                                             </div>
 
                                                             {/* Contextual Options for Installments or Pledge */}
@@ -818,8 +832,9 @@ export default function RSVP() {
                                                                                 className="w-full p-3 rounded-xl bg-white border border-brand-gray/20 outline-none text-[10px] md:text-xs font-bold text-brand-green uppercase tracking-wider"
                                                                             >
                                                                                 <option value="30">30 Days</option>
+                                                                                <option value="60">60 Days</option>
                                                                                 <option value="90">90 Days</option>
-                                                                                <option value="date">Specific Date</option>
+                                                                                <option value="180">180 Days</option>
                                                                             </select>
                                                                         </div>
                                                                     </motion.div>
@@ -852,8 +867,7 @@ export default function RSVP() {
                                                                 placeholder="Allergies / Restrictions"
                                                             />
                                                         </div>
-                                                    </div>
-
+                                                        
                                                     <div className="bg-brand-light/50 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-brand-gray/10 space-y-6">
                                                         <div className="flex items-start gap-3 md:gap-4">
                                                             <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white border border-brand-gold/20 flex items-center justify-center text-brand-gold shrink-0">
@@ -967,8 +981,9 @@ export default function RSVP() {
                                                                 className="w-full p-4 rounded-xl bg-white border border-brand-gray/20 outline-none focus:ring-2 focus:ring-brand-gold text-sm text-brand-green font-medium"
                                                             >
                                                                 <option value="30">30 Days</option>
+                                                                <option value="60">60 Days</option>
                                                                 <option value="90">90 Days</option>
-                                                                <option value="date">By Specific Date</option>
+                                                                <option value="180">180 Days</option>
                                                             </select>
                                                         </div>
                                                         <div className="space-y-3">
@@ -1052,9 +1067,9 @@ export default function RSVP() {
 
                                                 {formData.intention !== "attend" && (
                                                     <div className="bg-brand-light/30 p-4 rounded-2xl flex justify-between items-center group hover:bg-white hover:shadow-lg transition-all duration-300 md:col-span-2">
-                                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Faith Promise</span>
+                                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Support Gift</span>
                                                         <span className="font-bold text-brand-green text-right">
-                                                            ${parseInt(formData.pledgeAmount === "other" ? formData.customPledgeAmount : formData.pledgeAmount).toLocaleString()} — payable in {formData.pledgeFrequency.replace("-", " ")} installments
+                                                            ${parseInt(formData.pledgeAmount === "other" ? formData.customPledgeAmount : formData.pledgeAmount).toLocaleString()} — {formData.commitmentType === "at-gala" ? "gift at the event" : `payable in ${formData.pledgeFrequency.replace("-", " ")} installments`}
                                                         </span>
                                                     </div>
                                                 )}
