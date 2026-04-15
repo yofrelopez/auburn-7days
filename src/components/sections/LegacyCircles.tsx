@@ -11,11 +11,13 @@ export default function LegacyCircles() {
         {
             title: "Legacy Founder",
             amount: "$100,000+",
-            commitment: "One-time gift or up to 24-month pledge",
-            description: "As a Legacy Founder, your extraordinary generosity serves as the bedrock of the Vision & Hope project.",
-            impact: "Provides essential capital for foundational structural development and site preparation, ensuring the project's long-term viability from the ground up.",
-            recognition: "Prominent and permanent recognition within the facility's most significant areas, including dedicated spaces named in honor of your legacy.",
-            benefits: "Premier recognition during the Dinner Gala, exclusive VIP Experience, and priority naming opportunities for key areas of the community center.",
+            description: "Define a Legacy That Will Endure for Generations. As a Legacy Founder, your extraordinary generosity helps shape not just a building, but a lasting impact on the community. Your contribution represents a transformational investment in faith, families, and future generations.",
+            impact: "Major contribution toward the development of the Community & Worship Center. Helps accelerate full Phase 1 completion. Supports long-term programs for children, families, and outreach.",
+            recognition: "Legacy Naming Opportunity: Opportunity for named dedication of a significant space within the facility. May include areas such as: Family or community rooms; Children’s learning or activity spaces; Meeting or multipurpose areas. Permanent recognition aligned with your legacy or in honor of a loved one.",
+            benefits: "Distinguished recognition as a Legacy Founder. Prominent acknowledgment at the Gala and across key materials. VIP experience and reserved seating.",
+            commitment: "✨ By Invitation. Legacy naming opportunities are thoughtfully curated and aligned with the vision of the project.",
+            cta: "Connect With Us About Legacy Opportunities",
+            footer: "A legacy gift today becomes a lasting impact for generations to come.",
             icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -25,10 +27,13 @@ export default function LegacyCircles() {
         {
             title: "Cornerstone Legacy Partner",
             amount: "$50,000+",
-            description: "Help lay the foundation that will serve families and individuals for generations to come.",
-            impact: "Supports critical building infrastructure and core structural elements required to bring the community center to life.",
-            recognition: "Distinguished recognition on the main Legacy Wall and within the main entry hall of our future center.",
-            benefits: "Special recognition during the event program, invitations to exclusive milestone briefings, and name featured on a primary architectural element.",
+            description: "Help Lay the Foundation That Will Serve Generations. As a Cornerstone Legacy Partner, your leadership gift plays a vital role in establishing the foundation of the future Community & Worship Center. Your contribution helps turn vision into reality at a pivotal moment.",
+            impact: "Foundational support for Phase 1 construction. Direct contribution to key areas such as the Auditorium and core facilities. Helps secure and accelerate the $400,000 Break Ground milestone. Strengthens long-term community and family-focused programs.",
+            recognition: "Legacy Recognition: Opportunity for prominent and permanent recognition within the facility. Consideration for dedicated areas or features aligned with your legacy. Recognized as a Cornerstone Legacy Partner.",
+            benefits: "Premier recognition during the Gala program. Name featured on website and printed materials. Priority seating and VIP experience at the Gala.",
+            commitment: "✨ By Invitation. Leadership-level recognition opportunities are thoughtfully curated and aligned with the overall vision of the project.",
+            cta: "Become a Cornerstone Partner",
+            footer: "Together, we are laying a foundation that will impact generations.",
             icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -39,10 +44,13 @@ export default function LegacyCircles() {
             title: "Visionary Pillar",
             amount: "$25,000+",
             featured: true,
-            description: "Your support provides the strength and stability required to uphold our shared mission.",
-            impact: "Funds essential interior spaces and community-focused areas that will host programs for youth, seniors, and families.",
-            recognition: "Formal recognition on the Legacy Wall and a dedicated plaque within one of the primary community mission rooms.",
-            benefits: "VIP seating at the Dinner Gala and recognition as a key supporter of the facility's mission-driven spaces.",
+            description: "Support What Will Stand for Generations. As a Visionary Pillar, your generous leadership helps raise the structure of a space designed to serve families, empower youth, and strengthen the community for years to come.",
+            impact: "Supports major structural and program areas within the Community & Worship Center. Helps accelerate construction and expand community impact. Strengthens long-term initiatives for families, youth, and outreach.",
+            recognition: "Legacy Recognition: Opportunity for recognition associated with select elements of the sanctuary or main gathering spaces, such as: Windows or architectural features; Interior design elements within shared spaces. Enhanced and visible placement within the Pathway of Faith, reflecting your leadership contribution.",
+            benefits: "Recognition in the Gala program booklet. Name featured on website and donor listings. Preferred seating and enhanced Gala experience.",
+            commitment: "✨ Expanded Legacy Opportunity. This level allows for more prominent and meaningful recognition, thoughtfully integrated into significant areas of the space.",
+            cta: "Become a Visionary Pillar",
+            footer: "Your vision today helps shape a legacy for generations.",
             icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -52,10 +60,13 @@ export default function LegacyCircles() {
         {
             title: "Heritage Builder",
             amount: "$10,000+",
-            description: "Build a legacy that will endure and bless the Auburn community for years to come.",
-            impact: "Contributes to specialized equipment and resources needed for our outreach and educational programs.",
-            recognition: "Official recognition on the Legacy Wall and certificate of appreciation as a Heritage Builder.",
-            benefits: "Invitation to a private pre-construction site walkthrough and recognition on the donors' roll.",
+            description: "Build a Legacy That Will Endure. As a Heritage Builder, your generous contribution helps transform vision into reality — laying the groundwork for a space where faith, families, and community will flourish for generations.",
+            impact: "Supports the development of key areas within the Community & Worship Center. Helps advance construction and accelerate project timelines. Strengthens programs for children, youth, and families.",
+            recognition: "Legacy Recognition: Name included in a dedicated donor recognition area within the facility. Enhanced placement within the Pathway of Faith. Opportunity for recognition associated with select elements of the campus, such as: Benches or seating areas; Outdoor or gathering spaces; Designated sections within community-use areas.",
+            benefits: "Recognition in the Gala program booklet. Name featured on website and donor listings. Preferred seating at the Gala.",
+            commitment: "✨ Growing Legacy Opportunity. Recognition at this level becomes more visible and thoughtfully integrated within the experience of the space.",
+            cta: "Become a Heritage Builder",
+            footer: "Your legacy today helps shape the future of our community.",
             icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -65,10 +76,12 @@ export default function LegacyCircles() {
         {
             title: "Double Legacy Brick",
             amount: "$5,000",
-            description: "Pathway of Faith Partner. Leave a permanent mark on the road to our future.",
-            details: "Recognition with TWO engraved bricks or stones placed in the permanent 'Pathway of Faith' at the new facility.",
-            impact: "Funds the landscaping and outdoor welcome areas that will serve as the first point of contact for our neighbors.",
-            benefits: "Digital recognition on our website and social media throughout the campaign.",
+            description: "Pathway of Faith Partner. Leave a Step of Faith That Will Last for Generations. Honor your faith, your family, or the memory of a loved one through a lasting tribute within the future Community & Worship Center.",
+            impact: "Contributes directly to the development of the facility. Helps advance the $400,000 Break Ground milestone.",
+            benefits: "Engraved brick or stone in the Pathway of Faith. Option to include: Family name; Personal message; In memory or in honor of a loved one. Recognition in donor listing.",
+            commitment: "✨ Expanded Legacy Option. Those who choose a Double Legacy Brick may include: Additional engraved space; A second dedication (family member, loved one, etc.); Enhanced presence within the Pathway.",
+            cta: "Reserve Your Legacy Brick",
+            footer: "Your step of faith today becomes a path for future generations.",
             icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
@@ -78,10 +91,11 @@ export default function LegacyCircles() {
         {
             title: "Single Legacy Brick",
             amount: "$2,500",
-            description: "Leave a Step of Faith. Every stone contributes to the path we walk together.",
-            details: "Recognition with ONE engraved brick or stone placed in the permanent 'Pathway of Faith' at the new facility.",
-            impact: "Contributes to the beautification of our community spaces and entryways.",
-            benefits: "Name listed in the 2026 Vision & Hope campaign commemorative program.",
+            description: "Pathway of Faith Partner. Leave a Step of Faith That Will Last for Generations. Honor your faith, your family, or the memory of a loved one through a lasting tribute within the future Community & Worship Center.",
+            impact: "Contributes directly to the development of the facility. Helps advance the $400,000 Break Ground milestone.",
+            benefits: "Engraved brick or stone in the Pathway of Faith. Option to include: Family name; Personal message; In memory or in honor of a loved one. Recognition in donor listing.",
+            cta: "Reserve Your Legacy Brick",
+            footer: "Your step of faith today becomes a path for future generations.",
             icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 8h16M4 16h16" />
@@ -91,10 +105,11 @@ export default function LegacyCircles() {
         {
             title: "Community Partner",
             amount: "$1,000+",
-            description: "Be part of something greater. Your partnership makes our mission possible.",
-            impact: "Supports the operational launch and initial community programs of the new center.",
-            recognition: "Recognition as a Community Partner in our digital campaign roll.",
-            benefits: "The knowledge that you are helping build a home for hope in your neighborhood.",
+            description: "Be Part of Something Greater. Every gift matters. As a Community Partner, you join a growing community committed to building a future that will serve families, children, and generations to come.",
+            impact: "Contributes toward the development of the Community & Worship Center. Helps advance the $400,000 Break Ground milestone. Supports programs that serve families, youth, and the broader community.",
+            recognition: "Name included in the Community Partner donor listing. Recognition on the event website and printed materials. Acknowledgment during the Gala program.",
+            benefits: "Recognition in the Gala program booklet. Legacy Contributor Certificate.",
+            cta: "Become a Community Partner",
             icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -104,10 +119,11 @@ export default function LegacyCircles() {
         {
             title: "Dinner Gala Seat",
             amount: "$500",
-            subtitle: "Suggested donation per guest",
-            description: "Vision & Hope Dinner Gala Admission. Experience an evening of inspiration and purpose.",
-            impact: "While a suggested contribution of $500 per guest helps move the vision forward, we welcome all who desire to be part of this special evening.",
-            benefits: "Full admission to the Dinner Gala, including fine dining, live music, and the unveiling of the vision.",
+            subtitle: "per guest",
+            description: "An Evening of Purpose, Dinner, and Inspiration. Join us for the Vision & Hope Dinner Gala, an elegant and meaningful evening where community, music, and vision come together to build something that will impact generations to come.",
+            impact: "Contributes toward the $400,000 Break Ground milestone. Supports the development of a space dedicated to faith, family, and community.",
+            details: "Includes: Admission to the Vision & Hope Dinner Gala; Elegant dinner experience; Live musical presentation (special guest artist); A personalized reserved seating experience; A thoughtfully curated Welcome Gift; A powerful presentation of the vision for the future Community & Worship Center.",
+            cta: "Reserve Your Seat",
             icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -212,19 +228,13 @@ export default function LegacyCircles() {
                                             transition={{ duration: 0.4, ease: "easeInOut" }}
                                             className="border-t border-slate-100"
                                         >
-                                            <div className="p-8 space-y-8 bg-slate-50/50">
-                                                {tier.commitment && (
-                                                    <div>
-                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-1">Commitment</span>
-                                                        <p className="text-sm font-semibold text-primary">{tier.commitment}</p>
-                                                    </div>
-                                                )}
+                                            <div className="p-8 space-y-6 bg-slate-50/50">
 
                                                 {tier.details && (
-                                                     <div>
-                                                     <span className="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-1">Details</span>
-                                                     <p className="text-sm text-slate-700 leading-relaxed font-medium">{tier.details}</p>
-                                                 </div>
+                                                    <div>
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-1">What&apos;s Included</span>
+                                                        <p className="text-sm text-slate-700 leading-relaxed font-medium">{tier.details}</p>
+                                                    </div>
                                                 )}
 
                                                 <div>
@@ -239,15 +249,39 @@ export default function LegacyCircles() {
                                                     </div>
                                                 )}
 
-                                                <div>
-                                                    <span className="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-1">Partner Benefits</span>
-                                                    <p className="text-sm text-slate-700 leading-relaxed">{tier.benefits}</p>
-                                                </div>
+                                                {tier.benefits && (
+                                                    <div>
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-1">Partner Benefits</span>
+                                                        <p className="text-sm text-slate-700 leading-relaxed">{tier.benefits}</p>
+                                                    </div>
+                                                )}
+
+                                                {/* Special note: By Invitation / Expanded Legacy / Growing Legacy */}
+                                                {tier.commitment && (
+                                                    <div className="bg-secondary/5 border border-secondary/15 rounded-xl p-4">
+                                                        <p className="text-sm text-slate-600 leading-relaxed italic">{tier.commitment}</p>
+                                                    </div>
+                                                )}
+
+                                                {/* Per-tier CTA */}
+                                                {tier.cta && (
+                                                    <a
+                                                        href="#rsvp"
+                                                        className="block w-full text-center py-3 px-6 rounded-xl bg-brand-green text-white text-sm font-bold hover:bg-brand-green/90 transition-colors duration-200"
+                                                    >
+                                                        {tier.cta}
+                                                    </a>
+                                                )}
+
+                                                {/* Per-tier footer tagline */}
+                                                {tier.footer && (
+                                                    <p className="text-[11px] text-center text-muted-foreground italic">{tier.footer}</p>
+                                                )}
 
                                                 {/* Flexible Giving Note */}
-                                                <div className="pt-4 mt-8 border-t border-slate-200">
+                                                <div className="pt-4 border-t border-slate-200">
                                                     <p className="text-[11px] italic text-muted-foreground text-center">
-                                                        Contributions may be made in full or through flexible payment options (multiple payments available).
+                                                        ✨ <strong>Flexible Giving</strong> — Contributions may be made in full or through flexible payment options (multiple payments available).
                                                     </p>
                                                 </div>
                                             </div>

@@ -148,12 +148,12 @@ export default function Vision() {
                             <div className="absolute inset-0 p-2 flex gap-2 overflow-x-auto snap-x snap-mandatory hide-scrollbar">
                                 {[
                                     { src: "/images/galeria/01.png", alt: "Aerial view of worship center" },
-                                    { src: "/images/galeria/02.png", alt: "Aerial view of multi-purpose area" },
+
                                     { src: "/images/galeria/03.png", alt: "Side view of worship center" },
                                     { src: "/images/galeria/04.png", alt: "View of entrance to soccer field" },
                                     { src: "/images/galeria/05.png", alt: "Interior sanctuary view" },
                                     { src: "/images/galeria/06.png", alt: "Fellowship hall view" },
-                                    { src: "/images/galeria/07.png", alt: "Lobby and reception area" },
+
                                     { src: "/images/galeria/08.png", alt: "Elevated architectural render" },
                                 ].map((img, index) => (
                                     <div key={index} className="relative min-w-[85%] sm:min-w-[45%] h-full rounded-2xl overflow-hidden snap-center shrink-0 group">
