@@ -89,6 +89,15 @@ export const RSVPConfirmationEmail = ({
                                 <Column style={detailValue}>{intention === "both" ? "Attend & Pledge" : intention === "attend" ? "Attend Dinner Gala" : "Faith Promise"}</Column>
                             </Row>
 
+                            {participation && (
+                                <Row style={detailRow}>
+                                    <Column style={detailLabel}>Level / Tier</Column>
+                                    <Column style={detailValue}>
+                                        {participation === "individual" ? "Individual Attendance" : participation === "table" ? "Table Sponsorship" : participation === "other" ? "Custom Support" : participation}
+                                    </Column>
+                                </Row>
+                            )}
+
                             {intention !== "pledge" && (
                                 <Row style={detailRow}>
                                     <Column style={detailLabel}>Guests</Column>

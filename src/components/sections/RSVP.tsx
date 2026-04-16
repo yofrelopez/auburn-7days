@@ -39,31 +39,22 @@ export default function RSVP() {
         }
     }, [step]);
     
-    const [isCustomGuestFocused, setIsCustomGuestFocused] = useState(false);
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
         email: "",
         phone: "",
-        intention: "attend" as "attend" | "pledge" | "both",
         regType: "personal" as "personal" | "business",
         businessName: "",
         participation: "individual" as "individual" | "table" | "other",
         amount: "500",
         numGuests: 1,
-        guestNames: "",
-        stayOvernight: "" as "yes" | "no" | "",
         dietary: "",
         childCare: "no" as "no" | "yes",
         numChildren: 1,
         agesChildren: "",
-        childNeeds: "",
-        pledgeAmount: "50000",
-        pledgeFrequency: "one-time",
-        pledgeTimeframe: "30",
         commitmentType: "immediate" as "immediate" | "pledge" | "installment" | "at-gala",
         initialAmount: "",
-        customPledgeAmount: ""
     });
 
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -73,11 +64,10 @@ export default function RSVP() {
         const newErrors: string[] = [];
         if (currentStep === 1) {
             if (formData.regType === "business" && !formData.businessName) newErrors.push("Business name is required for corporate registration");
-            if (formData.intention !== "pledge" && (!formData.amount || parseInt(formData.amount) <= 0)) newErrors.push("A contribution amount is required");
+            if (formData.participation === "other" && (!formData.amount || parseInt(formData.amount) <= 0)) newErrors.push("A contribution amount is required");
         }
         if (currentStep === 2) {
-            if (formData.intention !== "pledge" && formData.numGuests < 1) newErrors.push("Number of guests must be at least 1");
-            if (formData.intention !== "attend" && formData.pledgeAmount === "other" && (!formData.amount || parseInt(formData.amount) <= 0)) newErrors.push("Please specify a custom pledge amount");
+            if (formData.numGuests < 1) newErrors.push("Number of guests must be at least 1");
         }
         if (currentStep === 3) {
             if (!formData.firstName) newErrors.push("First name is required");
@@ -111,57 +101,45 @@ export default function RSVP() {
     const [isRedirecting, setIsRedirecting] = useState(false);
 
     const handleSubmit = async () => {
-        if (!validateStep(4)) return;
+        if (!validateStep(3)) {
+            setStep(3);
+            return;
+        }
 
         setIsSubmitting(true);
         setSubmitError(null);
 
-        const displayAmount = formData.intention === "pledge" 
-            ? (formData.pledgeAmount === "other" ? formData.customPledgeAmount : formData.pledgeAmount)
-            : formData.amount;
-
-        const pledgeTiers = {
-            "100000": "Legacy Founder",
-            "50000": "Cornerstone Legacy Partner",
-            "25000": "Visionary Pillar",
-            "10000": "Heritage Builder",
-            "5000": "Double Legacy Brick",
-            "2500": "Single Legacy Brick",
-            "1000": "Community Partner",
-            "other": "Custom Pledge"
-        };
-
-        const tierLabel = formData.intention === "pledge" 
-            ? (pledgeTiers[formData.pledgeAmount as keyof typeof pledgeTiers] || "Pledge")
-            : (formData.participation === "table" ? "Table Sponsorship" : formData.participation === "other" ? "Custom Contribution" : "Attendance Registration");
+        const tierLabel = formData.participation === "table" ? "Table Sponsorship" : (formData.participation === "other" ? "Custom Support" : "Individual Attendance");
 
         try {
-            // Send the admin notification via Resend
+            // Send the admin notification
             const adminResult = await sendAdminRegistrationAlert({
                 ...formData,
-                amount: displayAmount, 
-                pledgeAmount: (formData.intention === "pledge" || formData.intention === "both") 
-                    ? (formData.pledgeAmount === "other" ? formData.customPledgeAmount : formData.pledgeAmount) 
-                    : "0",
-                participation: tierLabel 
+                intention: "attend", // Primary intention for RSVP
+                participation: tierLabel,
+                amount: formData.amount,
+                pledgeAmount: "0", // No capital pledges in this flow
+                pledgeFrequency: "one-time",
+                pledgeTimeframe: "30",
+                guestNames: "" // simplified
             });
 
             if (adminResult.success) {
-                // Fire off the confirmation email asynchronously to the user
+                // Send confirmation to user
                 sendRSVPConfirmation({
                     ...formData,
-                    amount: displayAmount,
+                    intention: "attend",
+                    amount: formData.amount,
                     commitmentType: formData.commitmentType,
                     initialAmount: formData.commitmentType === "installment" ? formData.initialAmount : undefined
                 }).catch(err => console.error("Auto-email Error:", err));
 
-                // Determine Stripe amount: Full today or just the initial installment
+                // Determine Stripe amount
                 const donationAmount = formData.commitmentType === "installment" 
-                    ? parseInt(formData.initialAmount) 
-                    : parseInt(formData.amount);
+                    ? parseInt(formData.initialAmount || "0") 
+                    : parseInt(formData.amount || "0");
                 
                 const shouldRedirectToStripe = donationAmount > 0 && 
-                    (formData.intention === "attend" || formData.intention === "both") && 
                     (formData.commitmentType === "immediate" || formData.commitmentType === "installment");
 
                 if (shouldRedirectToStripe) {
@@ -174,33 +152,31 @@ export default function RSVP() {
                             lastName: formData.lastName
                         });
                         window.location.href = url;
-                        return; // Exit as we are redirecting
+                        return;
                     } catch (error) {
-                        console.error("Stripe Checkout Error:", error);
-                        setSubmitError("We couldn't initialize secure card processing. Please try 'Faith Promise' instead.");
+                        console.error("Stripe Error:", error);
+                        setSubmitError("Checkout error. Please select 'Faith Promise' to register without payment today.");
                         setIsRedirecting(false);
                         return;
                     }
                 } else {
-                    // It's either a pledge only, or they chose to fulfill the attendance gift later
                     setIsSubmitted(true);
                 }
             } else {
-                console.error("Admin Alert Error:", adminResult.error);
-                setSubmitError("Failed to submit registration. Please try again.");
+                setSubmitError("Submission failed. Please check your connection.");
             }
         } catch (error) {
             console.error("Submission Error:", error);
-            setSubmitError("An unexpected error occurred. Please try again.");
+            setSubmitError("An unexpected error occurred.");
         } finally {
             setIsSubmitting(false);
         }
     };
 
     const steps = [
-        { id: 1, title: "Engagement", icon: Ticket },
-        { id: 2, title: "Identity", icon: User },
-        { id: 3, title: formData.intention === "pledge" ? "Faith Promise" : "Hospitality", icon: formData.intention === "pledge" ? Heart : Home },
+        { id: 1, title: "Level", icon: Ticket },
+        { id: 2, title: "Hospitality", icon: Home },
+        { id: 3, title: "Identity", icon: User },
         { id: 4, title: "Commitment", icon: CheckCircle2 },
     ];
 
@@ -282,7 +258,7 @@ export default function RSVP() {
                         <div className="bg-white/40 backdrop-blur-xl border border-white/60 p-6 rounded-[2rem] shadow-sm hidden lg:block">
                             <h4 className="text-xs font-bold uppercase tracking-widest text-brand-green/60 mb-6 flex items-center gap-2">
                                 <Star size={12} className="text-brand-gold" />
-                                Your Engagement
+                                Your Registration
                             </h4>
                             <div className="space-y-4">
                                 {formData.firstName && (
@@ -293,15 +269,15 @@ export default function RSVP() {
                                 )}
                                 {formData.participation && step > 1 && (
                                     <div className="animate-in fade-in slide-in-from-left-2 transition-all">
-                                        <p className="text-[10px] text-slate-400 uppercase font-bold">Level</p>
+                                        <p className="text-[10px] text-slate-400 uppercase font-bold">Registration Level</p>
                                         <p className="text-sm font-bold text-brand-green">
-                                            {formData.participation === "table" ? "Full Table Sponsor" : formData.participation === "other" ? "Custom Contribution" : "Suggested Contribution"}
+                                            {formData.participation === "table" ? "Full Table Sponsor" : formData.participation === "other" ? "Custom Support" : "Individual Attendance"}
                                         </p>
                                     </div>
                                 )}
                                 {formData.numGuests > 1 && step > 2 && (
                                     <div className="animate-in fade-in slide-in-from-left-2 transition-all">
-                                        <p className="text-[10px] text-slate-400 uppercase font-bold">Group size</p>
+                                        <p className="text-[10px] text-slate-400 uppercase font-bold">Guests</p>
                                         <p className="text-sm font-bold text-brand-green">{formData.numGuests} People</p>
                                     </div>
                                 )}
@@ -369,25 +345,17 @@ export default function RSVP() {
                                                 lastName: "",
                                                 email: "",
                                                 phone: "",
-                                                intention: "attend",
                                                 regType: "personal",
                                                 businessName: "",
                                                 participation: "individual",
                                                 amount: "500",
                                                 numGuests: 1,
-                                                guestNames: "",
-                                                stayOvernight: "",
                                                 dietary: "",
                                                 childCare: "no",
                                                 numChildren: 1,
                                                 agesChildren: "",
-                                                childNeeds: "",
-                                                pledgeAmount: "50000",
-                                                pledgeFrequency: "one-time",
-                                                pledgeTimeframe: "30",
                                                 commitmentType: "immediate",
                                                 initialAmount: "",
-                                                customPledgeAmount: ""
                                             });
                                         }}
                                         className="text-sm font-bold text-brand-green hover:text-brand-gold transition-colors underline underline-offset-4 decoration-2"
@@ -399,7 +367,7 @@ export default function RSVP() {
                                 <div className="flex-1 flex flex-col">
                                     {/* Live Support Summary Bar (Persistent for steps 2 & 3) */}
                                     <AnimatePresence>
-                                        {(step === 2 || step === 3) && (
+                                        {(step === 2) && (
                                             <motion.div
                                                 initial={{ opacity: 0, y: -20 }}
                                                 animate={{ opacity: 1, y: 0 }}
@@ -411,59 +379,39 @@ export default function RSVP() {
                                                     <Star size={80} />
                                                 </div>
 
-                                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+                                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10 w-full">
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-12 h-12 rounded-2xl bg-white border border-brand-green/10 flex items-center justify-center text-brand-green shadow-sm shrink-0">
-                                                            {formData.intention === 'pledge' ? <Star size={24} /> : (formData.participation === 'table' ? <Users size={24} /> : <Ticket size={24} />)}
+                                                            {formData.participation === 'table' ? <Users size={24} /> : <Ticket size={24} />}
                                                         </div>
                                                         <div>
-                                                            <p className="text-[10px] font-bold text-brand-green/60 uppercase tracking-widest leading-none mb-1.5">Your Commitment</p>
+                                                            <p className="text-[10px] font-bold text-brand-green/60 uppercase tracking-widest leading-none mb-1.5">Your Registration</p>
                                                             <div className="flex flex-col gap-0.5">
                                                                 <div className="flex items-center gap-2">
                                                                     <span className="font-serif font-bold text-brand-green text-sm md:text-base">
-                                                                        {formData.intention === 'pledge' ? 'Faith Promise Only' : (formData.participation === 'table' ? 'Table Sponsorship' : 'Gala Attendance')}
+                                                                        {formData.participation === 'table' ? 'Full Table Sponsor' : (formData.participation === 'other' ? 'Custom Support' : 'Gala Attendance')}
                                                                     </span>
-                                                                    {formData.intention !== 'pledge' && (
-                                                                        <span className="text-xs md:text-sm text-slate-500 font-medium">
-                                                                            • {formData.numGuests} {formData.numGuests === 1 ? 'Guest' : 'Guests'}
-                                                                        </span>
-                                                                    )}
+                                                                    <span className="text-xs md:text-sm text-slate-500 font-medium">
+                                                                        • {formData.numGuests} {formData.numGuests === 1 ? 'Guest' : 'Guests'}
+                                                                    </span>
                                                                 </div>
-                                                                {formData.intention === 'both' && formData.pledgeAmount && (
-                                                                    <p className="text-[10px] font-bold text-brand-gold uppercase tracking-widest leading-none flex items-center gap-1">
-                                                                        + Faith Promise Active
-                                                                    </p>
-                                                                )}
                                                             </div>
                                                         </div>
                                                     </div>
 
                                                     <div className="flex flex-col md:items-end border-t md:border-t-0 border-brand-green/10 pt-4 md:pt-0">
                                                         <div className="flex flex-col gap-1 items-start md:items-end">
-                                                            {formData.intention !== 'pledge' && (
-                                                                <div className="flex items-center gap-3">
-                                                                    <p className="text-[10px] font-bold text-brand-green/60 uppercase tracking-widest leading-none">
-                                                                        {formData.commitmentType === 'pledge' ? 'Future Gift' : formData.commitmentType === 'at-gala' ? 'Gift at Event' : 'Gift Today'}
-                                                                    </p>
-                                                                    <div className={`flex items-baseline gap-1 px-2 py-0.5 rounded-lg border ${formData.commitmentType === 'pledge' || formData.commitmentType === 'at-gala' ? 'bg-brand-gold/10 border-brand-gold/10' : 'bg-brand-green/10 border-brand-green/10'}`}>
-                                                                        <span className="text-brand-gold font-bold text-xs font-serif">$</span>
-                                                                        <span className="text-brand-green font-bold text-sm md:text-base font-serif">
-                                                                            {parseInt(formData.amount || "0").toLocaleString()}
-                                                                        </span>
-                                                                    </div>
+                                                            <div className="flex items-center gap-3">
+                                                                <p className="text-[10px] font-bold text-brand-green/60 uppercase tracking-widest leading-none">
+                                                                    {formData.commitmentType === 'pledge' ? 'Future Gift' : formData.commitmentType === 'at-gala' ? 'Gift at Event' : 'Contribution'}
+                                                                </p>
+                                                                <div className={`flex items-baseline gap-1 px-2 py-0.5 rounded-lg border ${formData.commitmentType === 'pledge' || formData.commitmentType === 'at-gala' ? 'bg-brand-gold/10 border-brand-gold/10' : 'bg-brand-green/10 border-brand-green/10'}`}>
+                                                                    <span className="text-brand-gold font-bold text-xs font-serif">$</span>
+                                                                    <span className="text-brand-green font-bold text-sm md:text-base font-serif">
+                                                                        {parseInt(formData.amount || "0").toLocaleString()}
+                                                                    </span>
                                                                 </div>
-                                                            )}
-                                                            {formData.intention !== 'attend' && (
-                                                                <div className="flex items-center gap-3">
-                                                                    <p className="text-[10px] font-bold text-brand-green/60 uppercase tracking-widest leading-none">Faith Promise</p>
-                                                                    <div className="flex items-baseline gap-1 bg-brand-gold/10 px-2 py-0.5 rounded-lg border border-brand-gold/10">
-                                                                        <span className="text-brand-gold font-bold text-xs font-serif">$</span>
-                                                                        <span className="text-brand-green font-bold text-sm md:text-base font-serif">
-                                                                            {(formData.pledgeAmount === 'other' ? parseInt(formData.amount || "0") : parseInt(formData.pledgeAmount || "0")).toLocaleString()}
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                            )}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -492,36 +440,11 @@ export default function RSVP() {
                                                 onChange={(e) => updateFormData("botcheck", e.target.checked)}
                                             />
                                             <div>
-                                                <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">Join the Dinner Gala</h3>
-                                                <p className="text-sm md:text-base text-slate-500">Choose how you would like to partner with our legacy.</p>
+                                                <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">Gala Registration</h3>
+                                                <p className="text-sm md:text-base text-slate-500">Secure your place at the Vision & Hope Dinner Gala 2026.</p>
                                             </div>
 
-                                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-                                                {[
-                                                    { id: "attend", title: "Attend Gala", desc: "Join us at the event", icon: Ticket },
-                                                    { id: "pledge", title: "Make a Pledge", desc: "Faith promise", icon: Heart },
-                                                    { id: "both", title: "Both", desc: "Attend & Pledge", icon: Star }
-                                                ].map((t, idx) => (
-                                                    <button
-                                                        key={t.id}
-                                                        onClick={() => updateFormData("intention", t.id as any)}
-                                                        className={`p-4 md:p-6 rounded-2xl border-2 text-left transition-all duration-300 relative overflow-hidden flex flex-col gap-3 group ${idx === 2 ? "col-span-2 lg:col-span-1" : ""} ${formData.intention === t.id ? "border-brand-gold bg-brand-gold/5 shadow-lg shadow-brand-gold/5" : "border-brand-gray/10 bg-white hover:border-brand-gray/30"}`}
-                                                    >
-                                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${formData.intention === t.id ? "bg-brand-gold text-white" : "bg-brand-gray/5 text-brand-green/30 group-hover:text-brand-green/50"}`}>
-                                                            <t.icon size={20} />
-                                                        </div>
-                                                        <div className="min-w-0">
-                                                            <p className={`font-bold text-sm md:text-base ${formData.intention === t.id ? "text-brand-green" : "text-slate-700"}`}>{t.title}</p>
-                                                            <p className="text-[10px] md:text-xs text-slate-400 leading-tight">{t.desc}</p>
-                                                        </div>
-                                                        {formData.intention === t.id && (
-                                                            <motion.div layoutId="intention-active" className="absolute -inset-[2px] border-2 border-brand-gold rounded-2xl pointer-events-none" />
-                                                        )}
-                                                    </button>
-                                                ))}
-                                            </div>
-
-                                            <div className="grid grid-cols-2 gap-3 md:gap-4 pt-4 border-t border-brand-gray/10">
+                                            <div className="grid grid-cols-2 gap-3 md:gap-4">
                                                 {[
                                                     { id: "personal", title: "Personal", desc: "Individual Partner", icon: User },
                                                     { id: "business", title: "Corporate", desc: "Organization Sponsor", icon: Briefcase }
@@ -542,8 +465,9 @@ export default function RSVP() {
                                                             <motion.div layoutId="reg-active" className="absolute -inset-[2px] border-2 border-brand-gold rounded-2xl pointer-events-none" />
                                                         )}
                                                     </button>
-                                                ))}
-                                            </div>
+                                                ))
+                                            }
+                                        </div>
 
                                             {formData.regType === "business" && (
                                                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-2">
@@ -558,18 +482,18 @@ export default function RSVP() {
                                                 </motion.div>
                                             )}
 
-                                            {formData.intention !== "pledge" && (
-                                                <div className="space-y-4 pt-3 border-t border-brand-gray/10">
-                                                        <div className="mb-1 flex flex-col md:flex-row md:items-center justify-between gap-1 border-b border-brand-gray/10 pb-2">
-                                                            <h4 className="text-lg md:text-xl font-serif font-bold text-brand-green">Gala Support & Registration</h4>
-                                                            <div className="flex items-center gap-2 bg-brand-gold/10 px-2 py-1 rounded-full border border-brand-gold/10">
-                                                                <Star size={10} className="text-brand-gold shrink-0" />
-                                                                <p className="text-[8px] font-bold text-brand-green/80 uppercase tracking-widest whitespace-nowrap">Suggested Contributions</p>
-                                                            </div>
-                                                        </div>
-                                                        <p className="text-[10px] md:text-xs text-slate-500 mb-4 bg-brand-gray/5 p-3 rounded-lg border-l-2 border-brand-gold/50">
-                                                            Your presence honors our legacy. While we invite a suggested contribution of $500 per guest to help reach our $400,000 goal, <span className="italic">we welcome your support in any amount that feels right to you. Your presence is truly valued, and any contribution is appreciated.</span> <span className="italic">Donations may be made in full or through flexible payments.</span>
-                                                        </p>
+                                            <div className="space-y-4 pt-3 border-t border-brand-gray/10">
+                                                <div className="mb-1 flex flex-col md:flex-row md:items-center justify-between gap-1 border-b border-brand-gray/10 pb-2">
+                                                    <h4 className="text-lg md:text-xl font-serif font-bold text-brand-green">Registration Level</h4>
+                                                    <div className="flex items-center gap-2 bg-brand-gold/10 px-2 py-1 rounded-full border border-brand-gold/10">
+                                                        <Star size={10} className="text-brand-gold shrink-0" />
+                                                        <p className="text-[8px] font-bold text-brand-green/80 uppercase tracking-widest whitespace-nowrap">Suggested Contributions</p>
+                                                    </div>
+                                                </div>
+                                                <p className="text-[10px] md:text-xs text-slate-500 mb-4 bg-brand-gray/5 p-3 rounded-lg border-l-2 border-brand-gold/50">
+                                                    Your presence honors our legacy. While we invite a suggested contribution of $500 per guest, <span className="italic font-medium text-brand-green/70">we welcome your support in any amount that feels right to you. For larger capital commitments, please explore our Legacy Circles.</span>
+                                                </p>
+                                            
                                                     
                                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                                                         {[
@@ -622,8 +546,9 @@ export default function RSVP() {
                                                                     </div>
                                                                 )}
                                                             </button>
-                                                        ))}
-                                                    </div>
+                                                        ))
+                                                    }
+                                                </div>
 
                                                     {/* Custom Contribution Input for "Other" in Step 1 */}
                                                     <AnimatePresence>
@@ -655,379 +580,200 @@ export default function RSVP() {
                                                         )}
                                                     </AnimatePresence>
                                                 </div>
-                                            )}
-                                        </div>
-                                    )}
-
+                                            </div>
+                                        )}
                                     {step === 2 && (
                                         <div className="space-y-8 md:space-y-12 pb-10">
-                                            {/* Hospitality Section (If Attending) */}
-                                            {formData.intention !== "pledge" && (
-                                                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                                    <div className="flex flex-col gap-2 mb-8">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-2xl bg-brand-green/10 flex items-center justify-center text-brand-green font-bold text-lg shadow-sm border border-brand-green/5">1</div>
-                                                            <h3 className="text-3xl md:text-4xl font-serif font-bold text-brand-green tracking-tight">Hospitality Details</h3>
-                                                        </div>
-                                                        <p className="text-sm md:text-base text-slate-400 ml-13">Enhancing your experience at the 2026 Vision & Hope Dinner Gala.</p>
-                                                    </div>
+                                            <div className="flex flex-col gap-2">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-2xl bg-brand-green/10 flex items-center justify-center text-brand-green font-bold text-lg shadow-sm border border-brand-green/5">2</div>
+                                                    <h3 className="text-3xl md:text-4xl font-serif font-bold text-brand-green tracking-tight">Hospitality & Support</h3>
+                                                </div>
+                                                <p className="text-sm md:text-base text-slate-400">Enhancing your experience at the 2026 Vision & Hope Dinner Gala.</p>
+                                            </div>
 
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                                                        <div className="space-y-4">
-                                                            <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 flex items-center gap-2">
-                                                                <Users size={14} /> Total Guests
-                                                            </label>
-                                                            <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                                                                {[1, 2, 4, 8].map(n => (
-                                                                    <button
-                                                                        key={n}
-                                                                        onClick={() => {
-                                                                            updateFormData("numGuests", n);
-                                                                            updateFormData("participation", n === 8 ? "table" : "individual");
-                                                                            updateFormData("amount", (n * 500).toString());
-                                                                        }}
-                                                                        className={`flex flex-col items-center justify-center min-w-[3.5rem] h-[3.5rem] px-2 md:min-w-[4rem] md:h-[4rem] rounded-lg md:rounded-xl border-2 transition-all ${formData.numGuests === n && formData.participation !== "other" ? "border-brand-gold bg-brand-gold/10 text-brand-green shadow-sm" : "border-brand-gray/10 text-slate-500 hover:border-brand-gray/30 bg-white"}`}
-                                                                    >
-                                                                        <span className="font-bold text-base md:text-lg leading-none mb-1 text-center">{n}</span>
-                                                                        <span className={`text-[9px] md:text-[10px] font-medium leading-none text-center ${formData.numGuests === n && formData.participation !== "other" ? "text-brand-green/80" : "text-slate-400"}`}>
-                                                                            ${(n * 500).toLocaleString()}
-                                                                        </span>
-                                                                    </button>
-                                                                ))}                                                                 <button
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
+                                                {/* Hospitality Details */}
+                                                <div className="space-y-8">
+                                                    <div className="space-y-4">
+                                                        <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 flex items-center gap-2">
+                                                            <Users size={14} /> Total Guests
+                                                        </label>
+                                                        <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                                                            {[1, 2, 4, 8].map(n => (
+                                                                <button
+                                                                    key={n}
                                                                     onClick={() => {
-                                                                        updateFormData("numGuests", 1);
-                                                                        updateFormData("participation", "other");
-                                                                        updateFormData("amount", "");
+                                                                        updateFormData("numGuests", n);
+                                                                        updateFormData("participation", n === 8 ? "table" : "individual");
+                                                                        updateFormData("amount", (n * 500).toString());
                                                                     }}
-                                                                    className={`flex flex-col items-center justify-center min-w-[3.5rem] h-[3.5rem] px-2 md:min-w-[4rem] md:h-[4rem] rounded-lg md:rounded-xl border-2 transition-all ${formData.participation === "other" ? "border-brand-gold bg-brand-gold/10 text-brand-green shadow-sm" : "border-brand-gray/10 text-slate-500 hover:border-brand-gray/30 bg-white"}`}
-                                                                 >
-                                                                    <PlusCircle size={18} className={formData.participation === "other" ? "text-brand-gold" : "text-slate-300"} />
-                                                                    <span className="text-[10px] font-bold uppercase tracking-tighter mt-1">Custom</span>
-                                                                 </button>
-
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Voluntary Donation Adjustment Section - Restricted to Custom cases as per user request */}
-                                                        {formData.participation === "other" && (
-                                                            <div className="bg-white border border-brand-green/10 rounded-[2rem] p-8 space-y-8 relative overflow-hidden shadow-xl shadow-brand-green/5">
-                                                            {/* Decorative Background */}
-                                                            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-green/5 rounded-bl-full pointer-events-none" />
-                                                            
-                                                            <div className="relative z-10 flex flex-col gap-6">
-                                                                <div className="space-y-2">
-                                                                    <div className="flex items-center gap-2">
-                                                                        <div className="p-1.5 rounded-lg bg-brand-green/10 text-brand-green">
-                                                                            <Heart size={16} className="fill-brand-green/20" />
-                                                                        </div>
-                                                                        <label className="text-xs font-bold text-brand-green uppercase tracking-[0.2em]">Your Voluntary Gift</label>
-                                                                    </div>
-                                                                    <p className="text-[11px] text-slate-400 leading-relaxed max-w-[240px]">
-                                                                        Adjust your contribution to support the project. Every gift makes a lasting impact.
-                                                                    </p>
-                                                                </div>
-                                                                
-                                                                <div className="relative group">
-                                                                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-gold font-serif font-bold text-2xl group-focus-within:scale-110 transition-transform">$</div>
-                                                                    <input
-                                                                        type="number"
-                                                                        value={formData.amount}
-                                                                        onChange={(e) => updateFormData("amount", e.target.value)}
-                                                                        className="w-full bg-brand-green/[0.02] border-2 border-brand-green/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 rounded-2xl py-6 pl-12 pr-6 text-3xl font-serif font-bold text-brand-green outline-none transition-all shadow-inner"
-                                                                        placeholder="0"
-                                                                    />
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                            
-                                                        {/* Philanthropic Commitment Type Selector */}
-                                                        <div className="space-y-5 pt-6 border-t border-brand-green/5">
-                                                            <div className="flex items-center justify-between">
-                                                                <label className="text-[10px] font-bold text-brand-green/40 uppercase tracking-[0.2em]">Fulfillment Preference</label>
-                                                                <Star size={12} className="text-brand-gold/40" />
-                                                            </div>
-                                                            
-                                                            <div className="grid grid-cols-2 gap-3">
-                                                                {[
-                                                                    { id: "immediate", label: "Give Today", sub: "Full gift today" },
-                                                                    { id: "installment", label: "Installment", sub: "Partial gift today" },
-                                                                    { id: "pledge", label: "Faith Promise", sub: "Commit to later" },
-                                                                    { id: "at-gala", label: "At the Gala", sub: "Gift on event day" }
-                                                                ].map((type) => (
-                                                                    <button
-                                                                        key={type.id}
-                                                                        type="button"
-                                                                        onClick={() => {
-                                                                            updateFormData("commitmentType", type.id);
-                                                                            if (type.id === "installment" && formData.initialAmount === "0") {
-                                                                                updateFormData("initialAmount", (parseInt(formData.amount) / 4).toString());
-                                                                            }
-                                                                        }}
-                                                                        className={`group p-4 rounded-2xl border-2 transition-all duration-300 relative flex flex-col gap-1 ${formData.commitmentType === type.id ? "border-brand-gold bg-brand-gold/5 shadow-md shadow-brand-gold/5" : "border-brand-gray/10 bg-white hover:border-brand-gray/30"}`}
-                                                                    >
-                                                                        <div className="flex flex-col w-full">
-                                                                            <p className={`font-bold text-[10px] md:text-xs uppercase tracking-widest leading-tight ${formData.commitmentType === type.id ? "text-brand-green" : "text-slate-600"}`}>{type.label}</p>
-                                                                        </div>
-                                                                        <p className="text-[9px] text-slate-400 group-hover:text-slate-500 transition-colors uppercase tracking-wider">{type.sub}</p>
-                                                                        {formData.commitmentType === type.id && (
-                                                                            <motion.div layoutId="pref-active" className="absolute -inset-[2px] border-2 border-brand-gold rounded-2xl pointer-events-none" />
-                                                                        )}
-                                                                    </button>
-                                                                ))}
-                                                            </div>
-
-                                                            {/* Contextual Options for Installments or Pledge */}
-                                                            <AnimatePresence>
-                                                                {formData.commitmentType === "installment" && (
-                                                                    <motion.div
-                                                                        key="installment-initial-amount"
-                                                                        initial={{ opacity: 0, height: 0 }}
-                                                                        animate={{ opacity: 1, height: "auto" }}
-                                                                        exit={{ opacity: 0, height: 0 }}
-                                                                        className="space-y-4 pt-4 border-t border-brand-green/5"
-                                                                    >
-                                                                        <div className="space-y-2">
-                                                                            <label className="text-[10px] font-bold text-brand-green/60 uppercase tracking-widest ml-1">Initial Amount to Pay Now</label>
-                                                                            <div className="relative">
-                                                                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-gold font-serif font-bold">$</div>
-                                                                                <input
-                                                                                    type="number"
-                                                                                    value={formData.initialAmount}
-                                                                                    onChange={(e) => updateFormData("initialAmount", e.target.value)}
-                                                                                    className="w-full bg-brand-green/[0.02] border-2 border-brand-gold/20 focus:border-brand-gold rounded-xl py-3 pl-10 pr-4 text-xl font-serif font-bold text-brand-green outline-none transition-all shadow-inner"
-                                                                                    placeholder="0"
-                                                                                />
-                                                                            </div>
-                                                                            <p className="text-[9px] text-slate-400 italic">Remaining balance: ${Math.max(0, (parseInt(formData.amount) || 0) - (parseInt(formData.initialAmount) || 0)).toLocaleString()}</p>
-                                                                        </div>
-                                                                    </motion.div>
-                                                                )}
-
-                                                                {formData.commitmentType !== "immediate" && (
-                                                                    <motion.div
-                                                                        key="pledge-frequency"
-                                                                        initial={{ opacity: 0, height: 0 }}
-                                                                        animate={{ opacity: 1, height: "auto" }}
-                                                                        exit={{ opacity: 0, height: 0 }}
-                                                                        className="grid grid-cols-2 gap-4 pt-4 border-t border-brand-green/5"
-                                                                    >
-                                                                        <div className="space-y-2">
-                                                                            <label className="text-[10px] font-bold text-brand-green/60 uppercase tracking-widest ml-1">Frequency</label>
-                                                                            <select
-                                                                                value={formData.pledgeFrequency}
-                                                                                onChange={(e) => updateFormData("pledgeFrequency", e.target.value)}
-                                                                                className="w-full p-3 rounded-xl bg-white border border-brand-gray/20 outline-none text-[10px] md:text-xs font-bold text-brand-green uppercase tracking-wider"
-                                                                            >
-                                                                                <option value="one-time">One-time</option>
-                                                                                <option value="monthly">Monthly</option>
-                                                                                <option value="quarterly">Quarterly</option>
-                                                                            </select>
-                                                                        </div>
-                                                                        <div className="space-y-2">
-                                                                            <label className="text-[10px] font-bold text-brand-green/60 uppercase tracking-widest ml-1">By When</label>
-                                                                            <select
-                                                                                value={formData.pledgeTimeframe}
-                                                                                onChange={(e) => updateFormData("pledgeTimeframe", e.target.value)}
-                                                                                className="w-full p-3 rounded-xl bg-white border border-brand-gray/20 outline-none text-[10px] md:text-xs font-bold text-brand-green uppercase tracking-wider"
-                                                                            >
-                                                                                <option value="30">30 Days</option>
-                                                                                <option value="60">60 Days</option>
-                                                                                <option value="90">90 Days</option>
-                                                                                <option value="180">180 Days</option>
-                                                                            </select>
-                                                                        </div>
-                                                                    </motion.div>
-                                                                )}
-                                                            </AnimatePresence>
-                                                        </div>
-
-                                                        {/* Optional suggestion helper */}
-                                                        <div className="pt-3 border-t border-brand-green/5 flex items-center justify-between">
-                                                            <p className="text-[9px] font-bold text-brand-green/40 uppercase tracking-widest">Suggested: ${(formData.numGuests * 500).toLocaleString()}</p>
-                                                            <button 
-                                                                type="button"
-                                                                onClick={() => updateFormData("amount", (formData.numGuests * 500).toString())}
-                                                                className="text-[9px] font-bold text-brand-gold hover:text-brand-green uppercase tracking-widest underline underline-offset-2 decoration-1"
-                                                            >
-                                                                Reset to Suggestion
-                                                            </button>
+                                                                    className={`flex flex-col items-center justify-center min-w-[3.5rem] h-[3.5rem] px-2 md:min-w-[4rem] md:h-[4rem] rounded-lg md:rounded-xl border-2 transition-all ${formData.numGuests === n && formData.participation !== "other" ? "border-brand-gold bg-brand-gold/10 text-brand-green shadow-sm" : "border-brand-gray/10 text-slate-500 hover:border-brand-gray/30 bg-white"}`}
+                                                                >
+                                                                    <span className="font-bold text-base md:text-lg leading-none mb-1 text-center">{n}</span>
+                                                                    <span className={`text-[9px] md:text-[10px] font-medium leading-none text-center ${formData.numGuests === n && formData.participation !== "other" ? "text-brand-green/80" : "text-slate-400"}`}>
+                                                                        ${(n * 500).toLocaleString()}
+                                                                    </span>
+                                                                </button>
+                                                            ))}
+                                                            <button
+                                                                onClick={() => {
+                                                                    updateFormData("numGuests", 1);
+                                                                    updateFormData("participation", "other");
+                                                                    updateFormData("amount", "");
+                                                                }}
+                                                                className={`flex flex-col items-center justify-center min-w-[3.5rem] h-[3.5rem] px-2 md:min-w-[4rem] md:h-[4rem] rounded-lg md:rounded-xl border-2 transition-all ${formData.participation === "other" ? "border-brand-gold bg-brand-gold/10 text-brand-green shadow-sm" : "border-brand-gray/10 text-slate-500 hover:border-brand-gray/30 bg-white"}`}
+                                                             >
+                                                                <PlusCircle size={18} className={formData.participation === "other" ? "text-brand-gold" : "text-slate-300"} />
+                                                                <span className="text-[10px] font-bold uppercase tracking-tighter mt-1">Custom</span>
+                                                             </button>
                                                         </div>
                                                     </div>
 
-                                                        <div className="space-y-4">
-                                                            <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 flex items-center gap-2">
-                                                                <Utensils size={14} /> Dietary Specifics
-                                                            </label>
-                                                            <input
-                                                                type="text"
-                                                                value={formData.dietary}
-                                                                onChange={(e) => updateFormData("dietary", e.target.value)}
-                                                                className="w-full bg-white/80 border border-brand-gray/20 p-3 md:p-4 rounded-lg md:rounded-xl outline-none text-sm"
-                                                                placeholder="Allergies / Restrictions"
-                                                            />
-                                                        </div>
-                                                        
-                                                    <div className="bg-brand-light/50 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-brand-gray/10 space-y-6">
-                                                        <div className="flex items-start gap-3 md:gap-4">
-                                                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white border border-brand-gold/20 flex items-center justify-center text-brand-gold shrink-0">
-                                                                <Baby size={20} className="md:w-6 md:h-6" />
+                                                    <div className="space-y-4 pt-4 border-t border-brand-gray/10">
+                                                        <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 flex items-center gap-2">
+                                                            <Utensils size={14} /> Dietary Specifics
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={formData.dietary}
+                                                            onChange={(e) => updateFormData("dietary", e.target.value)}
+                                                            className="w-full bg-white/80 border border-brand-gray/20 p-4 rounded-xl outline-none text-sm transition-all focus:ring-2 focus:ring-brand-gold"
+                                                            placeholder="Allergies / Restrictions"
+                                                        />
+                                                    </div>
+
+                                                    <div className="bg-brand-light/50 p-6 rounded-2xl border border-brand-gray/10 space-y-4">
+                                                        <div className="flex items-start gap-3">
+                                                            <div className="w-10 h-10 rounded-xl bg-white border border-brand-gold/20 flex items-center justify-center text-brand-gold shrink-0">
+                                                                <Baby size={20} />
                                                             </div>
                                                             <div className="flex-1">
-                                                                <p className="font-bold text-brand-green mb-0.5 uppercase text-xs md:text-sm">Complimentary Child Care</p>
-                                                                <p className="text-[10px] md:text-xs text-slate-500 leading-tight">Available during the dinner gala for children ages 3–12.</p>
+                                                                <p className="font-bold text-brand-green mb-0.5 uppercase text-xs">Complimentary Child Care</p>
+                                                                <p className="text-[10px] text-slate-500 leading-tight">Available for children ages 3–12.</p>
                                                             </div>
                                                             <div className="shrink-0">
                                                                 <button
                                                                     onClick={() => updateFormData("childCare", formData.childCare === "yes" ? "no" : "yes")}
-                                                                    className={`w-12 md:w-14 h-6 md:h-8 rounded-full p-1 transition-colors duration-300 flex ${formData.childCare === "yes" ? "bg-brand-green justify-end" : "bg-brand-gray/30 justify-start"}`}
+                                                                    className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 flex ${formData.childCare === "yes" ? "bg-brand-green justify-end" : "bg-brand-gray/30 justify-start"}`}
                                                                 >
-                                                                    <motion.div layout className="w-4 h-4 md:w-6 md:h-6 bg-white rounded-full shadow-md" />
+                                                                    <motion.div layout className="w-4 h-4 bg-white rounded-full shadow-md" />
                                                                 </button>
                                                             </div>
                                                         </div>
 
                                                         {formData.childCare === "yes" && (
-                                                            <motion.div
-                                                                initial={{ opacity: 0, scale: 0.95 }}
-                                                                animate={{ opacity: 1, scale: 1 }}
-                                                                className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 pt-4 border-t border-brand-gray/10"
-                                                            >
-                                                                <div className="space-y-1.5">
-                                                                    <p className="text-[10px] font-bold text-brand-green/60 uppercase">Quantity</p>
-                                                                    <input 
-                                                                        type="number" 
-                                                                        value={formData.numChildren}
-                                                                        onChange={(e) => updateFormData("numChildren", parseInt(e.target.value) || 0)}
-                                                                        className="w-full p-2.5 rounded-lg border border-brand-gray/20 text-sm" 
-                                                                        placeholder="1" 
-                                                                    />
+                                                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="grid grid-cols-3 gap-3 pt-4 border-t border-brand-gray/10">
+                                                                <div className="space-y-1">
+                                                                    <p className="text-[9px] font-bold text-brand-green/60 uppercase">Qty</p>
+                                                                    <input type="number" value={formData.numChildren} onChange={(e) => updateFormData("numChildren", parseInt(e.target.value) || 0)} className="w-full p-2 rounded-lg border border-brand-gray/20 text-xs" />
                                                                 </div>
-                                                                <div className="space-y-1.5 col-span-2 md:col-span-2">
-                                                                    <p className="text-[10px] font-bold text-brand-green/60 uppercase">Ages (e.g. 4, 7)</p>
-                                                                    <input 
-                                                                        type="text" 
-                                                                        value={formData.agesChildren}
-                                                                        onChange={(e) => updateFormData("agesChildren", e.target.value)}
-                                                                        className="w-full p-2.5 rounded-lg border border-brand-gray/20 text-sm" 
-                                                                        placeholder="Enter ages" 
-                                                                    />
+                                                                <div className="col-span-2 space-y-1">
+                                                                    <p className="text-[9px] font-bold text-brand-green/60 uppercase">Ages</p>
+                                                                    <input type="text" value={formData.agesChildren} onChange={(e) => updateFormData("agesChildren", e.target.value)} className="w-full p-2 rounded-lg border border-brand-gray/20 text-xs" placeholder="e.g. 4, 7" />
                                                                 </div>
                                                             </motion.div>
                                                         )}
                                                     </div>
                                                 </div>
-                                            )}
 
-                                            {formData.intention !== "attend" && (
-                                                <div className={`space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 ${formData.intention === "both" ? "pt-12 border-t-2 border-brand-green/10 mt-4" : ""}`}>
-                                                    <div>
-                                                        <div className="flex items-center gap-3 mb-2">
-                                                            <div className="w-8 h-8 rounded-full bg-brand-gold/20 flex items-center justify-center text-brand-green font-bold text-sm">
-                                                                {formData.intention === "both" ? "2" : "1"}
-                                                            </div>
-                                                            <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green">Faith Promise Details</h3>
+                                                {/* Fulfillment Details */}
+                                                <div className="space-y-8 bg-brand-green/[0.02] p-6 md:p-8 rounded-[2rem] border border-brand-green/5 shadow-inner">
+                                                    <div className="space-y-5">
+                                                        <div className="flex items-center justify-between">
+                                                            <label className="text-[10px] font-bold text-brand-green/60 uppercase tracking-widest">Fulfillment Preference</label>
+                                                            <Star size={12} className="text-brand-gold" />
                                                         </div>
-                                                        <p className="text-sm md:text-base text-slate-500">Plant a seed today for a lasting legacy tomorrow.</p>
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                            {[
+                                                                { id: "immediate", label: "Give Today", sub: "Full gift via Stripe" },
+                                                                { id: "installment", label: "Installment", sub: "Partial today" },
+                                                                { id: "pledge", label: "Faith Promise", sub: "Pay by check/later" },
+                                                                { id: "at-gala", label: "At the Gala", sub: "Gift on event day" }
+                                                            ].map((type) => (
+                                                                <button
+                                                                    key={type.id}
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        updateFormData("commitmentType", type.id);
+                                                                        if (type.id === "installment" && (!formData.initialAmount || formData.initialAmount === "0")) {
+                                                                            updateFormData("initialAmount", (parseInt(formData.amount || "0") / 2).toString());
+                                                                        }
+                                                                    }}
+                                                                    className={`group p-4 rounded-2xl border-2 transition-all duration-300 relative flex flex-col gap-1 ${formData.commitmentType === type.id ? "border-brand-gold bg-brand-gold/10 shadow-md shadow-brand-gold/5" : "border-brand-gray/10 bg-white hover:border-brand-gray/30"}`}
+                                                                >
+                                                                    <p className={`font-bold text-[10px] uppercase tracking-widest leading-tight ${formData.commitmentType === type.id ? "text-brand-green" : "text-slate-600"}`}>{type.label}</p>
+                                                                    <p className="text-[8px] text-slate-400 group-hover:text-slate-500 transition-colors uppercase tracking-wider">{type.sub}</p>
+                                                                    {formData.commitmentType === type.id && (
+                                                                        <motion.div layoutId="pref-active" className="absolute -inset-[2px] border-2 border-brand-gold rounded-2xl pointer-events-none" />
+                                                                    )}
+                                                                </button>
+                                                            ))
+                                                        }
                                                     </div>
 
-                                                    <div className="space-y-6">
-                                                        <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 flex items-center gap-2">
-                                                            <Star size={14} className="text-brand-gold" /> Total Pledge Amount
-                                                        </label>
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 md:gap-4">
-                                                            {[
-                                                                { label: "Legacy Founder", amount: "100000" },
-                                                                { label: "Cornerstone Legacy Partner", amount: "50000" },
-                                                                { label: "Visionary Pillar", amount: "25000" },
-                                                                { label: "Heritage Builder", amount: "10000" },
-                                                                { label: "Double Legacy Brick", amount: "5000" },
-                                                                { label: "Single Legacy Brick", amount: "2500" },
-                                                                { label: "Community Partner", amount: "1000" },
-                                                                { label: "Other Amount", amount: "other" }
-                                                            ].map((tier) => (
-                                                                <button
-                                                                    key={tier.amount}
-                                                                    onClick={() => updateFormData("pledgeAmount", tier.amount)}
-                                                                    className={`p-4 rounded-xl border-2 text-left transition-all ${formData.pledgeAmount === tier.amount ? "border-brand-gold bg-brand-gold/10 ring-1 ring-brand-gold" : "border-brand-gray/10 hover:border-brand-gray/30 bg-white"}`}
-                                                                >
-                                                                    <p className="font-bold text-brand-green text-sm">{tier.amount === "other" ? "Custom Amount" : `$${parseInt(tier.amount).toLocaleString()}`}</p>
-                                                                    <p className="text-[10px] text-slate-500 mt-0.5">{tier.label}</p>
-                                                                </button>
-                                                            ))}
-                                                        </div>
-
-                                                        {formData.pledgeAmount === "other" && (
-                                                            <div className="relative group mt-4">
-                                                                <label className="absolute left-6 top-1/2 -translate-y-1/2 text-brand-green/50 font-bold">$</label>
-                                                                <input
-                                                                    type="number"
-                                                                    value={formData.amount === "500" ? "" : formData.amount}
-                                                                    onChange={(e) => updateFormData("amount", e.target.value)}
-                                                                    className="w-full pl-12 pr-6 py-4 rounded-xl border-2 border-brand-gold/50 focus:border-brand-gold outline-none transition-all font-serif font-bold text-xl text-brand-green"
-                                                                    placeholder="Enter amount"
-                                                                />
-                                                            </div>
+                                                        {formData.commitmentType === "installment" && (
+                                                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-3 pt-4 border-t border-brand-green/5">
+                                                                <label className="text-[10px] font-bold text-brand-green/60 uppercase tracking-widest">Initial Gift to Pay Now</label>
+                                                                <div className="relative">
+                                                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-gold font-serif font-bold">$</div>
+                                                                    <input
+                                                                        type="number"
+                                                                        value={formData.initialAmount}
+                                                                        onChange={(e) => updateFormData("initialAmount", e.target.value)}
+                                                                        className="w-full bg-white border border-brand-gold/20 focus:border-brand-gold rounded-xl py-3 pl-10 pr-4 text-xl font-serif font-bold text-brand-green outline-none transition-all"
+                                                                        placeholder="0"
+                                                                    />
+                                                                </div>
+                                                                <p className="text-[9px] text-slate-400 italic">Balance Remaining: ${Math.max(0, (parseInt(formData.amount) || 0) - (parseInt(formData.initialAmount) || 0)).toLocaleString()}</p>
+                                                            </motion.div>
                                                         )}
                                                     </div>
 
-
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                        <div className="space-y-3">
-                                                            <label className="text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1">Remaining Balance Timeframe</label>
-                                                            <select
-                                                                value={formData.pledgeTimeframe}
-                                                                onChange={(e) => updateFormData("pledgeTimeframe", e.target.value)}
-                                                                className="w-full p-4 rounded-xl bg-white border border-brand-gray/20 outline-none focus:ring-2 focus:ring-brand-gold text-sm text-brand-green font-medium"
-                                                            >
-                                                                <option value="30">30 Days</option>
-                                                                <option value="60">60 Days</option>
-                                                                <option value="90">90 Days</option>
-                                                                <option value="180">180 Days</option>
-                                                            </select>
-                                                        </div>
-                                                        <div className="space-y-3">
-                                                            <label className="text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1">Giving Frequency</label>
-                                                            <div className="flex gap-4">
-                                                                {["one-time", "monthly", "quarterly"].map((freq) => (
-                                                                    <label key={freq} className="flex items-center gap-2 cursor-pointer">
-                                                                        <input
-                                                                            type="radio"
-                                                                            name="pledgeFrequency"
-                                                                            value={freq}
-                                                                            checked={formData.pledgeFrequency === freq}
-                                                                            onChange={(e) => updateFormData("pledgeFrequency", e.target.value)}
-                                                                            className="w-4 h-4 text-brand-gold focus:ring-brand-gold"
-                                                                        />
-                                                                        <span className="text-sm text-brand-green capitalize">{freq.replace("-", " ")}</span>
-                                                                    </label>
-                                                                ))}
+                                                    {formData.participation === "other" && (
+                                                        <div className="space-y-4 pt-6 border-t border-brand-green/5">
+                                                            <label className="text-[10px] font-bold text-brand-green/60 uppercase tracking-widest flex items-center gap-2">
+                                                                <Heart size={12} className="text-brand-gold" /> Voluntary Contribution
+                                                            </label>
+                                                            <div className="relative group">
+                                                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-gold font-serif font-bold text-lg">$</div>
+                                                                <input
+                                                                    type="number"
+                                                                    value={formData.amount}
+                                                                    onChange={(e) => updateFormData("amount", e.target.value)}
+                                                                    className="w-full bg-white border border-brand-green/10 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 rounded-xl py-4 pl-10 pr-4 text-2xl font-serif font-bold text-brand-green outline-none transition-all shadow-inner"
+                                                                    placeholder="0"
+                                                                />
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    )}
                                                 </div>
-                                            )}
+                                            </div>
                                         </div>
                                     )}
 
                                     {step === 3 && (
                                         <div className="space-y-8 md:space-y-10">
-                                            <div>
-                                                <h3 className="text-2xl md:text-3xl font-serif font-bold text-brand-green mb-2">Personal Details</h3>
-                                                <p className="text-sm md:text-base text-slate-500">Tell us who you are so we can prepare your welcome.</p>
+                                            <div className="flex flex-col gap-2">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-2xl bg-brand-green/10 flex items-center justify-center text-brand-green font-bold text-lg shadow-sm border border-brand-green/5">3</div>
+                                                    <h3 className="text-3xl md:text-4xl font-serif font-bold text-brand-green tracking-tight">Identity Details</h3>
+                                                </div>
+                                                <p className="text-sm md:text-base text-slate-400">Tell us who you are so we can prepare your welcome packet.</p>
                                             </div>
+
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
                                                 {[
                                                     { id: "firstName", label: "First Name", type: "text", placeholder: "E.g. Michael" },
                                                     { id: "lastName", label: "Last Name", type: "text", placeholder: "E.g. Scott" },
-                                                    { id: "email", label: "Email Address", type: "email", placeholder: "michael@dundermifflin.com" },
-                                                    { id: "phone", label: "Phone Line", type: "tel", placeholder: "(555) 000-0000" }
+                                                    { id: "email", label: "Email Address", type: "email", placeholder: "E.g. michael@dundermifflin.com" },
+                                                    { id: "phone", label: "Phone Line", type: "tel", placeholder: "E.g. (555) 000-0000" }
                                                 ].map((f) => (
                                                     <div key={f.id} className="group space-y-2">
-                                                        <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 transition-colors group-focus-within:text-brand-gold">{f.label}</label>
+                                                        <label className="text-[10px] font-bold text-brand-green/60 uppercase tracking-widest ml-1 transition-colors group-focus-within:text-brand-gold">{f.label}</label>
                                                         <input
                                                             type={f.type}
-                                                            value={(formData as any)[f.id]}
+                                                            value={formData[f.id as keyof typeof formData]}
                                                             onChange={(e) => updateFormData(f.id, e.target.value)}
                                                             className="w-full bg-white/80 border border-brand-gray/20 p-4 md:p-5 rounded-xl md:rounded-2xl focus:ring-2 focus:ring-brand-gold outline-none transition-all shadow-sm focus:shadow-md placeholder:text-slate-300 text-sm md:text-base"
                                                             placeholder={f.placeholder}
@@ -1044,40 +790,34 @@ export default function RSVP() {
                                                 <div className="w-20 h-20 bg-brand-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
                                                     <Heart className="text-brand-gold fill-brand-gold" size={40} />
                                                 </div>
-                                                <h3 className="text-3xl font-serif font-bold text-brand-green mb-2">Ready to Make an Impact?</h3>
-                                                <p className="text-slate-500">Please review your selections and confirm your commitment to the legacy.</p>
+                                                <h3 className="text-3xl font-serif font-bold text-brand-green mb-2">Review Commitment</h3>
+                                                <p className="text-slate-500">Please review your selections and confirm your registration.</p>
                                             </div>
 
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
                                                 <div className="bg-brand-light/30 p-4 rounded-2xl flex justify-between items-center group hover:bg-white hover:shadow-lg transition-all duration-300">
-                                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Role</span>
-                                                    <span className="font-bold text-brand-green">{formData.regType === "personal" ? "Private Guest" : "Corporate Partner"}</span>
+                                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Type</span>
+                                                    <span className="font-bold text-brand-green">{formData.regType === "personal" ? "Private Guest" : "Corporate Sponsor"}</span>
                                                 </div>
                                                 <div className="bg-brand-light/30 p-4 rounded-2xl flex justify-between items-center group hover:bg-white hover:shadow-lg transition-all duration-300">
-                                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Intention</span>
-                                                    <span className="font-bold text-brand-green capitalize">{formData.intention.replace("both", "Attend & Pledge")}</span>
+                                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Guests</span>
+                                                    <span className="font-bold text-brand-green">{formData.numGuests} {formData.numGuests === 1 ? 'Person' : 'People'}</span>
                                                 </div>
-
-                                                {formData.intention !== "pledge" && (
-                                                    <div className="bg-brand-light/30 p-4 rounded-2xl flex justify-between items-center group hover:bg-white hover:shadow-lg transition-all duration-300 md:col-span-2">
-                                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Attendance</span>
-                                                        <span className="font-bold text-brand-green">{formData.numGuests} People ({formData.participation === "table" ? "Table Sponsorship" : "Standard"})</span>
-                                                    </div>
-                                                )}
-
-                                                {formData.intention !== "attend" && (
-                                                    <div className="bg-brand-light/30 p-4 rounded-2xl flex justify-between items-center group hover:bg-white hover:shadow-lg transition-all duration-300 md:col-span-2">
-                                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Support Gift</span>
-                                                        <span className="font-bold text-brand-green text-right">
-                                                            ${parseInt(formData.pledgeAmount === "other" ? formData.customPledgeAmount : formData.pledgeAmount).toLocaleString()} — {formData.commitmentType === "at-gala" ? "gift at the event" : `payable in ${formData.pledgeFrequency.replace("-", " ")} installments`}
-                                                        </span>
-                                                    </div>
-                                                )}
+                                                <div className="bg-brand-light/30 p-4 rounded-2xl flex justify-between items-center group hover:bg-white hover:shadow-lg transition-all duration-300 md:col-span-2">
+                                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Commitment</span>
+                                                     <span className="font-bold text-brand-green">
+                                                        ${(parseInt(formData.amount) || 0).toLocaleString()} — {
+                                                            formData.commitmentType === "immediate" ? "Full payment today" :
+                                                            formData.commitmentType === "installment" ? `Initial gift of $${(parseInt(formData.initialAmount) || 0).toLocaleString()}` :
+                                                            formData.commitmentType === "at-gala" ? "Contribution at the event" : "Faith Promise fulfillment"
+                                                        }
+                                                    </span>
+                                                </div>
                                             </div>
 
-                                            <p className="text-xs text-center text-slate-400 italic px-8">
-                                                By submitting, you are confirming your {formData.intention !== "pledge" ? "attendance and commitment" : "faith promise"} to our vision.
-                                                {formData.intention !== "pledge" && " Our hospitality team will contact you shortly with formal details and invitation materials."}
+                                            <p className="text-[10px] text-center text-slate-400 italic px-8 max-w-lg mx-auto leading-relaxed">
+                                                By submitting, you are confirming your attendance at the 2026 Vision & Hope Dinner Gala. 
+                                                Formal invitation materials and event details will be dispatched to your provided email.
                                             </p>
                                         </div>
                                     )}

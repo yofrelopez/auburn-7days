@@ -67,7 +67,7 @@ export default function Navbar() {
                             onClick={openGivingModal}
                             className={`px-6 py-2 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 ${scrolled ? "bg-secondary hover:bg-secondary/90 text-white" : "bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-slate-900 border-none"}`}
                         >
-                            Ways to Give
+                            DONATE
                         </button>
                     </div>
 
@@ -118,7 +118,7 @@ export default function Navbar() {
                         }}
                         className="bg-secondary hover:bg-secondary/90 text-white text-center py-3 rounded-md font-bold mt-4"
                     >
-                        Ways to Give
+                        DONATE
                     </button>
                 </div>
             </div>

@@ -2,10 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react"; 
-import { useModal } from "@/context/ModalContext";
-
 export default function Hero() {
-    const { openGivingModal } = useModal();
     return (
         <section id="hero" className="relative min-h-dvh flex items-center justify-center overflow-hidden bg-slate-900 text-white">
             {/* Background Image: Evening Banquet */}
@@ -49,12 +46,12 @@ export default function Hero() {
                             Register & Join Us
                             <ArrowRight className="w-5 h-5" />
                         </Link>
-                        <button
-                            onClick={openGivingModal}
+                        <Link
+                            href="#legacy-circles"
                             className="w-full sm:w-auto px-10 py-4 bg-white/10 hover:bg-white/20 border-2 border-white/30 text-white backdrop-blur-sm rounded-full font-bold text-lg transition-all flex items-center justify-center gap-2 hover:border-white/50"
                         >
-                            Donate by Mail
-                        </button>
+                            Donate to Legacy Fund
+                        </Link>
                     </div>
                 </div>
             </div>

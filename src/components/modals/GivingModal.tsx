@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Copy, Check, MousePointer2, Mail } from "lucide-react";
+import { X, Copy, Check, MousePointer2, Mail, Star } from "lucide-react";
 import { useState } from "react";
 import { useModal } from "@/context/ModalContext";
 
@@ -23,6 +23,14 @@ export default function GivingModal() {
     }
   };
 
+  const handleLegacyClick = () => {
+    closeGivingModal();
+    const legacySection = document.getElementById("legacy-circles");
+    if (legacySection) {
+      legacySection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <AnimatePresence>
       {isGivingModalOpen && (
@@ -41,7 +49,7 @@ export default function GivingModal() {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative w-full max-w-2xl max-h-[90dvh] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden"
+            className="relative w-full max-w-5xl max-h-[90dvh] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden"
           >
             {/* Header - Fixed */}
             <div className="bg-brand-green p-6 md:p-8 text-white relative shrink-0">
@@ -58,7 +66,7 @@ export default function GivingModal() {
 
             {/* Content - Scrollable */}
             <div className="p-6 md:p-10 space-y-6 md:space-y-8 overflow-y-auto">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Option 1: Register Online */}
                 <button
                   onClick={handleRegisterClick}
@@ -70,6 +78,23 @@ export default function GivingModal() {
                   <h3 className="text-xl font-serif font-bold text-brand-green mb-2">Register & Pledge Online</h3>
                   <p className="text-sm text-slate-500 leading-relaxed font-medium">
                     Reserve your seat and make a faith promise commitment through our secure form.
+                  </p>
+                </button>
+
+                {/* Option 2: Legacy Commitment */}
+                <button
+                  onClick={handleLegacyClick}
+                  className="group relative flex flex-col items-center text-center p-8 rounded-2xl border-2 border-brand-gray/10 hover:border-brand-gold bg-brand-green/5 transition-all hover:shadow-xl hover:-translate-y-1"
+                >
+                  <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                    <Star className="w-16 h-16 text-brand-gold" />
+                  </div>
+                  <div className="w-16 h-16 rounded-2xl bg-white border border-brand-gold/20 shadow-sm flex items-center justify-center text-brand-gold mb-4 group-hover:scale-110 transition-transform">
+                    <Star className="w-8 h-8 fill-brand-gold" />
+                  </div>
+                  <h3 className="text-xl font-serif font-bold text-brand-green mb-2 z-10">Make a Legacy Gift</h3>
+                  <p className="text-sm text-slate-500 leading-relaxed font-medium z-10">
+                    Explore our Legacy Circles and foundation tiers for major philanthropic commitments.
                   </p>
                 </button>
 

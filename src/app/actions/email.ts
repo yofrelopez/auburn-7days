@@ -33,7 +33,7 @@ interface SendRSVPEmailParams {
     initialAmount?: string;
 }
 
-export async function sendRSVPConfirmation(params: Partial<SendRSVPEmailParams> & { firstName: string, email: string, commitmentType?: string }) {
+export async function sendRSVPConfirmation(params: Partial<SendRSVPEmailParams> & { firstName: string, email: string, commitmentType?: "immediate" | "pledge" | "installment" | "at-gala" }) {
     if (!process.env.RESEND_API_KEY) {
         console.error('RESEND_API_KEY is not defined');
         return { success: false, error: 'Missing API Key' };

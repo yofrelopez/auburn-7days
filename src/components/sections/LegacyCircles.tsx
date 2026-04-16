@@ -3,9 +3,19 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Plus, Minus, Info } from "lucide-react";
+import LegacyCommitmentModal from "./LegacyCommitmentModal";
 
 export default function LegacyCircles() {
     const [expandedTier, setExpandedTier] = useState<number | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalInitialTier, setModalInitialTier] = useState<string | undefined>();
+    const [modalInitialAmount, setModalInitialAmount] = useState<number | undefined>();
+
+    const openModal = (title?: string, amount?: number) => {
+        setModalInitialTier(title);
+        setModalInitialAmount(amount);
+        setIsModalOpen(true);
+    };
 
     const tiers = [
         {
@@ -265,12 +275,12 @@ export default function LegacyCircles() {
 
                                                 {/* Per-tier CTA */}
                                                 {tier.cta && (
-                                                    <a
-                                                        href="#rsvp"
+                                                    <button
+                                                        onClick={() => openModal(tier.title)}
                                                         className="block w-full text-center py-3 px-6 rounded-xl bg-brand-green text-white text-sm font-bold hover:bg-brand-green/90 transition-colors duration-200"
                                                     >
                                                         {tier.cta}
-                                                    </a>
+                                                    </button>
                                                 )}
 
                                                 {/* Per-tier footer tagline */}
@@ -298,12 +308,12 @@ export default function LegacyCircles() {
                     <div className="p-1 w-24 h-1 bg-gradient-to-r from-transparent via-secondary/40 to-transparent mx-auto"></div>
                     
                     <div>
-                        <a
-                            href="#rsvp"
+                        <button
+                            onClick={() => openModal()}
                             className="inline-flex items-center justify-center px-12 py-6 text-lg font-bold text-white transition-all duration-300 bg-brand-green rounded-full shadow-2xl shadow-brand-green/20 hover:bg-brand-green/90 hover:-translate-y-1 hover:shadow-brand-green/30"
                         >
                             Make Your Legacy Commitment
-                        </a>
+                        </button>
                         <p className="text-muted-foreground/60 text-[10px] sm:text-xs mt-8 font-bold uppercase tracking-[0.3em]">
                             Founding partner of the Vision & Hope Center
                         </p>
@@ -316,6 +326,13 @@ export default function LegacyCircles() {
                 </div>
 
             </div>
+
+            <LegacyCommitmentModal 
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                initialTierTitle={modalInitialTier}
+                initialAmount={modalInitialAmount}
+            />
         </section>
     );
 }
