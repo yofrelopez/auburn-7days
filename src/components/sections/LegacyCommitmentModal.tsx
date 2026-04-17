@@ -21,6 +21,7 @@ const LEGACY_TIERS: LegacyTier[] = [
     { title: "Double Legacy Brick", amount: "$5,000", value: 5000 },
     { title: "Single Legacy Brick", amount: "$2,500", value: 2500 },
     { title: "Community Partner", amount: "$1,000+", value: 1000 },
+    { title: "Support the Gala", amount: "$500", value: 500 },
     { title: "Custom Legacy Gift", amount: "Custom", value: 0 }
 ];
 
@@ -84,8 +85,8 @@ export default function LegacyCommitmentModal({ isOpen, onClose, initialTierTitl
     const validateStep1 = () => {
         const newErrors: string[] = [];
         if (!selectedTier) newErrors.push("Please select a legacy tier.");
-        if (selectedTier?.value === 0 && activeAmount < 1000) {
-            newErrors.push("Custom legacy gifts typically start at $1,000.");
+        if (selectedTier?.value === 0 && activeAmount <= 0) {
+            newErrors.push("Please enter a valid gift amount.");
         }
         setErrors(newErrors);
         return newErrors.length === 0;

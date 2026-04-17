@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Plus, Minus, Info } from "lucide-react";
+import { ChevronDown, Plus, Minus, Info, ShieldCheck } from "lucide-react";
 import LegacyCommitmentModal from "./LegacyCommitmentModal";
 
 export default function LegacyCircles() {
@@ -17,7 +17,26 @@ export default function LegacyCircles() {
         setIsModalOpen(true);
     };
 
-    const tiers = [
+    type LegacyTier = {
+        title: string;
+        amount: string;
+        subtitle?: string;
+        featured?: boolean;
+        description: string;
+        impact?: string | string[];
+        impactLabel?: string;
+        details?: string | string[];
+        detailsLabel?: string;
+        recognition?: string | string[];
+        benefits?: string | string[];
+        benefitsLabel?: string;
+        commitment?: string;
+        cta?: string;
+        footer?: string;
+        icon: React.ReactNode;
+    };
+
+    const tiers: LegacyTier[] = [
         {
             title: "Legacy Founder",
             amount: "$100,000+",
@@ -127,13 +146,33 @@ export default function LegacyCircles() {
             )
         },
         {
-            title: "Dinner Gala Seat",
+            title: "Support the Gala",
             amount: "$500",
-            subtitle: "per guest",
-            description: "An Evening of Purpose, Dinner, and Inspiration. Join us for the Vision & Hope Dinner Gala, an elegant and meaningful evening where community, music, and vision come together to build something that will impact generations to come.",
-            impact: "Contributes toward the $400,000 Break Ground milestone. Supports the development of a space dedicated to faith, family, and community.",
-            details: "Includes: Admission to the Vision & Hope Dinner Gala; Elegant dinner experience; Live musical presentation (special guest artist); A personalized reserved seating experience; A thoughtfully curated Welcome Gift; A powerful presentation of the vision for the future Community & Worship Center.",
-            cta: "Reserve Your Seat",
+            description: "Support a Vision That Will Last for Generations. Your contribution helps make the Vision & Hope Dinner Gala possible and directly impacts the building of the new Community & Worship Center, whether you join us in person or in spirit.",
+            impact: [
+                "The Vision & Hope Gala experience",
+                "Community impact and future development",
+                "A night of inspiration, music, and purpose",
+                "The building of the new Community & prayer Center"
+            ],
+            impactLabel: "As a Sponsor, You Help Make Possible",
+            details: [
+                "Participation in the Vision & Hope Gala (in person or in support)",
+                "An elegant dinner experience (for attending guests)",
+                "Live musical presentation (special guest artist)",
+                "Reserved seating (for attending guests)",
+                "A thoughtfully curated Welcome Gift",
+                "A powerful presentation of the vision for the future Community & Worship Center"
+            ],
+            detailsLabel: "Your Sponsorship Includes",
+            benefits: [
+                "A space dedicated to faith, family, and community",
+                "Programs that impact youth and families",
+                "The development of the new Community & Worship Center",
+                "A lasting legacy for future generations"
+            ],
+            benefitsLabel: "Your Support Helps Provide",
+            cta: "Support the Gala",
             icon: (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -242,27 +281,73 @@ export default function LegacyCircles() {
 
                                                 {tier.details && (
                                                     <div>
-                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-1">What&apos;s Included</span>
-                                                        <p className="text-sm text-slate-700 leading-relaxed font-medium">{tier.details}</p>
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-1">{tier.detailsLabel || "What's Included"}</span>
+                                                        {Array.isArray(tier.details) ? (
+                                                            <ul className="space-y-1.5">
+                                                                {tier.details.map((item, i) => (
+                                                                    <li key={i} className="text-sm text-slate-700 font-medium flex items-start gap-2">
+                                                                        <span className="text-secondary mt-1 text-[8px]">●</span>
+                                                                        {item}
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        ) : (
+                                                            <p className="text-sm text-slate-700 leading-relaxed font-medium">{tier.details}</p>
+                                                        )}
                                                     </div>
                                                 )}
 
-                                                <div>
-                                                    <span className="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-1">Impact</span>
-                                                    <p className="text-sm text-slate-700 leading-relaxed">{tier.impact}</p>
-                                                </div>
+                                                {tier.impact && (
+                                                    <div>
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-1">{tier.impactLabel || "Impact"}</span>
+                                                        {Array.isArray(tier.impact) ? (
+                                                            <ul className="space-y-1.5">
+                                                                {tier.impact.map((item, i) => (
+                                                                    <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
+                                                                        <span className="text-secondary/60 mt-1 text-[8px]">●</span>
+                                                                        {item}
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        ) : (
+                                                            <p className="text-sm text-slate-700 leading-relaxed">{tier.impact}</p>
+                                                        )}
+                                                    </div>
+                                                )}
 
                                                 {tier.recognition && (
                                                     <div>
                                                         <span className="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-1">Recognition</span>
-                                                        <p className="text-sm text-slate-700 leading-relaxed">{tier.recognition}</p>
+                                                        {Array.isArray(tier.recognition) ? (
+                                                            <ul className="space-y-1.5">
+                                                                {tier.recognition.map((item, i) => (
+                                                                    <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
+                                                                        <span className="text-secondary/60 mt-1 text-[8px]">●</span>
+                                                                        {item}
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        ) : (
+                                                            <p className="text-sm text-slate-700 leading-relaxed">{tier.recognition}</p>
+                                                        )}
                                                     </div>
                                                 )}
 
                                                 {tier.benefits && (
                                                     <div>
-                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-1">Partner Benefits</span>
-                                                        <p className="text-sm text-slate-700 leading-relaxed">{tier.benefits}</p>
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest text-secondary block mb-1">{tier.benefitsLabel || "Partner Benefits"}</span>
+                                                        {Array.isArray(tier.benefits) ? (
+                                                            <ul className="space-y-1.5">
+                                                                {tier.benefits.map((item, i) => (
+                                                                    <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
+                                                                        <span className="text-secondary/60 mt-1 text-[8px]">●</span>
+                                                                        {item}
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        ) : (
+                                                            <p className="text-sm text-slate-700 leading-relaxed">{tier.benefits}</p>
+                                                        )}
                                                     </div>
                                                 )}
 
@@ -319,10 +404,21 @@ export default function LegacyCircles() {
                         </p>
                     </div>
 
-                    <p className="text-sm text-muted-foreground max-w-2xl mx-auto font-medium opacity-80 decoration-secondary/30 decoration-dotted underline underline-offset-8">
-                        Auburn Seventh-day Adventist Church is a registered 501(c)(3) nonprofit organization. 
-                        Your generous contributions are tax-deductible as permitted by law.
-                    </p>
+                    <div className="max-w-2xl mx-auto bg-brand-green/5 border border-brand-green/10 rounded-3xl p-6 md:p-8 shadow-sm relative overflow-hidden group">
+                        {/* Decorative glow */}
+                        <div className="absolute -top-16 -right-16 w-32 h-32 bg-brand-gold/10 rounded-full blur-3xl transition-transform duration-700 group-hover:scale-150 pointer-events-none"></div>
+                        
+                        <div className="flex flex-col items-center justify-center gap-3 relative z-10">
+                            <div className="flex items-center gap-2">
+                                <ShieldCheck className="text-brand-gold w-5 h-5" strokeWidth={2.5} />
+                                <span className="font-bold uppercase tracking-widest text-[10px] md:text-xs text-brand-green">100% Tax-Deductible Contribution</span>
+                            </div>
+                            <p className="text-xs md:text-sm text-slate-600 font-medium leading-relaxed max-w-lg">
+                                Auburn Seventh-day Adventist Church is a registered <strong>501(c)(3) nonprofit organization</strong>.<br className="hidden md:block" />
+                                Your generous contributions are tax-deductible as permitted by law.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
             </div>
