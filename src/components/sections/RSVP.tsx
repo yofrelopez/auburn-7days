@@ -18,7 +18,9 @@ import {
     Star,
     ArrowRightCircle,
     PlusCircle,
-    Loader2
+    Loader2,
+    CreditCard,
+    Lock
 } from "lucide-react";
 import { createCheckoutSession } from "@/app/actions/stripe";
 import { sendRSVPConfirmation, sendAdminRegistrationAlert } from "@/app/actions/email";
@@ -55,6 +57,7 @@ export default function RSVP() {
         agesChildren: "",
         commitmentType: "immediate" as "immediate" | "pledge" | "installment" | "at-gala",
         initialAmount: "",
+        paymentProcessor: "" as "stripe" | "adventist" | "",
     });
 
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -68,6 +71,9 @@ export default function RSVP() {
         }
         if (currentStep === 2) {
             if (formData.numGuests < 1) newErrors.push("Number of guests must be at least 1");
+            if ((formData.commitmentType === "immediate" || formData.commitmentType === "installment") && !formData.paymentProcessor) {
+                newErrors.push("Please select a payment platform (Stripe or AdventistGiving).");
+            }
         }
         if (currentStep === 3) {
             if (!formData.firstName) newErrors.push("First name is required");
@@ -140,7 +146,8 @@ export default function RSVP() {
                     : parseInt(formData.amount || "0");
                 
                 const shouldRedirectToStripe = donationAmount > 0 && 
-                    (formData.commitmentType === "immediate" || formData.commitmentType === "installment");
+                    (formData.commitmentType === "immediate" || formData.commitmentType === "installment") &&
+                    formData.paymentProcessor === "stripe";
 
                 if (shouldRedirectToStripe) {
                     setIsRedirecting(true);
@@ -356,6 +363,7 @@ export default function RSVP() {
                                                 agesChildren: "",
                                                 commitmentType: "immediate",
                                                 initialAmount: "",
+                                                paymentProcessor: "",
                                             });
                                         }}
                                         className="text-sm font-bold text-brand-green hover:text-brand-gold transition-colors underline underline-offset-4 decoration-2"
@@ -728,6 +736,46 @@ export default function RSVP() {
                                                                 <p className="text-[9px] text-slate-400 italic">Balance Remaining: ${Math.max(0, (parseInt(formData.amount) || 0) - (parseInt(formData.initialAmount) || 0)).toLocaleString()}</p>
                                                             </motion.div>
                                                         )}
+
+                                                        {/* Payment Processor Selection */}
+                                                        {(formData.commitmentType === "immediate" || formData.commitmentType === "installment") && (
+                                                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-3 pt-6 border-t border-brand-green/5 mt-4">
+                                                                <label className="text-[10px] font-bold text-brand-green/60 uppercase tracking-widest flex items-center gap-2">
+                                                                    <Lock size={12} className="text-brand-gold" /> Payment Platform
+                                                                </label>
+                                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => updateFormData("paymentProcessor", "stripe")}
+                                                                        className={`p-4 rounded-xl border-2 transition-all text-left relative flex flex-col gap-2 ${formData.paymentProcessor === "stripe" ? "border-brand-gold bg-brand-gold/10 shadow-md" : "border-brand-gray/10 hover:border-brand-gray/30 bg-white"}`}
+                                                                    >
+                                                                        <div className="flex items-center justify-between">
+                                                                            <CreditCard size={20} className={formData.paymentProcessor === "stripe" ? "text-brand-green" : "text-slate-400"} />
+                                                                            {formData.paymentProcessor === "stripe" && <CheckCircle2 size={16} className="text-brand-gold" />}
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className={`font-bold text-sm ${formData.paymentProcessor === "stripe" ? "text-brand-green" : "text-slate-700"}`}>Credit Card / Apple Pay</p>
+                                                                            <p className="text-[10px] text-slate-500 mt-1 leading-tight">Instant processing via Stripe.</p>
+                                                                        </div>
+                                                                    </button>
+
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => updateFormData("paymentProcessor", "adventist")}
+                                                                        className={`p-4 rounded-xl border-2 transition-all text-left relative flex flex-col gap-2 ${formData.paymentProcessor === "adventist" ? "border-brand-green bg-brand-green/5 shadow-md" : "border-brand-gray/10 hover:border-brand-gray/30 bg-white"}`}
+                                                                    >
+                                                                        <div className="flex items-center justify-between">
+                                                                            <Heart size={20} className={formData.paymentProcessor === "adventist" ? "text-brand-green" : "text-slate-400"} />
+                                                                            {formData.paymentProcessor === "adventist" && <CheckCircle2 size={16} className="text-brand-green" />}
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className={`font-bold text-sm ${formData.paymentProcessor === "adventist" ? "text-brand-green" : "text-slate-700"}`}>AdventistGiving</p>
+                                                                            <p className="text-[10px] text-slate-500 mt-1 leading-tight">Official church giving platform.</p>
+                                                                        </div>
+                                                                    </button>
+                                                                </div>
+                                                            </motion.div>
+                                                        )}
                                                     </div>
 
                                                     {formData.participation === "other" && (
@@ -866,7 +914,7 @@ export default function RSVP() {
                                                     <Loader2 className="animate-spin" size={18} />
                                                     Finalizing Gift...
                                                 </>
-                                            ) : isSubmitting ? "Processing..." : step === 4 ? "Confirm Commitment" : "Continue"}
+                                            ) : isSubmitting ? "Processing..." : step === 4 ? ((formData.commitmentType === "immediate" || formData.commitmentType === "installment") ? (formData.paymentProcessor === "stripe" ? "Proceed to Secure Payment" : "Confirm & Pay via Adventist") : "Confirm Commitment") : "Continue"}
                                             {!isSubmitting && !isRedirecting && step < 4 && <ChevronRight size={18} className="transition-transform group-hover:translate-x-1" />}
                                         </button>
                                     </div>

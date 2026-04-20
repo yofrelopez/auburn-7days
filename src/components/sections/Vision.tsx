@@ -32,7 +32,7 @@ export default function Vision() {
                     <div className="bg-slate-50 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group">
                         <div className="h-64 overflow-hidden relative">
                             {/* Image: Diverse group of people laughing/talking outdoors */}
-                            <div className="absolute inset-0 bg-[url('/images/ciudad.jpg')] bg-cover bg-center transition-transform duration-700 group-hover:scale-110"></div>
+                            <div className="absolute inset-0 bg-[url('/images/ciudad.jpeg')] bg-cover bg-center transition-transform duration-700 group-hover:scale-110"></div>
                             <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
                             <div className="absolute bottom-[-20px] left-8 w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center shadow-lg z-10">
                                 <Building2 className="w-8 h-8" />

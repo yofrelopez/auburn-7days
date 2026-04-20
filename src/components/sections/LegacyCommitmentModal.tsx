@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, CheckCircle2, Heart, Star, Loader2 } from "lucide-react";
+import { X, CheckCircle2, Heart, Star, Loader2, CreditCard, Lock } from "lucide-react";
 import { createCheckoutSession } from "@/app/actions/stripe";
 import { sendRSVPConfirmation, sendAdminRegistrationAlert } from "@/app/actions/email";
 import Link from "next/link";
@@ -37,7 +37,6 @@ export default function LegacyCommitmentModal({ isOpen, onClose, initialTierTitl
     const [selectedTier, setSelectedTier] = useState<LegacyTier | null>(null);
     const [customAmount, setCustomAmount] = useState<string>("");
     const [showAllTiers, setShowAllTiers] = useState<boolean>(true);
-    const [hasGuidedToPreference, setHasGuidedToPreference] = useState<boolean>(false);
     // Auto-select tier when modal opens with initial data
     useEffect(() => {
         if (isOpen) {
@@ -57,7 +56,6 @@ export default function LegacyCommitmentModal({ isOpen, onClose, initialTierTitl
             setStep(1);
             setIsSubmitted(false);
             setErrors([]);
-            setHasGuidedToPreference(false);
         }
     }, [isOpen, initialTierTitle, initialAmount]);
 
@@ -70,6 +68,7 @@ export default function LegacyCommitmentModal({ isOpen, onClose, initialTierTitl
         businessName: "",
         commitmentType: "immediate" as "immediate" | "installment" | "pledge",
         initialAmount: "",
+        paymentProcessor: "" as "stripe" | "adventist" | "",
     });
 
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -87,6 +86,9 @@ export default function LegacyCommitmentModal({ isOpen, onClose, initialTierTitl
         if (!selectedTier) newErrors.push("Please select a legacy tier.");
         if (selectedTier?.value === 0 && activeAmount <= 0) {
             newErrors.push("Please enter a valid gift amount.");
+        }
+        if ((formData.commitmentType === "immediate" || formData.commitmentType === "installment") && !formData.paymentProcessor) {
+            newErrors.push("Please select a payment platform (Stripe or AdventistGiving).");
         }
         setErrors(newErrors);
         return newErrors.length === 0;
@@ -106,14 +108,6 @@ export default function LegacyCommitmentModal({ isOpen, onClose, initialTierTitl
     const handleNext = () => {
         if (validateStep1()) {
             const contentContainer = document.getElementById("legacy-modal-content");
-            const prefSection = document.getElementById("fulfillment-preference-section");
-
-            // First click on step 1: scroll to preference section if it exists and hasn't been "guided" yet
-            if (!hasGuidedToPreference && contentContainer && prefSection) {
-                prefSection.scrollIntoView({ behavior: "smooth", block: "start" });
-                setHasGuidedToPreference(true);
-                return; // Stop here to let the user see the options
-            }
 
             // Normal progression to step 2
             setStep(2);
@@ -157,7 +151,8 @@ export default function LegacyCommitmentModal({ isOpen, onClose, initialTierTitl
                     : activeAmount;
 
                 const shouldRedirectToStripe = donationAmount > 0 &&
-                    (formData.commitmentType === "immediate" || formData.commitmentType === "installment");
+                    (formData.commitmentType === "immediate" || formData.commitmentType === "installment") &&
+                    formData.paymentProcessor === "stripe";
 
                 if (shouldRedirectToStripe) {
                     setIsRedirecting(true);
@@ -377,6 +372,50 @@ export default function LegacyCommitmentModal({ isOpen, onClose, initialTierTitl
                                             </div>
                                         )}
 
+                                        {/* Payment Processor Selection */}
+                                        {(formData.commitmentType === "immediate" || formData.commitmentType === "installment") && (
+                                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-6 space-y-3 pt-6 border-t border-slate-100">
+                                                <label className="text-[10px] font-bold text-brand-green/60 uppercase tracking-widest flex items-center gap-2">
+                                                    <Lock size={12} className="text-brand-gold" /> Payment Platform
+                                                </label>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                    <button
+                                                        onClick={() => {
+                                                            setFormData({ ...formData, paymentProcessor: "stripe" });
+                                                            setErrors([]); // Clear errors automatically when they select
+                                                        }}
+                                                        className={`p-4 rounded-xl border-2 transition-all text-left relative flex flex-col gap-2 ${formData.paymentProcessor === "stripe" ? "border-brand-gold bg-brand-gold/10 shadow-md" : "border-slate-100 hover:border-slate-200 bg-white"}`}
+                                                    >
+                                                        <div className="flex items-center justify-between">
+                                                            <CreditCard size={20} className={formData.paymentProcessor === "stripe" ? "text-brand-green" : "text-slate-400"} />
+                                                            {formData.paymentProcessor === "stripe" && <CheckCircle2 size={16} className="text-brand-gold" />}
+                                                        </div>
+                                                        <div>
+                                                            <p className={`font-bold text-sm ${formData.paymentProcessor === "stripe" ? "text-brand-green" : "text-slate-700"}`}>Credit Card / Apple Pay</p>
+                                                            <p className="text-[10px] text-slate-500 mt-1 leading-tight">Instant processing via Stripe.</p>
+                                                        </div>
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() => {
+                                                            setFormData({ ...formData, paymentProcessor: "adventist" });
+                                                            setErrors([]); // Clear errors automatically when they select
+                                                        }}
+                                                        className={`p-4 rounded-xl border-2 transition-all text-left relative flex flex-col gap-2 ${formData.paymentProcessor === "adventist" ? "border-brand-green bg-brand-green/5 shadow-md" : "border-slate-100 hover:border-slate-200 bg-white"}`}
+                                                    >
+                                                        <div className="flex items-center justify-between">
+                                                            <Heart size={20} className={formData.paymentProcessor === "adventist" ? "text-brand-green" : "text-slate-400"} />
+                                                            {formData.paymentProcessor === "adventist" && <CheckCircle2 size={16} className="text-brand-green" />}
+                                                        </div>
+                                                        <div>
+                                                            <p className={`font-bold text-sm ${formData.paymentProcessor === "adventist" ? "text-brand-green" : "text-slate-700"}`}>AdventistGiving</p>
+                                                            <p className="text-[10px] text-slate-500 mt-1 leading-tight">Official church giving platform.</p>
+                                                        </div>
+                                                    </button>
+                                                </div>
+                                            </motion.div>
+                                        )}
+
                                         {errors.length > 0 && (
                                             <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600">
                                                 {errors[0]}
@@ -474,7 +513,7 @@ export default function LegacyCommitmentModal({ isOpen, onClose, initialTierTitl
                                 {isSubmitting || isRedirecting ? (
                                     <><Loader2 size={16} className="animate-spin" /> Processing...</>
                                 ) : (
-                                    <>{step === 1 ? "Next Step" : "Secure Commitment"} <Star size={14} className="fill-brand-gold text-brand-gold" /></>
+                                    <>{step === 1 ? "Next Step" : (formData.commitmentType === "immediate" || formData.commitmentType === "installment") ? (formData.paymentProcessor === "stripe" ? "Proceed to Secure Payment" : "Confirm & Pay via Adventist") : "Secure Commitment"} <Star size={14} className="fill-brand-gold text-brand-gold" /></>
                                 )}
                             </button>
                         </div>
