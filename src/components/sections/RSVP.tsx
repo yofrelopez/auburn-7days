@@ -48,8 +48,8 @@ export default function RSVP() {
         phone: "",
         regType: "personal" as "personal" | "business",
         businessName: "",
-        participation: "individual" as "individual" | "table" | "other",
-        amount: "500",
+        participation: "" as "individual" | "table" | "other" | "",
+        amount: "",
         numGuests: 1,
         dietary: "",
         childCare: "no" as "no" | "yes",
@@ -67,6 +67,7 @@ export default function RSVP() {
         const newErrors: string[] = [];
         if (currentStep === 1) {
             if (formData.regType === "business" && !formData.businessName) newErrors.push("Business name is required for corporate registration");
+            if (!formData.participation) newErrors.push("Please select a registration level");
             if (formData.participation === "other" && (!formData.amount || parseInt(formData.amount) <= 0)) newErrors.push("A contribution amount is required");
         }
         if (currentStep === 2) {
@@ -354,8 +355,8 @@ export default function RSVP() {
                                                 phone: "",
                                                 regType: "personal",
                                                 businessName: "",
-                                                participation: "individual",
-                                                amount: "500",
+                                                participation: "",
+                                                amount: "",
                                                 numGuests: 1,
                                                 dietary: "",
                                                 childCare: "no",
@@ -522,7 +523,7 @@ export default function RSVP() {
                                                             },
                                                             { 
                                                                 id: "other", 
-                                                                title: "Other Support Gift", 
+                                                                title: "Attendance Other Support Gift", 
                                                                 sub: "Adjust contribution below", 
                                                                 icon: PlusCircle,
                                                                 amount: ""
@@ -607,34 +608,36 @@ export default function RSVP() {
                                                         <label className="text-[10px] md:text-xs font-bold text-brand-green/60 uppercase tracking-widest ml-1 flex items-center gap-2">
                                                             <Users size={14} /> Total Guests
                                                         </label>
-                                                        <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                                                            {[1, 2, 4, 8].map(n => (
-                                                                <button
-                                                                    key={n}
-                                                                    onClick={() => {
-                                                                        updateFormData("numGuests", n);
-                                                                        updateFormData("participation", n === 8 ? "table" : "individual");
-                                                                        updateFormData("amount", (n * 500).toString());
-                                                                    }}
-                                                                    className={`flex flex-col items-center justify-center min-w-[3.5rem] h-[3.5rem] px-2 md:min-w-[4rem] md:h-[4rem] rounded-lg md:rounded-xl border-2 transition-all ${formData.numGuests === n && formData.participation !== "other" ? "border-brand-gold bg-brand-gold/10 text-brand-green shadow-sm" : "border-brand-gray/10 text-slate-500 hover:border-brand-gray/30 bg-white"}`}
-                                                                >
-                                                                    <span className="font-bold text-base md:text-lg leading-none mb-1 text-center">{n}</span>
-                                                                    <span className={`text-[9px] md:text-[10px] font-medium leading-none text-center ${formData.numGuests === n && formData.participation !== "other" ? "text-brand-green/80" : "text-slate-400"}`}>
-                                                                        ${(n * 500).toLocaleString()}
-                                                                    </span>
-                                                                </button>
-                                                            ))}
-                                                            <button
-                                                                onClick={() => {
-                                                                    updateFormData("numGuests", 1);
-                                                                    updateFormData("participation", "other");
-                                                                    updateFormData("amount", "");
-                                                                }}
-                                                                className={`flex flex-col items-center justify-center min-w-[3.5rem] h-[3.5rem] px-2 md:min-w-[4rem] md:h-[4rem] rounded-lg md:rounded-xl border-2 transition-all ${formData.participation === "other" ? "border-brand-gold bg-brand-gold/10 text-brand-green shadow-sm" : "border-brand-gray/10 text-slate-500 hover:border-brand-gray/30 bg-white"}`}
-                                                             >
-                                                                <PlusCircle size={18} className={formData.participation === "other" ? "text-brand-gold" : "text-slate-300"} />
-                                                                <span className="text-[10px] font-bold uppercase tracking-tighter mt-1">Custom</span>
-                                                             </button>
+                                                        <div className="grid grid-cols-4 gap-2 md:gap-3">
+                                                            {[1, 2, 3, 4, 5, 6, 7, 8].map(n => {
+                                                                const isSelected = formData.numGuests === n;
+                                                                return (
+                                                                    <button
+                                                                        key={n}
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            updateFormData("numGuests", n);
+                                                                            if (formData.participation !== "other") {
+                                                                                updateFormData("participation", n === 8 ? "table" : "individual");
+                                                                                updateFormData("amount", n === 8 ? "4000" : (n * 500).toString());
+                                                                            }
+                                                                        }}
+                                                                        className={`relative overflow-hidden flex flex-col items-center justify-center h-16 md:h-20 rounded-xl md:rounded-2xl border-2 transition-all duration-300 ${isSelected ? "border-brand-gold bg-brand-gold/10 shadow-sm ring-1 ring-brand-gold/20" : "border-brand-gray/10 bg-white hover:border-brand-gray/30 hover:bg-brand-gray/5"}`}
+                                                                    >
+                                                                        <span className={`font-bold text-base md:text-lg leading-none transition-colors ${isSelected ? "text-brand-green" : "text-slate-600"} ${formData.participation !== "other" ? "mb-1" : ""}`}>
+                                                                            {n}
+                                                                        </span>
+                                                                        {formData.participation !== "other" && (
+                                                                            <span className={`text-[9px] md:text-[10px] font-bold tracking-wider leading-none transition-colors ${isSelected ? "text-brand-gold" : "text-slate-400"}`}>
+                                                                                ${n === 8 ? "4,000" : (n * 500).toLocaleString()}
+                                                                            </span>
+                                                                        )}
+                                                                        {isSelected && (
+                                                                            <motion.div layoutId="guest-selection" className="absolute inset-0 border-2 border-brand-gold rounded-xl md:rounded-2xl pointer-events-none" />
+                                                                        )}
+                                                                    </button>
+                                                                );
+                                                            })}
                                                         </div>
                                                     </div>
 
