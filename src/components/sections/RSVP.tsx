@@ -523,7 +523,7 @@ export default function RSVP() {
                                                             },
                                                             { 
                                                                 id: "other", 
-                                                                title: "Attendance Other Support Gift", 
+                                                                title: "Attendance Registration & Other Support Gift", 
                                                                 sub: "Adjust contribution below", 
                                                                 icon: PlusCircle,
                                                                 amount: ""
