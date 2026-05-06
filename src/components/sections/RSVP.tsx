@@ -31,10 +31,15 @@ type Step = 1 | 2 | 3 | 4;
 export default function RSVP() {
     const [step, setStep] = useState<Step>(1);
     const sectionRef = useRef<HTMLElement>(null);
+    const isFirstRender = useRef(true);
 
     // Auto-scroll to top of form when step changes
     useEffect(() => {
-        if (step > 1 && sectionRef.current) {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+        if (sectionRef.current) {
             // Adding a slight offset for the fixed header if any
             const y = sectionRef.current.getBoundingClientRect().top + window.scrollY - 100;
             window.scrollTo({ top: y, behavior: "smooth" });
@@ -541,13 +546,13 @@ export default function RSVP() {
                                                                     <tier.icon size={14} className="md:w-[18px] md:h-[18px]" />
                                                                 </div>
                                                                 <div className="min-w-0 flex-1">
-                                                                    <div className="flex items-center gap-1">
-                                                                        <p className={`font-bold text-[10px] md:text-sm truncate ${formData.participation === tier.id ? "text-brand-green" : "text-slate-700"}`}>{tier.title}</p>
+                                                                    <div className="flex items-start md:items-center gap-1">
+                                                                        <p className={`font-bold text-[10px] md:text-sm leading-tight ${formData.participation === tier.id ? "text-brand-green" : "text-slate-700"}`}>{tier.title}</p>
                                                                         {tier.badge && (
-                                                                            <span className="hidden md:block bg-brand-gold/10 text-brand-gold text-[7px] font-bold px-1 py-0.5 rounded uppercase">Best</span>
+                                                                            <span className="hidden md:block bg-brand-gold/10 text-brand-gold text-[7px] font-bold px-1 py-0.5 rounded uppercase mt-0.5 md:mt-0">Best</span>
                                                                         )}
                                                                     </div>
-                                                                    <p className="text-[8px] md:text-[10px] text-slate-400 leading-tight truncate">{tier.sub}</p>
+                                                                    <p className="text-[8px] md:text-[10px] text-slate-400 leading-tight mt-0.5">{tier.sub}</p>
                                                                 </div>
                                                                 {formData.participation === tier.id && (
                                                                     <div className="text-brand-gold shrink-0">
